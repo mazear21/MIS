@@ -1,0 +1,80 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Lecture Files{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="fw-bold"><i class="bi bi-folder2-open me-2"></i>Lecture Files</h2>
+            <p class="text-muted">Download lecture materials from your teachers</p>
+        </div>
+    </div>
+
+    {% if grouped_files %}
+    <div class="accordion" id="filesAccordion">
+        {% for subject_name, subject_files in grouped_files.items() %}
+        <div class="accordion-item border-0 shadow-sm mb-3 rounded">
+            <h2 class="accordion-header">
+                <button class="accordion-button {% if not loop.first %}collapsed{% endif %} rounded" type="button" data-bs-toggle="collapse" data-bs-target="#subject{{ loop.index }}">
+                    <i class="bi bi-book me-2 text-primary"></i>
+                    <strong>{{ subject_name }}</strong>
+                    <span class="badge bg-primary ms-2">{{ subject_files|length }} file{% if subject_files|length > 1 %}s{% endif %}</span>
+                </button>
+            </h2>
+            <div id="subject{{ loop.index }}" class="accordion-collapse collapse {% if loop.first %}show{% endif %}" data-bs-parent="#filesAccordion">
+                <div class="accordion-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for file in subject_files %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    {% if file.file_type == 'pdf' %}
+                                    <i class="bi bi-file-earmark-pdf text-danger fs-3"></i>
+                                    {% elif file.file_type in ['doc', 'docx'] %}
+                                    <i class="bi bi-file-earmark-word text-primary fs-3"></i>
+                                    {% elif file.file_type in ['ppt', 'pptx'] %}
+                                    <i class="bi bi-file-earmark-ppt text-warning fs-3"></i>
+                                    {% elif file.file_type in ['xls', 'xlsx'] %}
+                                    <i class="bi bi-file-earmark-excel text-success fs-3"></i>
+                                    {% elif file.file_type in ['jpg', 'jpeg', 'png', 'gif'] %}
+                                    <i class="bi bi-file-earmark-image text-info fs-3"></i>
+                                    {% else %}
+                                    <i class="bi bi-file-earmark text-secondary fs-3"></i>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <h6 class="mb-0">{{ file.title }}</h6>
+                                    <small class="text-muted">
+                                        {% if file.week_number %}<span class="badge bg-info me-1">Week {{ file.week_number }}</span>{% endif %}
+                                        <i class="bi bi-person me-1"></i>{{ file.teacher_name }}
+                                        <span class="mx-1">|</span>
+                                        <i class="bi bi-calendar me-1"></i>{{ file.uploaded_at.strftime('%b %d, %Y') if file.uploaded_at else 'N/A' }}
+                                    </small>
+                                    {% if file.description %}
+                                    <p class="text-muted small mb-0 mt-1">{{ file.description }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <a href="{{ url_for('download_file', file_id=file.id) }}" class="btn btn-primary btn-sm">
+                                <i class="bi bi-download me-1"></i>Download
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card shadow-sm border-0">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-folder-x display-1 text-muted mb-3"></i>
+            <h4 class="text-muted">No Files Available</h4>
+            <p class="text-muted mb-0">Your teachers haven't uploaded any files yet.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

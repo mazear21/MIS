@@ -1,0 +1,132 @@
+{% extends 'base.html' %} {% block title %}Add Student - MIS System{% endblock %} {% block content
+%}
+<div class="container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2><i class="bi bi-person-plus me-2"></i>Add New Student</h2>
+        <p>Create a new student account</p>
+      </div>
+      <div class="col-auto">
+        <a href="{{ url_for('admin_students') }}" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left me-1"></i>Back to Students
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Info Card -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <i class="bi bi-info-circle me-2 text-navy"></i>
+      <strong>Note:</strong> Student will be assigned to a semester and will automatically take all
+      5 subjects in that semester.
+    </div>
+  </div>
+
+  <!-- Add Student Form -->
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header"><i class="bi bi-person me-2"></i>Account Information</div>
+        <div class="card-body p-4">
+          <form method="POST" action="{{ url_for('admin_add_student') }}">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Username <span class="text-danger">*</span></label>
+                <input
+                  type="text"
+                  name="username"
+                  class="form-control"
+                  required
+                  placeholder="Enter username"
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Password <span class="text-danger">*</span></label>
+                <input
+                  type="password"
+                  name="password"
+                  class="form-control"
+                  required
+                  placeholder="Enter password"
+                />
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                <input
+                  type="text"
+                  name="full_name"
+                  class="form-control"
+                  required
+                  placeholder="Enter full name"
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" name="email" class="form-control" placeholder="Enter email" />
+              </div>
+            </div>
+
+            <hr class="my-4" />
+            <h6 class="text-navy mb-3">
+              <i class="bi bi-mortarboard me-2"></i>Student Information
+            </h6>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Semester <span class="text-danger">*</span></label>
+                <select name="class_id" class="form-select" required>
+                  <option value="">Select semester...</option>
+                  <optgroup label="Year 1">
+                    {% for cls in classes %} {% if cls.year == 1 %}
+                    <option value="{{ cls.id }}">{{ cls.name }}</option>
+                    {% endif %} {% endfor %}
+                  </optgroup>
+                  <optgroup label="Year 2">
+                    {% for cls in classes %} {% if cls.year == 2 %}
+                    <option value="{{ cls.id }}">{{ cls.name }}</option>
+                    {% endif %} {% endfor %}
+                  </optgroup>
+                </select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Student Number <span class="text-danger">*</span></label>
+                <input
+                  type="text"
+                  name="student_number"
+                  class="form-control"
+                  required
+                  placeholder="e.g., MIS2024001"
+                />
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Phone</label>
+              <input
+                type="text"
+                name="phone"
+                class="form-control"
+                placeholder="Enter phone number"
+              />
+            </div>
+
+            <hr class="my-4" />
+            <div class="d-flex justify-content-end gap-2">
+              <a href="{{ url_for('admin_students') }}" class="btn btn-outline-secondary">Cancel</a>
+              <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-lg me-1"></i>Create Student
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

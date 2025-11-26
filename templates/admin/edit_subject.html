@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Subject - MIS System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h2><i class="bi bi-pencil me-2"></i>Edit Subject</h2>
+                <p>Update subject information</p>
+            </div>
+            <div class="col-auto">
+                <a href="{{ url_for('admin_subjects') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>Back to Subjects
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Subject Form -->
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-book me-2"></i>Subject Details
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" action="{{ url_for('admin_edit_subject', subject_id=subject.id) }}">
+                        <div class="mb-3">
+                            <label class="form-label">Subject Name <span class="text-danger">*</span></label>
+                            <input type="text" name="name" class="form-control" required value="{{ subject.name }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Semester <span class="text-danger">*</span></label>
+                            <select name="class_id" class="form-select" required>
+                                <option value="">Select semester...</option>
+                                <optgroup label="Year 1">
+                                    {% for cls in classes %}
+                                    {% if cls.year == 1 %}
+                                    <option value="{{ cls.id }}" {{ 'selected' if subject.class_id == cls.id }}>{{ cls.name }}</option>
+                                    {% endif %}
+                                    {% endfor %}
+                                </optgroup>
+                                <optgroup label="Year 2">
+                                    {% for cls in classes %}
+                                    {% if cls.year == 2 %}
+                                    <option value="{{ cls.id }}" {{ 'selected' if subject.class_id == cls.id }}>{{ cls.name }}</option>
+                                    {% endif %}
+                                    {% endfor %}
+                                </optgroup>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Assign Teacher</label>
+                            <select name="teacher_id" class="form-select">
+                                <option value="">Select teacher (optional)...</option>
+                                {% for teacher in teachers %}
+                                <option value="{{ teacher.id }}" {{ 'selected' if subject.teacher_id == teacher.id }}>{{ teacher.full_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea name="description" class="form-control" rows="3">{{ subject.description or '' }}</textarea>
+                        </div>
+
+                        <hr class="my-4">
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{{ url_for('admin_subjects') }}" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-lg me-1"></i>Update Subject
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

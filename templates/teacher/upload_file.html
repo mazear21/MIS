@@ -1,0 +1,92 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Upload Lecture File - Teacher{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('teacher_files') }}">Files</a></li>
+                    <li class="breadcrumb-item active">Upload New File</li>
+                </ol>
+            </nav>
+            <h2 class="fw-bold mb-1">
+                <i class="bi bi-cloud-upload me-2"></i>Upload Lecture File
+            </h2>
+            <p class="text-muted mb-0">Share lecture materials with your students</p>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <form method="POST" enctype="multipart/form-data" id="uploadForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="subject_id" class="form-label fw-semibold">
+                                    <i class="bi bi-book me-1"></i>Subject <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="subject_id" name="subject_id" required>
+                                    <option value="">Select Subject</option>
+                                    {% for subject in subjects %}
+                                    <option value="{{ subject.id }}">{{ subject.name }} (Semester {{ subject.semester }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="week_number" class="form-label fw-semibold">
+                                    <i class="bi bi-calendar-week me-1"></i>Week Number
+                                </label>
+                                <select class="form-select" id="week_number" name="week_number">
+                                    <option value="">Select Week (Optional)</option>
+                                    {% for i in range(1, 17) %}
+                                    <option value="{{ i }}">Week {{ i }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label for="title" class="form-label fw-semibold">
+                                    <i class="bi bi-type me-1"></i>Title <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="title" name="title" 
+                                       placeholder="e.g., Chapter 1 - Introduction to Programming" required>
+                            </div>
+                            <div class="col-12">
+                                <label for="description" class="form-label fw-semibold">
+                                    <i class="bi bi-text-paragraph me-1"></i>Description
+                                </label>
+                                <textarea class="form-control" id="description" name="description" rows="3"
+                                          placeholder="Brief description of the file content (optional)"></textarea>
+                            </div>
+                            <div class="col-12">
+                                <label for="file" class="form-label fw-semibold">
+                                    <i class="bi bi-file-earmark-arrow-up me-1"></i>File <span class="text-danger">*</span>
+                                </label>
+                                <input type="file" class="form-control" id="file" name="file" required
+                                       accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.zip,.rar,.jpg,.jpeg,.png,.gif">
+                                <div class="form-text mt-2">
+                                    <strong>Allowed:</strong> PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX, TXT, ZIP, RAR, JPG, JPEG, PNG, GIF (Max 50MB)
+                                </div>
+                            </div>
+                            <div class="col-12 mt-4">
+                                <hr>
+                                <div class="d-flex justify-content-between">
+                                    <a href="{{ url_for('teacher_files') }}" class="btn btn-outline-secondary">
+                                        <i class="bi bi-arrow-left me-1"></i>Cancel
+                                    </a>
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        <i class="bi bi-cloud-upload me-1"></i>Upload File
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

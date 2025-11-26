@@ -1,0 +1,111 @@
+{% extends 'base.html' %} {% block title %}Manage Topics - {{ subject.name }}{% endblock %} {% block
+content %}
+<div class="container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2><i class="bi bi-list-task me-2"></i>Weekly Topics</h2>
+        <p>{{ subject.name }} - {{ subject.class_name }}</p>
+      </div>
+      <div class="col-auto">
+        <a href="{{ url_for('teacher_topics') }}" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left me-1"></i>Back
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Add Topic Form -->
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header"><i class="bi bi-plus-lg me-2"></i>Add Topic</div>
+        <div class="card-body">
+          <form
+            method="POST"
+            action="{{ url_for('teacher_manage_topics', subject_id=subject.id) }}"
+          >
+            <div class="mb-3">
+              <label class="form-label">Week Number <span class="text-danger">*</span></label>
+              <input
+                type="number"
+                name="week_number"
+                class="form-control"
+                min="1"
+                max="20"
+                required
+                placeholder="e.g., 1"
+              />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Topic <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                name="topic"
+                class="form-control"
+                required
+                placeholder="e.g., Introduction to SQL"
+              />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Description</label>
+              <textarea
+                name="description"
+                class="form-control"
+                rows="3"
+                placeholder="Topic details..."
+              ></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Date Covered</label>
+              <input type="date" name="date_covered" class="form-control" />
+            </div>
+            <button type="submit" class="btn btn-primary w-100">
+              <i class="bi bi-save me-1"></i>Save Topic
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Topics List -->
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header"><i class="bi bi-list-ol me-2"></i>Topics List</div>
+        <div class="card-body">
+          {% if topics %}
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Week</th>
+                  <th>Topic</th>
+                  <th>Description</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for topic in topics %}
+                <tr>
+                  <td><span class="badge bg-navy">Week {{ topic.week_number }}</span></td>
+                  <td><strong>{{ topic.topic }}</strong></td>
+                  <td>{{ topic.description or '-' }}</td>
+                  <td>{{ topic.date_covered or '-' }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="text-center py-4">
+            <i class="bi bi-list text-muted" style="font-size: 3rem"></i>
+            <p class="mt-2 text-muted">No topics added yet. Add your first topic!</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

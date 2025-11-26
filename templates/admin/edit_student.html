@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Student - MIS System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h2><i class="bi bi-pencil me-2"></i>Edit Student</h2>
+                <p>Update student information</p>
+            </div>
+            <div class="col-auto">
+                <a href="{{ url_for('admin_students') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>Back to Students
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Student Form -->
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-person me-2"></i>Account Information
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" action="{{ url_for('admin_edit_student', student_id=student.id) }}">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Username</label>
+                                <input type="text" class="form-control" value="{{ student.username }}" disabled>
+                                <small class="text-muted">Username cannot be changed</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">New Password</label>
+                                <input type="password" name="password" class="form-control" placeholder="Leave blank to keep current">
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                                <input type="text" name="full_name" class="form-control" required value="{{ student.full_name }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" name="email" class="form-control" value="{{ student.email or '' }}">
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+                        <h6 class="text-navy mb-3"><i class="bi bi-mortarboard me-2"></i>Student Information</h6>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Semester <span class="text-danger">*</span></label>
+                                <select name="class_id" class="form-select" required>
+                                    <option value="">Select semester...</option>
+                                    <optgroup label="Year 1">
+                                        {% for cls in classes %}
+                                        {% if cls.year == 1 %}
+                                        <option value="{{ cls.id }}" {{ 'selected' if student.class_id == cls.id }}>{{ cls.name }}</option>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </optgroup>
+                                    <optgroup label="Year 2">
+                                        {% for cls in classes %}
+                                        {% if cls.year == 2 %}
+                                        <option value="{{ cls.id }}" {{ 'selected' if student.class_id == cls.id }}>{{ cls.name }}</option>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </optgroup>
+                                </select>
+                                <small class="text-muted">Student takes all 5 subjects in the selected semester</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Student Number</label>
+                                <input type="text" name="student_number" class="form-control" value="{{ student.student_number or '' }}">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Phone</label>
+                            <input type="text" name="phone" class="form-control" value="{{ student.phone or '' }}">
+                        </div>
+
+                        <hr class="my-4">
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{{ url_for('admin_students') }}" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-lg me-1"></i>Update Student
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,626 @@
+/* =============================================
+   MIS System - Academic Theme
+   Dark Navy Blue & White
+   ============================================= */
+
+:root {
+  --navy-dark: #1a56a8;
+  --navy: #2563eb;
+  --navy-light: #3b82f6;
+  --navy-lighter: #60a5fa;
+  --white: #ffffff;
+  --off-white: #f8fafc;
+  --gray-light: #e2e8f0;
+  --gray: #94a3b8;
+  --text-dark: #1e293b;
+  --text-muted: #64748b;
+  --accent: #3b82f6;
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+}
+
+/* General Styles */
+body {
+  background-color: var(--off-white);
+  font-family: 'Segoe UI', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--text-dark);
+  line-height: 1.6;
+}
+
+/* Navbar - Academic Style */
+.navbar {
+  background: var(--navy-dark) !important;
+  box-shadow: 0 2px 10px rgba(10, 22, 40, 0.3);
+  padding: 12px 0;
+}
+
+.navbar-brand {
+  font-weight: 700;
+  font-size: 1.4rem;
+  letter-spacing: 0.5px;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.navbar-dark .navbar-nav .nav-link:hover {
+  color: var(--white);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.navbar-dark .navbar-nav .nav-link.active {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Card Styles - Clean Academic Look */
+.card {
+  border: 1px solid var(--gray-light);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(10, 22, 40, 0.06);
+  transition: box-shadow 0.2s ease;
+  background: var(--white);
+}
+
+.card:hover {
+  box-shadow: 0 4px 16px rgba(10, 22, 40, 0.1);
+}
+
+.card-header {
+  background: var(--navy) !important;
+  color: var(--white) !important;
+  border-radius: 8px 8px 0 0 !important;
+  font-weight: 600;
+  padding: 16px 20px;
+  border-bottom: none;
+}
+
+.card-body {
+  padding: 24px;
+}
+
+.card-footer {
+  background: var(--off-white);
+  border-top: 1px solid var(--gray-light);
+  padding: 16px 20px;
+}
+
+/* Page Header - Academic Style */
+.page-header {
+  background: var(--white);
+  border-radius: 8px;
+  padding: 28px 32px;
+  margin-bottom: 28px;
+  box-shadow: 0 2px 8px rgba(10, 22, 40, 0.06);
+  border-left: 4px solid var(--navy);
+}
+
+.page-header h2 {
+  color: var(--navy);
+  margin-bottom: 6px;
+  font-weight: 700;
+  font-size: 1.6rem;
+}
+
+.page-header p {
+  color: var(--text-muted);
+  margin-bottom: 0;
+  font-size: 0.95rem;
+}
+
+/* Stats Cards - Unified Navy Theme */
+.stats-card {
+  background: var(--white);
+  border-radius: 8px;
+  padding: 24px;
+  border: 1px solid var(--gray-light);
+  box-shadow: 0 2px 8px rgba(10, 22, 40, 0.06);
+}
+
+.stats-card .stats-icon {
+  font-size: 2.5rem;
+  color: var(--navy);
+  opacity: 0.8;
+}
+
+.stats-card .stats-number {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.stats-card .stats-label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+/* Navy Gradient Stats */
+.stats-navy {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+  color: var(--white);
+  border: none;
+}
+
+.stats-navy .stats-icon,
+.stats-navy .stats-number {
+  color: var(--white);
+}
+
+.stats-navy .stats-label {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* Table Styles - Clean Academic */
+.table {
+  background: var(--white);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 0;
+}
+
+.table thead th {
+  background: var(--navy);
+  color: var(--white);
+  border: none;
+  font-weight: 600;
+  padding: 14px 16px;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.5px;
+}
+
+.table tbody td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--gray-light);
+  vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(26, 39, 68, 0.04);
+}
+
+.table-light th {
+  background: var(--off-white) !important;
+  color: var(--navy) !important;
+}
+
+/* Button Styles - Academic */
+.btn {
+  border-radius: 6px;
+  padding: 10px 20px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.btn-primary {
+  background: var(--navy);
+  color: var(--white);
+}
+
+.btn-primary:hover {
+  background: var(--navy-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(10, 22, 40, 0.2);
+}
+
+.btn-success {
+  background: var(--success);
+}
+
+.btn-success:hover {
+  background: #246b50;
+}
+
+.btn-danger {
+  background: var(--danger);
+}
+
+.btn-danger:hover {
+  background: #8f3d3d;
+}
+
+.btn-outline-primary {
+  border: 2px solid var(--navy);
+  color: var(--navy);
+  background: transparent;
+}
+
+.btn-outline-primary:hover {
+  background: var(--navy);
+  color: var(--white);
+}
+
+.btn-outline-secondary {
+  border: 2px solid var(--gray);
+  color: var(--text-muted);
+  background: transparent;
+}
+
+.btn-outline-secondary:hover {
+  background: var(--gray);
+  color: var(--white);
+  border-color: var(--gray);
+}
+
+.btn-outline-danger {
+  border: 2px solid var(--danger);
+  color: var(--danger);
+  background: transparent;
+}
+
+.btn-outline-danger:hover {
+  background: var(--danger);
+  color: var(--white);
+}
+
+/* Form Styles - Academic */
+.form-control,
+.form-select {
+  border-radius: 6px;
+  border: 2px solid var(--gray-light);
+  padding: 12px 16px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--navy);
+  box-shadow: 0 0 0 3px rgba(26, 39, 68, 0.1);
+}
+
+.form-label {
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+/* Badge Styles - Academic */
+.badge {
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.3px;
+}
+
+.bg-primary {
+  background: var(--navy) !important;
+}
+
+.bg-success {
+  background: var(--success) !important;
+}
+
+.bg-danger {
+  background: var(--danger) !important;
+}
+
+.bg-warning {
+  background: var(--warning) !important;
+  color: var(--white) !important;
+}
+
+.bg-info {
+  background: var(--accent) !important;
+}
+
+.bg-secondary {
+  background: var(--gray) !important;
+}
+
+.bg-light {
+  background: var(--off-white) !important;
+}
+
+/* Alert Styles - Academic */
+.alert {
+  border-radius: 6px;
+  border: none;
+  padding: 16px 20px;
+  font-weight: 500;
+}
+
+.alert-info {
+  background: rgba(74, 111, 165, 0.1);
+  color: var(--navy);
+  border-left: 4px solid var(--accent);
+}
+
+.alert-success {
+  background: rgba(45, 122, 95, 0.1);
+  color: var(--success);
+  border-left: 4px solid var(--success);
+}
+
+.alert-danger {
+  background: rgba(165, 74, 74, 0.1);
+  color: var(--danger);
+  border-left: 4px solid var(--danger);
+}
+
+.alert-warning {
+  background: rgba(154, 123, 60, 0.1);
+  color: var(--warning);
+  border-left: 4px solid var(--warning);
+}
+
+/* Quick Action Cards */
+.quick-action-card {
+  text-align: center;
+  padding: 32px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  background: var(--white);
+  border: 1px solid var(--gray-light);
+  transition: all 0.2s ease;
+}
+
+.quick-action-card:hover {
+  border-color: var(--navy);
+  box-shadow: 0 4px 16px rgba(10, 22, 40, 0.1);
+  text-decoration: none;
+  color: inherit;
+}
+
+.quick-action-card i {
+  font-size: 2.5rem;
+  margin-bottom: 16px;
+  color: var(--navy);
+}
+
+.quick-action-card h5 {
+  margin-bottom: 8px;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.quick-action-card p {
+  color: var(--text-muted);
+  margin-bottom: 0;
+  font-size: 0.9rem;
+}
+
+/* Semester Cards */
+.semester-card {
+  border: 2px solid var(--gray-light);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.semester-card .card-header {
+  background: var(--navy) !important;
+}
+
+.semester-card.year-1 {
+  border-color: var(--navy);
+}
+
+.semester-card.year-2 {
+  border-color: var(--navy-light);
+}
+
+/* Attendance Status */
+.status-present {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.status-absent {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.status-late {
+  color: var(--warning);
+  font-weight: 600;
+}
+
+.status-excused {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* Grade Types - Unified Navy Tones */
+.grade-quiz {
+  background: rgba(74, 111, 165, 0.15);
+  color: var(--accent);
+}
+
+.grade-exam {
+  background: rgba(26, 39, 68, 0.1);
+  color: var(--navy);
+}
+
+.grade-homework {
+  background: rgba(45, 122, 95, 0.15);
+  color: var(--success);
+}
+
+.grade-midterm {
+  background: rgba(154, 123, 60, 0.15);
+  color: var(--warning);
+}
+
+.grade-final {
+  background: rgba(45, 62, 95, 0.15);
+  color: var(--navy-light);
+}
+
+.grade-project {
+  background: rgba(61, 82, 117, 0.15);
+  color: var(--navy-lighter);
+}
+
+/* Progress Bar */
+.progress {
+  background: var(--gray-light);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  background: var(--navy);
+}
+
+.progress-bar.bg-success {
+  background: var(--success) !important;
+}
+
+.progress-bar.bg-warning {
+  background: var(--warning) !important;
+}
+
+.progress-bar.bg-danger {
+  background: var(--danger) !important;
+}
+
+/* Dropdown */
+.dropdown-menu {
+  border: 1px solid var(--gray-light);
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(10, 22, 40, 0.1);
+}
+
+.dropdown-item {
+  padding: 10px 16px;
+  font-weight: 500;
+}
+
+.dropdown-item:hover {
+  background: var(--off-white);
+  color: var(--navy);
+}
+
+/* Footer */
+footer {
+  background: var(--navy-dark) !important;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+footer small {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Section Headers */
+.section-header {
+  color: var(--navy);
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--gray-light);
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.empty-state i {
+  font-size: 4rem;
+  color: var(--gray);
+  margin-bottom: 20px;
+}
+
+.empty-state h5 {
+  color: var(--navy);
+  margin-bottom: 8px;
+}
+
+.empty-state p {
+  color: var(--text-muted);
+}
+
+/* Filter Card */
+.filter-card {
+  background: var(--white);
+  border: 1px solid var(--gray-light);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .stats-card {
+    margin-bottom: 16px;
+  }
+
+  .page-header {
+    padding: 20px;
+  }
+
+  .quick-action-card {
+    padding: 24px 16px;
+  }
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card,
+.stats-card,
+.page-header {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Optgroup Styling */
+optgroup {
+  font-weight: 700;
+  color: var(--navy);
+}
+
+/* Table Action Buttons */
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+}
+
+/* Text Colors */
+.text-navy {
+  color: var(--navy) !important;
+}
+
+.text-muted {
+  color: var(--text-muted) !important;
+}
+
+/* Custom Background Colors */
+.bg-navy {
+  background-color: var(--navy) !important;
+  color: var(--white) !important;
+}
+
+.bg-navy-dark {
+  background-color: var(--navy-dark) !important;
+  color: var(--white) !important;
+}
+
+.bg-navy-light {
+  background-color: var(--navy-light) !important;
+  color: var(--white) !important;
+}

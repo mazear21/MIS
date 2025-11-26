@@ -1,0 +1,566 @@
+{% extends 'base.html' %} {% block title %}Attendance - {{ subject.name }}{% endblock %} {% block
+extra_css %}
+<style>
+  .attendance-table th {
+    background: #0d1b2a;
+    color: white;
+    font-weight: 500;
+    padding: 12px 15px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .student-row {
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+    outline: none;
+  }
+  .student-row td {
+    padding: 10px 15px;
+    vertical-align: middle;
+  }
+  .student-row.present {
+    background: #e8f5e9;
+  }
+  .student-row.present:hover {
+    background: #c8e6c9;
+  }
+  .student-row.absent {
+    background: #ffebee;
+  }
+  .student-row.absent:hover {
+    background: #ffcdd2;
+  }
+  .student-row.late {
+    background: #fff8e1;
+  }
+  .student-row.late:hover {
+    background: #ffecb3;
+  }
+  .student-row.excused {
+    background: #e3f2fd;
+  }
+  .student-row.excused:hover {
+    background: #bbdefb;
+  }
+
+  /* Selected row highlight - bold and visible */
+  .student-row.selected {
+    position: relative;
+    transform: scale(1.01);
+    box-shadow: 0 0 0 3px #1a237e, 0 4px 12px rgba(26, 35, 126, 0.4);
+    z-index: 5;
+  }
+  .student-row.selected::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 6px;
+    background: linear-gradient(180deg, #1a237e, #3949ab);
+    border-radius: 3px 0 0 3px;
+  }
+  .student-row.selected td:first-child {
+    padding-left: 18px;
+  }
+  .student-row.selected td:first-child::before {
+    content: '▸';
+    position: absolute;
+    left: 10px;
+    color: #1a237e;
+    font-size: 16px;
+    font-weight: bold;
+  }
+  .student-row.present.selected {
+    background: linear-gradient(90deg, #a5d6a7 0%, #c8e6c9 100%);
+  }
+  .student-row.absent.selected {
+    background: linear-gradient(90deg, #ef9a9a 0%, #ffcdd2 100%);
+  }
+  .student-row.late.selected {
+    background: linear-gradient(90deg, #ffe082 0%, #ffecb3 100%);
+  }
+  .student-row.excused.selected {
+    background: linear-gradient(90deg, #90caf9 0%, #bbdefb 100%);
+  }
+
+  @keyframes selectPulse {
+    0% {
+      box-shadow: 0 0 0 3px #1a237e, 0 4px 12px rgba(26, 35, 126, 0.4);
+    }
+    50% {
+      box-shadow: 0 0 0 4px #3949ab, 0 4px 16px rgba(26, 35, 126, 0.5);
+    }
+    100% {
+      box-shadow: 0 0 0 3px #1a237e, 0 4px 12px rgba(26, 35, 126, 0.4);
+    }
+  }
+  .student-row.selected {
+    animation: selectPulse 1.5s ease-in-out infinite;
+  }
+
+  .status-badge {
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 28px;
+    font-weight: bold;
+    font-size: 0.8rem;
+    color: white;
+  }
+  .status-badge.present {
+    background: #28a745;
+  }
+  .status-badge.absent {
+    background: #dc3545;
+  }
+  .status-badge.late {
+    background: #ffc107;
+    color: #000;
+  }
+  .status-badge.excused {
+    background: #17a2b8;
+  }
+  .stats-box {
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-weight: 600;
+    display: inline-block;
+  }
+  .stats-box.present {
+    background: #d4edda;
+    color: #155724;
+  }
+  .stats-box.absent {
+    background: #f8d7da;
+    color: #721c24;
+  }
+
+  /* Right-click context menu */
+  .context-menu {
+    position: fixed;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    padding: 8px 0;
+    min-width: 140px;
+    z-index: 1000;
+    display: none;
+  }
+  .context-menu.show {
+    display: block;
+  }
+  .context-menu-item {
+    padding: 10px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+    transition: background 0.15s;
+  }
+  .context-menu-item:hover {
+    background: #f0f0f0;
+  }
+  .context-menu-item.late {
+    color: #856404;
+  }
+  .context-menu-item.late:hover {
+    background: #fff3cd;
+  }
+  .context-menu-item.excused {
+    color: #0c5460;
+  }
+  .context-menu-item.excused:hover {
+    background: #d1ecf1;
+  }
+  .context-menu-item i {
+    font-size: 1.1rem;
+  }
+
+  .keyboard-hint {
+    background: #e8eaf6;
+    border-left: 4px solid #1a237e;
+  }
+  .key-badge {
+    display: inline-block;
+    background: #1a237e;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin: 0 3px;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="container-fluid">
+  <div class="page-header">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2><i class="bi bi-clipboard-check me-2"></i>Attendance</h2>
+        <p class="mb-0">{{ subject.name }} - {{ subject.class_name }}</p>
+      </div>
+      <div class="col-auto">
+        <a
+          href="{{ url_for('teacher_attendance_logs', subject_id=subject.id) }}"
+          class="btn btn-outline-info me-2"
+        >
+          <i class="bi bi-journal-text me-1"></i>View Logs
+        </a>
+        <a href="{{ url_for('teacher_attendance') }}" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left me-1"></i>Back
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-body py-2">
+      <div class="row align-items-center">
+        <div class="col-md-2">
+          <input
+            type="date"
+            id="attendanceDate"
+            class="form-control"
+            value="{{ attendance_date }}"
+          />
+        </div>
+        <div class="col-md-5">
+          <button type="button" class="btn btn-success btn-sm" onclick="setAll('present')">
+            All Present
+          </button>
+          <button type="button" class="btn btn-danger btn-sm" onclick="setAll('absent')">
+            All Absent
+          </button>
+        </div>
+        <div class="col-md-5 text-end">
+          <span class="stats-box present me-2" id="presentCount">Present: 0</span>
+          <span class="stats-box absent" id="absentCount">Absent: 0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert keyboard-hint py-2 mb-3">
+    <span class="key-badge">Click</span> or <span class="key-badge">Enter</span> toggle P/A
+    <span class="mx-2">|</span>
+    <span class="key-badge">↑</span><span class="key-badge">↓</span> or
+    <span class="key-badge">Tab</span> navigate
+    <span class="mx-2">|</span>
+    <span class="key-badge">Right-click</span> for Late/Excused
+  </div>
+
+  {% if students %}
+  <div class="card">
+    <div class="table-responsive" id="tableContainer" style="max-height: 500px; overflow-y: auto">
+      <table class="table table-sm attendance-table mb-0">
+        <thead>
+          <tr>
+            <th style="width: 50px">#</th>
+            <th style="width: 120px">ID</th>
+            <th>Student Name</th>
+            <th style="width: 80px" class="text-center">Status</th>
+          </tr>
+        </thead>
+        <tbody id="studentsBody">
+          {% for student in students %} {% set existing = attendance_dict.get(student.id) %} {% set
+          current_status = existing.status if existing else 'present' %}
+          <tr
+            class="student-row {{ current_status }}"
+            data-student-id="{{ student.id }}"
+            data-status="{{ current_status }}"
+            data-index="{{ loop.index0 }}"
+            tabindex="0"
+          >
+            <td>{{ loop.index }}</td>
+            <td>{{ student.student_number or '-' }}</td>
+            <td><strong>{{ student.full_name }}</strong></td>
+            <td class="text-center">
+              <span class="status-badge {{ current_status }}"
+                >{{ 'P' if current_status == 'present' else 'A' if current_status == 'absent' else
+                'L' if current_status == 'late' else 'E' }}</span
+              >
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="card-footer py-2">
+      <div class="d-flex justify-content-between align-items-center">
+        <span>Total: <strong>{{ students|length }}</strong> students</span>
+        <button type="button" class="btn btn-primary" onclick="saveAttendance()">
+          <i class="bi bi-save me-1"></i>Save Attendance
+        </button>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="card">
+    <div class="card-body text-center py-4"><h5>No Students</h5></div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Custom Context Menu for Late/Excused only -->
+<div id="contextMenu" class="context-menu">
+  <div class="context-menu-item late" onclick="setRowStatus('late')">
+    <i class="bi bi-clock-history"></i>
+    <span>Late</span>
+  </div>
+  <div class="context-menu-item excused" onclick="setRowStatus('excused')">
+    <i class="bi bi-envelope-check"></i>
+    <span>Excused</span>
+  </div>
+</div>
+
+<form
+  id="attendanceForm"
+  method="POST"
+  action="{{ url_for('teacher_take_attendance', subject_id=subject.id) }}"
+  style="display: none"
+>
+  <input type="hidden" name="date" id="formDate" />
+  <div id="formData"></div>
+</form>
+{% endblock %} {% block extra_js %}
+<script>
+  let currentRow = null;
+  let selectedIndex = -1;
+  const rows = [];
+  const labels = { present: 'P', absent: 'A', late: 'L', excused: 'E' };
+
+  document.addEventListener('DOMContentLoaded', function () {
+    // Collect all rows
+    document.querySelectorAll('.student-row').forEach((row) => rows.push(row));
+
+    // Add click handler
+    rows.forEach((row, idx) => {
+      row.addEventListener('click', function (e) {
+        selectRow(idx);
+        toggleStatus(row);
+      });
+
+      row.addEventListener('contextmenu', function (e) {
+        e.preventDefault();
+        selectRow(idx);
+        showContextMenu(e, row);
+      });
+
+      row.addEventListener('focus', function () {
+        selectRow(idx);
+      });
+    });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', handleKeyboard);
+
+    updateStats();
+  });
+
+  function selectRow(index) {
+    // Remove previous selection
+    rows.forEach((r) => r.classList.remove('selected'));
+
+    // Set new selection
+    selectedIndex = index;
+    if (rows[selectedIndex]) {
+      rows[selectedIndex].classList.add('selected');
+      rows[selectedIndex].focus();
+
+      // Scroll into view if needed
+      const container = document.getElementById('tableContainer');
+      const row = rows[selectedIndex];
+      const rowRect = row.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+
+      if (rowRect.bottom > containerRect.bottom) {
+        row.scrollIntoView({ block: 'end', behavior: 'smooth' });
+      } else if (rowRect.top < containerRect.top + 50) {
+        row.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      }
+    }
+  }
+
+  function handleKeyboard(e) {
+    if (rows.length === 0) return;
+
+    // Ignore if typing in date input
+    if (document.activeElement.id === 'attendanceDate') return;
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        if (selectedIndex < rows.length - 1) {
+          selectRow(selectedIndex + 1);
+        }
+        break;
+
+      case 'ArrowUp':
+        e.preventDefault();
+        if (selectedIndex > 0) {
+          selectRow(selectedIndex - 1);
+        }
+        break;
+
+      case 'Tab':
+        if (!e.shiftKey && selectedIndex < rows.length - 1) {
+          e.preventDefault();
+          selectRow(selectedIndex + 1);
+        } else if (e.shiftKey && selectedIndex > 0) {
+          e.preventDefault();
+          selectRow(selectedIndex - 1);
+        }
+        break;
+
+      case 'Enter':
+      case ' ':
+        e.preventDefault();
+        if (selectedIndex >= 0 && rows[selectedIndex]) {
+          toggleStatus(rows[selectedIndex]);
+        }
+        break;
+
+      case 'l':
+      case 'L':
+        if (selectedIndex >= 0 && rows[selectedIndex]) {
+          updateRow(rows[selectedIndex], 'late');
+        }
+        break;
+
+      case 'e':
+      case 'E':
+        if (selectedIndex >= 0 && rows[selectedIndex]) {
+          updateRow(rows[selectedIndex], 'excused');
+        }
+        break;
+
+      case 'p':
+      case 'P':
+        if (selectedIndex >= 0 && rows[selectedIndex]) {
+          updateRow(rows[selectedIndex], 'present');
+        }
+        break;
+
+      case 'a':
+      case 'A':
+        if (selectedIndex >= 0 && rows[selectedIndex]) {
+          updateRow(rows[selectedIndex], 'absent');
+        }
+        break;
+
+      case 'Escape':
+        hideContextMenu();
+        break;
+    }
+  }
+
+  function toggleStatus(row) {
+    const s = row.dataset.status;
+    updateRow(row, s === 'present' ? 'absent' : 'present');
+  }
+
+  function updateRow(row, status) {
+    row.dataset.status = status;
+    row.className =
+      'student-row ' + status + (row.classList.contains('selected') ? ' selected' : '');
+    const badge = row.querySelector('.status-badge');
+    badge.className = 'status-badge ' + status;
+    badge.textContent = labels[status];
+    updateStats();
+  }
+
+  function setAll(status) {
+    rows.forEach((r) => updateRow(r, status));
+  }
+
+  function showContextMenu(e, row) {
+    currentRow = row;
+    const menu = document.getElementById('contextMenu');
+
+    // Calculate position - ensure menu stays within viewport
+    let x = e.clientX;
+    let y = e.clientY;
+
+    // Show menu temporarily to get dimensions
+    menu.style.visibility = 'hidden';
+    menu.classList.add('show');
+    const menuWidth = menu.offsetWidth;
+    const menuHeight = menu.offsetHeight;
+    menu.style.visibility = '';
+
+    // Adjust if menu would go off right edge
+    if (x + menuWidth > window.innerWidth) {
+      x = window.innerWidth - menuWidth - 10;
+    }
+
+    // Adjust if menu would go off bottom edge
+    if (y + menuHeight > window.innerHeight) {
+      y = window.innerHeight - menuHeight - 10;
+    }
+
+    // Ensure not off left or top
+    x = Math.max(10, x);
+    y = Math.max(10, y);
+
+    menu.style.left = x + 'px';
+    menu.style.top = y + 'px';
+    menu.classList.add('show');
+  }
+
+  function hideContextMenu() {
+    document.getElementById('contextMenu').classList.remove('show');
+  }
+
+  function setRowStatus(status) {
+    if (currentRow) updateRow(currentRow, status);
+    hideContextMenu();
+    return false;
+  }
+
+  // Hide context menu on any click outside
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('.context-menu')) {
+      hideContextMenu();
+    }
+  });
+
+  // Hide on scroll
+  document.getElementById('tableContainer')?.addEventListener('scroll', hideContextMenu);
+
+  function updateStats() {
+    let p = 0,
+      a = 0;
+    rows.forEach((r) => {
+      if (r.dataset.status === 'present') p++;
+      else if (r.dataset.status === 'absent') a++;
+    });
+    document.getElementById('presentCount').textContent = 'Present: ' + p;
+    document.getElementById('absentCount').textContent = 'Absent: ' + a;
+  }
+
+  function saveAttendance() {
+    const date = document.getElementById('attendanceDate').value;
+    if (!date) {
+      alert('Select date');
+      return;
+    }
+    document.getElementById('formDate').value = date;
+    const fd = document.getElementById('formData');
+    fd.innerHTML = '';
+    rows.forEach((r) => {
+      const inp = document.createElement('input');
+      inp.type = 'hidden';
+      inp.name = 'status_' + r.dataset.studentId;
+      inp.value = r.dataset.status;
+      fd.appendChild(inp);
+    });
+    document.getElementById('attendanceForm').submit();
+  }
+</script>
+{% endblock %}

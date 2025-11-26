@@ -1,0 +1,8 @@
+{% extends 'base.html' %} {% block title %}Dashboard - MIS System{% endblock %} {% block content %}
+<div class="container">
+  <div class="text-center py-5">
+    <h1>Welcome, {{ current_user.full_name }}!</h1>
+    <p class="lead text-muted">Redirecting to your dashboard...</p>
+  </div>
+</div>
+{% endblock %}
