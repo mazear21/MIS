@@ -45,60 +45,33 @@ extra_css %}
     background: #bbdefb;
   }
 
-  /* Selected row highlight - bold and visible */
+  /* Selected row highlight - clean border style */
   .student-row.selected {
     position: relative;
-    transform: scale(1.01);
-    box-shadow: 0 0 0 3px #1a237e, 0 4px 12px rgba(26, 35, 126, 0.4);
-    z-index: 5;
+    outline: none;
   }
-  .student-row.selected::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 6px;
-    background: linear-gradient(180deg, #1a237e, #3949ab);
-    border-radius: 3px 0 0 3px;
+  .student-row.selected td {
+    border-top: 2px solid #1a237e;
+    border-bottom: 2px solid #1a237e;
   }
   .student-row.selected td:first-child {
-    padding-left: 18px;
+    border-left: 4px solid #1a237e;
+    padding-left: 12px;
   }
-  .student-row.selected td:first-child::before {
-    content: '▸';
-    position: absolute;
-    left: 10px;
-    color: #1a237e;
-    font-size: 16px;
-    font-weight: bold;
+  .student-row.selected td:last-child {
+    border-right: 2px solid #1a237e;
   }
   .student-row.present.selected {
-    background: linear-gradient(90deg, #a5d6a7 0%, #c8e6c9 100%);
+    background: #c8e6c9;
   }
   .student-row.absent.selected {
-    background: linear-gradient(90deg, #ef9a9a 0%, #ffcdd2 100%);
+    background: #ffcdd2;
   }
   .student-row.late.selected {
-    background: linear-gradient(90deg, #ffe082 0%, #ffecb3 100%);
+    background: #ffecb3;
   }
   .student-row.excused.selected {
-    background: linear-gradient(90deg, #90caf9 0%, #bbdefb 100%);
-  }
-
-  @keyframes selectPulse {
-    0% {
-      box-shadow: 0 0 0 3px #1a237e, 0 4px 12px rgba(26, 35, 126, 0.4);
-    }
-    50% {
-      box-shadow: 0 0 0 4px #3949ab, 0 4px 16px rgba(26, 35, 126, 0.5);
-    }
-    100% {
-      box-shadow: 0 0 0 3px #1a237e, 0 4px 12px rgba(26, 35, 126, 0.4);
-    }
-  }
-  .student-row.selected {
-    animation: selectPulse 1.5s ease-in-out infinite;
+    background: #bbdefb;
   }
 
   .status-badge {

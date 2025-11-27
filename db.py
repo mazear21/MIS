@@ -1,29 +1,36 @@
 """
 Database connection and helper functions for MIS System
 """
-import psycopg2
-from psycopg2.extras import RealDictCursor
+import pg8000
+import pg8000.native
 from config import config
 
 
 def get_db_connection():
     """
     Create and return a database connection.
-    Uses RealDictCursor to return rows as dictionaries.
+    Returns rows as dictionaries using pg8000.
     """
     try:
-        conn = psycopg2.connect(
+        conn = pg8000.connect(
             host=config.DB_HOST,
-            port=config.DB_PORT,
+            port=int(config.DB_PORT),
             database=config.DB_NAME,
             user=config.DB_USER,
-            password=config.DB_PASSWORD,
-            cursor_factory=RealDictCursor
+            password=config.DB_PASSWORD
         )
         return conn
-    except psycopg2.Error as e:
+    except Exception as e:
         print(f"Database connection error: {e}")
         return None
+
+
+def row_to_dict(cursor, row):
+    """Convert a row to a dictionary using cursor description"""
+    if row is None:
+        return None
+    columns = [desc[0] for desc in cursor.description]
+    return dict(zip(columns, row))
 
 
 def execute_query(query, params=None, fetch_one=False, fetch_all=False):
@@ -49,9 +56,11 @@ def execute_query(query, params=None, fetch_one=False, fetch_all=False):
         
         result = None
         if fetch_one:
-            result = cursor.fetchone()
+            row = cursor.fetchone()
+            result = row_to_dict(cursor, row)
         elif fetch_all:
-            result = cursor.fetchall()
+            rows = cursor.fetchall()
+            result = [row_to_dict(cursor, row) for row in rows]
         else:
             conn.commit()
             result = cursor.rowcount
@@ -60,7 +69,7 @@ def execute_query(query, params=None, fetch_one=False, fetch_all=False):
         conn.close()
         return result
     
-    except psycopg2.Error as e:
+    except Exception as e:
         print(f"Query error: {e}")
         conn.rollback()
         conn.close()
@@ -85,13 +94,14 @@ def execute_insert_returning(query, params=None):
     try:
         cursor = conn.cursor()
         cursor.execute(query, params)
-        result = cursor.fetchone()
+        row = cursor.fetchone()
+        result = row_to_dict(cursor, row)
         conn.commit()
         cursor.close()
         conn.close()
         return result['id'] if result else None
     
-    except psycopg2.Error as e:
+    except Exception as e:
         print(f"Insert error: {e}")
         conn.rollback()
         conn.close()
