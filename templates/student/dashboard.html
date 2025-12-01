@@ -1,243 +1,262 @@
-﻿{% extends 'base.html' %}
-
-{% block title %}Dashboard - Student{% endblock %}
-
-{% block content %}
-<div class="container-fluid py-4">
-    <!-- Welcome Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card bg-primary text-white shadow">
-                <div class="card-body py-4">
-                    <div class="row align-items-center">
-                        <div class="col">
-                            <h3 class="mb-1"><i class="bi bi-mortarboard me-2"></i>Welcome, {{ student.full_name }}!</h3>
-                            <p class="mb-0 opacity-75">
-                                <i class="bi bi-hash me-1"></i>{{ student.student_number or 'N/A' }}
-                                <span class="mx-2">|</span>
-                                <i class="bi bi-calendar3 me-1"></i>{{ student.class_name or 'No Semester' }}
-                            </p>
-                        </div>
-                    </div>
-                </div>
+﻿{% extends 'base.html' %} {% block title %}Dashboard - Student{% endblock %} {% block content %}
+<div class="container" style="max-width: 100%; overflow-x: hidden">
+  <!-- Welcome Header -->
+  <div class="row mb-3">
+    <div class="col-12">
+      <div class="card bg-primary text-white shadow-sm">
+        <div class="card-body py-3">
+          <div class="row align-items-center">
+            <div class="col">
+              <h5 class="mb-1">
+                <i class="bi bi-mortarboard me-2"></i>Welcome, {{ student.full_name }}!
+              </h5>
+              <p class="mb-0 opacity-75" style="font-size: 0.85rem">
+                <i class="bi bi-hash me-1"></i>{{ student.student_number or 'N/A' }}
+                <span class="mx-2">|</span>
+                <i class="bi bi-calendar3 me-1"></i>{{ student.class_name or 'No Semester' }}
+              </p>
             </div>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 
-    <!-- Quick Stats -->
-    <div class="row mb-4">
-        <div class="col-6 col-md-3 mb-3">
-            <div class="card shadow-sm h-100 border-0">
-                <div class="card-body text-center py-3">
-                    <i class="bi bi-calendar-check text-success fs-2"></i>
-                    <h4 class="mb-0 mt-2">{{ attendance|selectattr('status', 'equalto', 'present')|list|length }}</h4>
-                    <small class="text-muted">Present</small>
-                </div>
-            </div>
+  <!-- Quick Stats -->
+  <div class="row mb-3">
+    <div class="col-6 col-md-3 mb-2">
+      <div class="card shadow-sm h-100 border-0">
+        <div class="card-body text-center py-2">
+          <i class="bi bi-calendar-check text-success" style="font-size: 1.5rem"></i>
+          <h5 class="mb-0 mt-1">
+            {{ attendance|selectattr('status', 'equalto', 'present')|list|length }}
+          </h5>
+          <small class="text-muted" style="font-size: 0.7rem">Present</small>
         </div>
-        <div class="col-6 col-md-3 mb-3">
-            <div class="card shadow-sm h-100 border-0">
-                <div class="card-body text-center py-3">
-                    <i class="bi bi-clipboard-data text-primary fs-2"></i>
-                    <h4 class="mb-0 mt-2">{{ grades|length }}</h4>
-                    <small class="text-muted">Grades</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3 mb-3">
-            <div class="card shadow-sm h-100 border-0">
-                <div class="card-body text-center py-3">
-                    <i class="bi bi-journal-text text-warning fs-2"></i>
-                    <h4 class="mb-0 mt-2">{{ homework|length }}</h4>
-                    <small class="text-muted">Homework</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3 mb-3">
-            <div class="card shadow-sm h-100 border-0">
-                <div class="card-body text-center py-3">
-                    <i class="bi bi-book text-info fs-2"></i>
-                    <h4 class="mb-0 mt-2">{{ weekly_topics|length }}</h4>
-                    <small class="text-muted">Topics</small>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
-
-    <div class="row">
-        <!-- Left Column -->
-        <div class="col-lg-6">
-            <!-- Attendance -->
-            <div class="card shadow-sm mb-4 border-0">
-                <div class="card-header bg-white border-0 py-3">
-                    <i class="bi bi-calendar-check me-2 text-primary"></i><strong>Attendance</strong>
-                </div>
-                <div class="card-body p-0">
-                    {% if attendance %}
-                    <div class="table-responsive" style="max-height: 260px; overflow-y: auto;">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
-                                <tr><th>Date</th><th>Subject</th><th>Status</th></tr>
-                            </thead>
-                            <tbody>
-                                {% for record in attendance[:8] %}
-                                <tr>
-                                    <td>{{ record.date }}</td>
-                                    <td>{{ record.subject_name }}</td>
-                                    <td>
-                                        {% if record.status == 'present' %}
-                                        <span class="badge bg-success">Present</span>
-                                        {% elif record.status == 'absent' %}
-                                        <span class="badge bg-danger">Absent</span>
-                                        {% elif record.status == 'late' %}
-                                        <span class="badge bg-warning text-dark">Late</span>
-                                        {% else %}
-                                        <span class="badge bg-secondary">Excused</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    {% else %}
-                    <div class="text-center py-4 text-muted">
-                        <i class="bi bi-calendar-x fs-3"></i>
-                        <p class="mb-0 mt-2">No attendance records</p>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- Homework -->
-            <div class="card shadow-sm mb-4 border-0">
-                <div class="card-header bg-white border-0 py-3">
-                    <i class="bi bi-journal-text me-2 text-primary"></i><strong>Homework</strong>
-                </div>
-                <div class="card-body p-0">
-                    {% if homework %}
-                    <div class="list-group list-group-flush" style="max-height: 260px; overflow-y: auto;">
-                        {% for hw in homework %}
-                        <div class="list-group-item border-0 border-bottom">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <strong>{{ hw.title }}</strong>
-                                    <small class="text-muted d-block">{{ hw.subject_name }}</small>
-                                </div>
-                                {% if hw.due_date.isoformat() < today %}
-                                <span class="badge bg-secondary align-self-center">Past</span>
-                                {% else %}
-                                <span class="badge bg-primary align-self-center">{{ hw.due_date }}</span>
-                                {% endif %}
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    <div class="text-center py-4 text-muted">
-                        <i class="bi bi-journal-x fs-3"></i>
-                        <p class="mb-0 mt-2">No homework</p>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
+    <div class="col-6 col-md-3 mb-2">
+      <div class="card shadow-sm h-100 border-0">
+        <div class="card-body text-center py-2">
+          <i class="bi bi-clipboard-data text-primary" style="font-size: 1.5rem"></i>
+          <h5 class="mb-0 mt-1">{{ grades|length }}</h5>
+          <small class="text-muted" style="font-size: 0.7rem">Grades</small>
         </div>
-
-        <!-- Right Column -->
-        <div class="col-lg-6">
-            <!-- Grades -->
-            <div class="card shadow-sm mb-4 border-0">
-                <div class="card-header bg-white border-0 py-3">
-                    <i class="bi bi-clipboard-data me-2 text-primary"></i><strong>Grades</strong>
-                </div>
-                <div class="card-body p-0">
-                    {% if grades %}
-                    <div class="table-responsive" style="max-height: 260px; overflow-y: auto;">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
-                                <tr><th>Subject</th><th>Title</th><th>Score</th></tr>
-                            </thead>
-                            <tbody>
-                                {% for grade in grades[:8] %}
-                                <tr>
-                                    <td>{{ grade.subject_name }}</td>
-                                    <td>{{ grade.title }} <small class="text-muted">({{ grade.grade_type }})</small></td>
-                                    <td>
-                                        {% set pct = (grade.score / grade.max_score * 100) if grade.max_score else 0 %}
-                                        <strong class="{% if pct >= 60 %}text-success{% elif pct >= 40 %}text-warning{% else %}text-danger{% endif %}">
-                                            {{ grade.score }}/{{ grade.max_score }}
-                                        </strong>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    {% else %}
-                    <div class="text-center py-4 text-muted">
-                        <i class="bi bi-clipboard-x fs-3"></i>
-                        <p class="mb-0 mt-2">No grades yet</p>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- Weekly Topics -->
-            <div class="card shadow-sm mb-4 border-0">
-                <div class="card-header bg-white border-0 py-3">
-                    <i class="bi bi-list-task me-2 text-primary"></i><strong>Topics</strong>
-                </div>
-                <div class="card-body p-0">
-                    {% if weekly_topics %}
-                    <div class="list-group list-group-flush" style="max-height: 260px; overflow-y: auto;">
-                        {% for topic in weekly_topics %}
-                        <div class="list-group-item border-0 border-bottom d-flex align-items-center">
-                            <span class="badge bg-primary me-2">W{{ topic.week_number }}</span>
-                            <div>
-                                <strong>{{ topic.topic }}</strong>
-                                <small class="text-muted d-block">{{ topic.subject_name }}</small>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    <div class="text-center py-4 text-muted">
-                        <i class="bi bi-list-ul fs-3"></i>
-                        <p class="mb-0 mt-2">No topics yet</p>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
+    <div class="col-6 col-md-3 mb-2">
+      <div class="card shadow-sm h-100 border-0">
+        <div class="card-body text-center py-2">
+          <i class="bi bi-journal-text text-warning" style="font-size: 1.5rem"></i>
+          <h5 class="mb-0 mt-1">{{ homework|length }}</h5>
+          <small class="text-muted" style="font-size: 0.7rem">Homework</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3 mb-2">
+      <div class="card shadow-sm h-100 border-0">
+        <div class="card-body text-center py-2">
+          <i class="bi bi-book text-info" style="font-size: 1.5rem"></i>
+          <h5 class="mb-0 mt-1">{{ weekly_topics|length }}</h5>
+          <small class="text-muted" style="font-size: 0.7rem">Topics</small>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <!-- Timetable -->
-    {% if timetable %}
-    <div class="card shadow-sm border-0">
-        <div class="card-header bg-white border-0 py-3">
-            <i class="bi bi-calendar3 me-2 text-primary"></i><strong>Timetable</strong>
+  <div class="row">
+    <!-- Left Column -->
+    <div class="col-lg-6">
+      <!-- Attendance -->
+      <div class="card shadow-sm mb-3 border-0">
+        <div class="card-header bg-white border-0 py-2">
+          <i class="bi bi-calendar-check me-2 text-primary"></i
+          ><strong style="font-size: 0.85rem">Attendance</strong>
         </div>
         <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="table-light">
-                        <tr><th>Day</th><th>Time</th><th>Subject</th><th>Teacher</th><th>Room</th></tr>
-                    </thead>
-                    <tbody>
-                        {% for entry in timetable %}
-                        <tr>
-                            <td><strong>{{ entry.day_of_week }}</strong></td>
-                            <td>{{ entry.start_time }} - {{ entry.end_time }}</td>
-                            <td>{{ entry.subject_name }}</td>
-                            <td>{{ entry.teacher_name or '-' }}</td>
-                            <td>{{ entry.room or '-' }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+          {% if attendance %}
+          <div class="table-responsive" style="max-height: 200px; overflow-y: auto">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Date</th>
+                  <th>Subject</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for record in attendance[:8] %}
+                <tr>
+                  <td>{{ record.date }}</td>
+                  <td>{{ record.subject_name }}</td>
+                  <td>
+                    {% if record.status == 'present' %}
+                    <span class="badge bg-success">Present</span>
+                    {% elif record.status == 'absent' %}
+                    <span class="badge bg-danger">Absent</span>
+                    {% elif record.status == 'late' %}
+                    <span class="badge bg-warning text-dark">Late</span>
+                    {% else %}
+                    <span class="badge bg-secondary">Excused</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="text-center py-4 text-muted">
+            <i class="bi bi-calendar-x fs-3"></i>
+            <p class="mb-0 mt-2">No attendance records</p>
+          </div>
+          {% endif %}
         </div>
+      </div>
+
+      <!-- Homework -->
+      <div class="card shadow-sm mb-4 border-0">
+        <div class="card-header bg-white border-0 py-3">
+          <i class="bi bi-journal-text me-2 text-primary"></i><strong>Homework</strong>
+        </div>
+        <div class="card-body p-0">
+          {% if homework %}
+          <div class="list-group list-group-flush" style="max-height: 260px; overflow-y: auto">
+            {% for hw in homework %}
+            <div class="list-group-item border-0 border-bottom">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <strong>{{ hw.title }}</strong>
+                  <small class="text-muted d-block">{{ hw.subject_name }}</small>
+                </div>
+                {% if hw.due_date.isoformat() < today %}
+                <span class="badge bg-secondary align-self-center">Past</span>
+                {% else %}
+                <span class="badge bg-primary align-self-center">{{ hw.due_date }}</span>
+                {% endif %}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="text-center py-4 text-muted">
+            <i class="bi bi-journal-x fs-3"></i>
+            <p class="mb-0 mt-2">No homework</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
     </div>
-    {% endif %}
+
+    <!-- Right Column -->
+    <div class="col-lg-6">
+      <!-- Grades -->
+      <div class="card shadow-sm mb-4 border-0">
+        <div class="card-header bg-white border-0 py-3">
+          <i class="bi bi-clipboard-data me-2 text-primary"></i><strong>Grades</strong>
+        </div>
+        <div class="card-body p-0">
+          {% if grades %}
+          <div class="table-responsive" style="max-height: 260px; overflow-y: auto">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Subject</th>
+                  <th>Title</th>
+                  <th>Score</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for grade in grades[:8] %}
+                <tr>
+                  <td>{{ grade.subject_name }}</td>
+                  <td>
+                    {{ grade.title }} <small class="text-muted">({{ grade.grade_type }})</small>
+                  </td>
+                  <td>
+                    {% set pct = (grade.score / grade.max_score * 100) if grade.max_score else 0 %}
+                    <strong
+                      class="{% if pct >= 60 %}text-success{% elif pct >= 40 %}text-warning{% else %}text-danger{% endif %}"
+                    >
+                      {{ grade.score }}/{{ grade.max_score }}
+                    </strong>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="text-center py-4 text-muted">
+            <i class="bi bi-clipboard-x fs-3"></i>
+            <p class="mb-0 mt-2">No grades yet</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Weekly Topics -->
+      <div class="card shadow-sm mb-4 border-0">
+        <div class="card-header bg-white border-0 py-3">
+          <i class="bi bi-list-task me-2 text-primary"></i><strong>Topics</strong>
+        </div>
+        <div class="card-body p-0">
+          {% if weekly_topics %}
+          <div class="list-group list-group-flush" style="max-height: 260px; overflow-y: auto">
+            {% for topic in weekly_topics %}
+            <div class="list-group-item border-0 border-bottom d-flex align-items-center">
+              <span class="badge bg-primary me-2">W{{ topic.week_number }}</span>
+              <div>
+                <strong>{{ topic.topic }}</strong>
+                <small class="text-muted d-block">{{ topic.subject_name }}</small>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="text-center py-4 text-muted">
+            <i class="bi bi-list-ul fs-3"></i>
+            <p class="mb-0 mt-2">No topics yet</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Timetable -->
+  {% if timetable %}
+  <div class="card shadow-sm border-0">
+    <div class="card-header bg-white border-0 py-3">
+      <i class="bi bi-calendar3 me-2 text-primary"></i><strong>Timetable</strong>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Day</th>
+              <th>Time</th>
+              <th>Subject</th>
+              <th>Teacher</th>
+              <th>Room</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for entry in timetable %}
+            <tr>
+              <td><strong>{{ entry.day_of_week }}</strong></td>
+              <td>{{ entry.start_time }} - {{ entry.end_time }}</td>
+              <td>{{ entry.subject_name }}</td>
+              <td>{{ entry.teacher_name or '-' }}</td>
+              <td>{{ entry.room or '-' }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  {% endif %}
 </div>
 {% endblock %}

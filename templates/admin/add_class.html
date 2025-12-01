@@ -5,7 +5,7 @@
     <div class="row align-items-center">
       <div class="col">
         <h2><i class="bi bi-building-add me-2"></i>Add New Class</h2>
-        <p>Create a new class</p>
+        <p>Create a new class for MIS program</p>
       </div>
       <div class="col-auto">
         <a href="{{ url_for('admin_classes') }}" class="btn btn-outline-secondary">
@@ -15,22 +15,103 @@
     </div>
   </div>
 
+  <!-- Info Card -->
+  <div class="alert alert-info mb-4">
+    <i class="bi bi-info-circle me-2"></i>
+    <strong>MIS Program Structure:</strong> 2 Years × 4 Semesters × 3 Classes (A, B, C) × 2 Shifts
+    (Morning, Night)
+    <br />
+    <small>Each class can have a maximum of 5 subjects.</small>
+  </div>
+
   <!-- Add Class Form -->
   <div class="row justify-content-center">
-    <div class="col-md-6">
+    <div class="col-md-8">
       <div class="card">
         <div class="card-header"><i class="bi bi-building me-2"></i>Class Details</div>
         <div class="card-body p-4">
-          <form method="POST" action="{{ url_for('admin_add_class') }}">
+          <form method="POST" action="{{ url_for('admin_add_class') }}" id="classForm">
+            <div class="row">
+              <!-- Year Selection -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Year <span class="text-danger">*</span></label>
+                <select
+                  name="year"
+                  id="yearSelect"
+                  class="form-select"
+                  required
+                  onchange="updateClassName()"
+                >
+                  <option value="">Select Year</option>
+                  <option value="1">Year 1</option>
+                  <option value="2">Year 2</option>
+                </select>
+              </div>
+
+              <!-- Semester Selection -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Semester <span class="text-danger">*</span></label>
+                <select
+                  name="semester"
+                  id="semesterSelect"
+                  class="form-select"
+                  required
+                  onchange="updateClassName()"
+                >
+                  <option value="">Select Semester</option>
+                </select>
+                <small class="text-muted">Year 1: Sem 1 or 2 | Year 2: Sem 3 or 4</small>
+              </div>
+            </div>
+
+            <div class="row">
+              <!-- Class Selection -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Class <span class="text-danger">*</span></label>
+                <select
+                  name="section"
+                  id="sectionSelect"
+                  class="form-select"
+                  required
+                  onchange="updateClassName()"
+                >
+                  <option value="">Select Class</option>
+                  <option value="A">Class A</option>
+                  <option value="B">Class B</option>
+                  <option value="C">Class C</option>
+                </select>
+              </div>
+
+              <!-- Shift Selection -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Shift <span class="text-danger">*</span></label>
+                <select
+                  name="shift"
+                  id="shiftSelect"
+                  class="form-select"
+                  required
+                  onchange="updateClassName()"
+                >
+                  <option value="">Select Shift</option>
+                  <option value="morning">Morning</option>
+                  <option value="night">Night</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Auto-generated Class Name -->
             <div class="mb-3">
               <label class="form-label">Class Name <span class="text-danger">*</span></label>
               <input
                 type="text"
                 name="name"
+                id="className"
                 class="form-control"
                 required
-                placeholder="e.g., MIS Year 1"
+                readonly
+                placeholder="Auto-generated based on selections above"
               />
+              <small class="text-muted">This name is auto-generated based on your selections</small>
             </div>
 
             <div class="mb-3">
@@ -39,7 +120,7 @@
                 name="description"
                 class="form-control"
                 rows="3"
-                placeholder="Enter class description..."
+                placeholder="Enter class description (optional)..."
               ></textarea>
             </div>
 
@@ -56,4 +137,42 @@
     </div>
   </div>
 </div>
+{% endblock %} {% block extra_js %}
+<script>
+  const yearSelect = document.getElementById('yearSelect');
+  const semesterSelect = document.getElementById('semesterSelect');
+  const sectionSelect = document.getElementById('sectionSelect');
+  const shiftSelect = document.getElementById('shiftSelect');
+  const className = document.getElementById('className');
+
+  // Update semester options based on year
+  yearSelect.addEventListener('change', function () {
+    const year = this.value;
+    semesterSelect.innerHTML = '<option value="">Select Semester</option>';
+
+    if (year === '1') {
+      semesterSelect.innerHTML += '<option value="1">Semester 1</option>';
+      semesterSelect.innerHTML += '<option value="2">Semester 2</option>';
+    } else if (year === '2') {
+      semesterSelect.innerHTML += '<option value="3">Semester 3</option>';
+      semesterSelect.innerHTML += '<option value="4">Semester 4</option>';
+    }
+    updateClassName();
+  });
+
+  // Update class name based on all selections
+  function updateClassName() {
+    const year = yearSelect.value;
+    const semester = semesterSelect.value;
+    const section = sectionSelect.value;
+    const shift = shiftSelect.value;
+
+    if (year && semester && section && shift) {
+      const shiftLabel = shift.charAt(0).toUpperCase() + shift.slice(1);
+      className.value = `Year ${year} - Sem ${semester} - Class ${section} - ${shiftLabel}`;
+    } else {
+      className.value = '';
+    }
+  }
+</script>
 {% endblock %}

@@ -1,66 +1,158 @@
 {% extends 'base.html' %} {% block title %}Admin Dashboard - MIS System{% endblock %} {% block
 content %}
-<div class="container">
-  <!-- Page Header -->
-  <div class="page-header">
+<div class="container-fluid">
+  <!-- Welcome Header -->
+  <div class="welcome-banner mb-4">
     <div class="row align-items-center">
       <div class="col">
-        <h2><i class="bi bi-grid-1x2 me-2"></i>Admin Dashboard</h2>
-        <p>Welcome back! Here's an overview of the MIS Institute.</p>
+        <h2 class="mb-1"><i class="bi bi-grid-1x2 me-2"></i>Admin Dashboard</h2>
+        <p class="mb-0 opacity-75">MIS Institute Management System Overview</p>
+      </div>
+      <div class="col-auto">
+        <span class="badge bg-light text-dark fs-6">
+          <i class="bi bi-calendar3 me-1"></i>Academic Year 2024-25
+        </span>
       </div>
     </div>
   </div>
 
-  <!-- Statistics Cards -->
+  <!-- Main Statistics -->
   <div class="row mb-4">
-    <div class="col-md-3 col-sm-6 mb-3">
-      <div class="stats-card stats-navy">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <div class="stats-number">{{ stats.total_students }}</div>
-            <div class="stats-label">Students</div>
-          </div>
-          <div class="stats-icon">
-            <i class="bi bi-people-fill"></i>
-          </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+      <div class="stat-card stat-primary">
+        <div class="stat-icon"><i class="bi bi-mortarboard-fill"></i></div>
+        <div class="stat-content">
+          <div class="stat-number">{{ stats.total_students }}</div>
+          <div class="stat-label">Total Students</div>
         </div>
       </div>
     </div>
-    <div class="col-md-3 col-sm-6 mb-3">
-      <div class="stats-card">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <div class="stats-number">{{ stats.total_teachers }}</div>
-            <div class="stats-label">Teachers</div>
-          </div>
-          <div class="stats-icon">
-            <i class="bi bi-person-workspace"></i>
-          </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+      <div class="stat-card stat-success">
+        <div class="stat-icon"><i class="bi bi-person-video3"></i></div>
+        <div class="stat-content">
+          <div class="stat-number">{{ stats.total_teachers }}</div>
+          <div class="stat-label">Teachers</div>
         </div>
       </div>
     </div>
-    <div class="col-md-3 col-sm-6 mb-3">
-      <div class="stats-card">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <div class="stats-number">{{ stats.total_classes }}</div>
-            <div class="stats-label">Semesters</div>
-          </div>
-          <div class="stats-icon">
-            <i class="bi bi-calendar3"></i>
-          </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+      <div class="stat-card stat-info">
+        <div class="stat-icon"><i class="bi bi-book-half"></i></div>
+        <div class="stat-content">
+          <div class="stat-number">{{ stats.total_subjects }}</div>
+          <div class="stat-label">Subjects</div>
         </div>
       </div>
     </div>
-    <div class="col-md-3 col-sm-6 mb-3">
-      <div class="stats-card">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <div class="stats-number">{{ stats.total_users }}</div>
-            <div class="stats-label">Total Users</div>
+    <div class="col-lg-3 col-md-6 mb-3">
+      <div class="stat-card stat-warning">
+        <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+        <div class="stat-content">
+          <div class="stat-number">{{ stats.total_users }}</div>
+          <div class="stat-label">Total Users</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Semester Overview -->
+  <div class="card mb-4">
+    <div class="card-header bg-navy text-white">
+      <h5 class="mb-0"><i class="bi bi-calendar3 me-2"></i>Semester Overview</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <!-- Year 1 -->
+        <div class="col-md-6 mb-4">
+          <h6 class="text-primary mb-3"><i class="bi bi-1-circle me-2"></i>Year 1</h6>
+          <div class="row">
+            <div class="col-6">
+              <div class="semester-stat-card">
+                <div class="semester-header sem-1">Semester 1</div>
+                <div class="semester-body">
+                  <div class="d-flex justify-content-between mb-2">
+                    <span><i class="bi bi-sun text-warning me-1"></i>Morning</span>
+                    <strong>{{ stats.semesters[1].morning }}</strong>
+                  </div>
+                  <div class="d-flex justify-content-between">
+                    <span><i class="bi bi-moon-stars me-1"></i>Night</span>
+                    <strong>{{ stats.semesters[1].night }}</strong>
+                  </div>
+                  <hr class="my-2" />
+                  <div class="d-flex justify-content-between">
+                    <span class="fw-bold">Total</span>
+                    <span class="badge bg-primary">{{ stats.semesters[1].total }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="semester-stat-card">
+                <div class="semester-header sem-2">Semester 2</div>
+                <div class="semester-body">
+                  <div class="d-flex justify-content-between mb-2">
+                    <span><i class="bi bi-sun text-warning me-1"></i>Morning</span>
+                    <strong>{{ stats.semesters[2].morning }}</strong>
+                  </div>
+                  <div class="d-flex justify-content-between">
+                    <span><i class="bi bi-moon-stars me-1"></i>Night</span>
+                    <strong>{{ stats.semesters[2].night }}</strong>
+                  </div>
+                  <hr class="my-2" />
+                  <div class="d-flex justify-content-between">
+                    <span class="fw-bold">Total</span>
+                    <span class="badge bg-primary">{{ stats.semesters[2].total }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="stats-icon">
-            <i class="bi bi-person-check"></i>
+        </div>
+        <!-- Year 2 -->
+        <div class="col-md-6 mb-4">
+          <h6 class="text-success mb-3"><i class="bi bi-2-circle me-2"></i>Year 2</h6>
+          <div class="row">
+            <div class="col-6">
+              <div class="semester-stat-card">
+                <div class="semester-header sem-3">Semester 3</div>
+                <div class="semester-body">
+                  <div class="d-flex justify-content-between mb-2">
+                    <span><i class="bi bi-sun text-warning me-1"></i>Morning</span>
+                    <strong>{{ stats.semesters[3].morning }}</strong>
+                  </div>
+                  <div class="d-flex justify-content-between">
+                    <span><i class="bi bi-moon-stars me-1"></i>Night</span>
+                    <strong>{{ stats.semesters[3].night }}</strong>
+                  </div>
+                  <hr class="my-2" />
+                  <div class="d-flex justify-content-between">
+                    <span class="fw-bold">Total</span>
+                    <span class="badge bg-success">{{ stats.semesters[3].total }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="semester-stat-card">
+                <div class="semester-header sem-4">Semester 4</div>
+                <div class="semester-body">
+                  <div class="d-flex justify-content-between mb-2">
+                    <span><i class="bi bi-sun text-warning me-1"></i>Morning</span>
+                    <strong>{{ stats.semesters[4].morning }}</strong>
+                  </div>
+                  <div class="d-flex justify-content-between">
+                    <span><i class="bi bi-moon-stars me-1"></i>Night</span>
+                    <strong>{{ stats.semesters[4].night }}</strong>
+                  </div>
+                  <hr class="my-2" />
+                  <div class="d-flex justify-content-between">
+                    <span class="fw-bold">Total</span>
+                    <span class="badge bg-success">{{ stats.semesters[4].total }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -68,105 +160,1933 @@ content %}
   </div>
 
   <!-- Quick Actions -->
-  <h5 class="section-header"><i class="bi bi-lightning-charge me-2"></i>Quick Actions</h5>
+  <h5 class="mb-3"><i class="bi bi-lightning-charge me-2"></i>Quick Actions</h5>
   <div class="row mb-4">
-    <div class="col-md-3 col-sm-6 mb-3">
-      <a href="{{ url_for('admin_add_student') }}" class="quick-action-card">
-        <i class="bi bi-person-plus"></i>
-        <h5>Add Student</h5>
-        <p>Register new student</p>
+    <div class="col-lg-3 col-md-6 mb-3">
+      <a href="{{ url_for('admin_add_student') }}" class="action-card">
+        <div class="action-icon bg-primary"><i class="bi bi-person-plus-fill"></i></div>
+        <div class="action-content">
+          <h6>Add Student</h6>
+          <small class="text-muted">Register new student</small>
+        </div>
+        <i class="bi bi-chevron-right action-arrow"></i>
       </a>
     </div>
-    <div class="col-md-3 col-sm-6 mb-3">
-      <a href="{{ url_for('admin_add_subject') }}" class="quick-action-card">
-        <i class="bi bi-journal-plus"></i>
-        <h5>Add Subject</h5>
-        <p>Create new subject</p>
+    <div class="col-lg-3 col-md-6 mb-3">
+      <a href="{{ url_for('admin_classes') }}" class="action-card">
+        <div class="action-icon bg-info"><i class="bi bi-calendar3"></i></div>
+        <div class="action-content">
+          <h6>Semesters</h6>
+          <small class="text-muted">View all semesters</small>
+        </div>
+        <i class="bi bi-chevron-right action-arrow"></i>
       </a>
     </div>
-    <div class="col-md-3 col-sm-6 mb-3">
-      <a href="{{ url_for('admin_add_user') }}" class="quick-action-card">
-        <i class="bi bi-person-gear"></i>
-        <h5>Add Teacher</h5>
-        <p>Register new teacher</p>
+    <div class="col-lg-3 col-md-6 mb-3">
+      <a href="{{ url_for('admin_subjects') }}" class="action-card">
+        <div class="action-icon bg-success"><i class="bi bi-book-half"></i></div>
+        <div class="action-content">
+          <h6>Subjects</h6>
+          <small class="text-muted">Manage subjects</small>
+        </div>
+        <i class="bi bi-chevron-right action-arrow"></i>
       </a>
     </div>
-    <div class="col-md-3 col-sm-6 mb-3">
-      <a href="{{ url_for('admin_subjects') }}" class="quick-action-card">
-        <i class="bi bi-journal-bookmark"></i>
-        <h5>View Subjects</h5>
-        <p>Manage all subjects</p>
+    <div class="col-lg-3 col-md-6 mb-3">
+      <a href="{{ url_for('admin_teachers') }}" class="action-card">
+        <div class="action-icon bg-warning"><i class="bi bi-person-video3"></i></div>
+        <div class="action-content">
+          <h6>Teachers</h6>
+          <small class="text-muted">Manage teachers</small>
+        </div>
+        <i class="bi bi-chevron-right action-arrow"></i>
       </a>
     </div>
   </div>
 
-  <!-- Management Sections -->
+  <!-- Management Cards -->
   <div class="row">
-    <div class="col-md-6 mb-4">
-      <div class="card h-100">
-        <div class="card-header"><i class="bi bi-people me-2"></i>Student Management</div>
-        <div class="card-body">
-          <p class="text-muted">Manage student enrollment and records.</p>
-          <ul class="list-unstyled mb-4">
-            <li class="mb-2"><i class="bi bi-check2 me-2"></i>Register new students</li>
-            <li class="mb-2"><i class="bi bi-check2 me-2"></i>Assign to semesters</li>
-            <li class="mb-2"><i class="bi bi-check2 me-2"></i>View student records</li>
-          </ul>
-          <a href="{{ url_for('admin_students') }}" class="btn btn-primary">
-            <i class="bi bi-arrow-right me-1"></i>Manage Students
+    <div class="col-md-4 mb-4">
+      <div class="card h-100 management-card">
+        <div class="card-body text-center py-4">
+          <div class="mgmt-icon bg-primary-soft">
+            <i class="bi bi-people-fill text-primary"></i>
+          </div>
+          <h5 class="mt-3">Students</h5>
+          <p class="text-muted small mb-3">Manage enrollment & records</p>
+          <a href="{{ url_for('admin_students') }}" class="btn btn-primary btn-sm">
+            <i class="bi bi-arrow-right me-1"></i>Manage
           </a>
         </div>
       </div>
     </div>
-    <div class="col-md-6 mb-4">
-      <div class="card h-100">
-        <div class="card-header"><i class="bi bi-journal-bookmark me-2"></i>Subject Management</div>
-        <div class="card-body">
-          <p class="text-muted">Manage subjects and assign teachers.</p>
-          <ul class="list-unstyled mb-4">
-            <li class="mb-2"><i class="bi bi-check2 me-2"></i>Create subjects per semester</li>
-            <li class="mb-2"><i class="bi bi-check2 me-2"></i>Assign teachers to subjects</li>
-            <li class="mb-2"><i class="bi bi-check2 me-2"></i>5 subjects per semester</li>
-          </ul>
-          <a href="{{ url_for('admin_subjects') }}" class="btn btn-primary">
-            <i class="bi bi-arrow-right me-1"></i>Manage Subjects
+    <div class="col-md-4 mb-4">
+      <div class="card h-100 management-card">
+        <div class="card-body text-center py-4">
+          <div class="mgmt-icon bg-success-soft"><i class="bi bi-book-half text-success"></i></div>
+          <h5 class="mt-3">Subjects</h5>
+          <p class="text-muted small mb-3">Create & assign subjects</p>
+          <a href="{{ url_for('admin_subjects') }}" class="btn btn-success btn-sm">
+            <i class="bi bi-arrow-right me-1"></i>Manage
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 mb-4">
+      <div class="card h-100 management-card">
+        <div class="card-body text-center py-4">
+          <div class="mgmt-icon bg-info-soft"><i class="bi bi-shield-lock text-info"></i></div>
+          <h5 class="mt-3">Users</h5>
+          <p class="text-muted small mb-3">Manage all user accounts</p>
+          <a href="{{ url_for('admin_users') }}" class="btn btn-info btn-sm">
+            <i class="bi bi-arrow-right me-1"></i>Manage
           </a>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Program Structure -->
-  <div class="card">
-    <div class="card-header"><i class="bi bi-diagram-3 me-2"></i>MIS Program Structure</div>
-    <div class="card-body">
-      <div class="row text-center">
-        <div class="col-md-3 col-6 mb-3">
-          <div class="p-3 border rounded">
-            <h6 class="text-navy mb-1">Year 1 - Sem 1</h6>
-            <small class="text-muted">5 Subjects</small>
+  <!-- ========================================== -->
+  <!-- SCHEDULE BUILDER SECTION - MODERN DESIGN -->
+  <!-- ========================================== -->
+  <div class="scheduler-wrapper">
+    <!-- Header Bar -->
+    <div class="scheduler-header">
+      <div class="scheduler-brand">
+        <div class="brand-icon">
+          <i class="bi bi-calendar-week"></i>
+        </div>
+        <div class="brand-text">
+          <h5>Schedule Builder</h5>
+          <span>Design your weekly timetable</span>
+        </div>
+      </div>
+      <div class="scheduler-controls">
+        <div class="save-indicator" id="autoSaveStatus">
+          <i class="bi bi-cloud-check"></i>
+          <span>Auto-saved</span>
+        </div>
+        <button class="ctrl-btn" onclick="window.print()" title="Print">
+          <i class="bi bi-printer"></i>
+        </button>
+        <button class="ctrl-btn delete" id="clearScheduleBtn" title="Clear All">
+          <i class="bi bi-trash3"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Quick Filters -->
+    <div class="scheduler-filters">
+      <div class="filter-section">
+        <div class="filter-chip-group">
+          <span class="filter-label">Semester</span>
+          <div class="chip-row" id="semesterPills">
+            <button class="chip active" data-value="1">1</button>
+            <button class="chip" data-value="2">2</button>
+            <button class="chip" data-value="3">3</button>
+            <button class="chip" data-value="4">4</button>
           </div>
         </div>
-        <div class="col-md-3 col-6 mb-3">
-          <div class="p-3 border rounded">
-            <h6 class="text-navy mb-1">Year 1 - Sem 2</h6>
-            <small class="text-muted">5 Subjects</small>
+        <div class="filter-chip-group">
+          <span class="filter-label">Shift</span>
+          <div class="chip-row" id="shiftToggle">
+            <button class="chip active" data-value="morning">
+              <i class="bi bi-sun"></i> Morning
+            </button>
+            <button class="chip" data-value="night"><i class="bi bi-moon"></i> Evening</button>
           </div>
         </div>
-        <div class="col-md-3 col-6 mb-3">
-          <div class="p-3 border rounded">
-            <h6 class="text-navy mb-1">Year 2 - Sem 3</h6>
-            <small class="text-muted">5 Subjects</small>
+        <div class="filter-chip-group">
+          <span class="filter-label">Class</span>
+          <div class="chip-row" id="sectionPills">
+            <button class="chip active" data-value="A">A</button>
+            <button class="chip" data-value="B">B</button>
+            <button class="chip" data-value="C">C</button>
           </div>
         </div>
-        <div class="col-md-3 col-6 mb-3">
-          <div class="p-3 border rounded">
-            <h6 class="text-navy mb-1">Year 2 - Sem 4</h6>
-            <small class="text-muted">5 Subjects</small>
+      </div>
+      <div class="current-view">
+        <i class="bi bi-eye"></i>
+        <span
+          ><strong id="displaySem">Sem 1</strong> · <strong id="displayShift">Morning</strong> ·
+          Class <strong id="displaySection">A</strong></span
+        >
+      </div>
+    </div>
+
+    <!-- Schedule Grid -->
+    <div class="scheduler-grid-area">
+      <table class="scheduler-table" id="scheduleTable">
+        <thead>
+          <tr>
+            <th class="time-col">
+              <i class="bi bi-clock"></i>
+            </th>
+            <th><span class="day-full">Sunday</span><span class="day-abbr">Sun</span></th>
+            <th><span class="day-full">Monday</span><span class="day-abbr">Mon</span></th>
+            <th><span class="day-full">Tuesday</span><span class="day-abbr">Tue</span></th>
+            <th><span class="day-full">Wednesday</span><span class="day-abbr">Wed</span></th>
+            <th><span class="day-full">Thursday</span><span class="day-abbr">Thu</span></th>
+          </tr>
+        </thead>
+        <tbody id="scheduleBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal fade" id="cellEditorModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content scheduler-modal">
+      <div class="modal-header-custom">
+        <div class="modal-icon">
+          <i class="bi bi-calendar-plus"></i>
+        </div>
+        <div>
+          <h6 class="modal-title-custom">Add to Schedule</h6>
+          <small>Fill in the class details</small>
+        </div>
+        <button type="button" class="close-modal" data-bs-dismiss="modal">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <div class="modal-body-custom">
+        <!-- Subject Selection -->
+        <div class="form-field">
+          <label><i class="bi bi-book"></i> Subject</label>
+          <select class="form-input" id="editSubject">
+            <option value="">Choose a subject...</option>
+          </select>
+        </div>
+
+        <!-- Lecture Type -->
+        <div class="form-field">
+          <label><i class="bi bi-mortarboard"></i> Lecture Type</label>
+          <div class="type-toggle">
+            <button type="button" class="type-option active" data-type="theory">
+              <i class="bi bi-book"></i>
+              <span>Theory</span>
+            </button>
+            <button type="button" class="type-option" data-type="practical">
+              <i class="bi bi-pc-display"></i>
+              <span>Practical</span>
+            </button>
+            <button type="button" class="type-option" data-type="both">
+              <i class="bi bi-layers"></i>
+              <span>Both</span>
+            </button>
           </div>
+        </div>
+
+        <!-- Teachers -->
+        <div class="form-row">
+          <div class="form-field" id="theoryTeacherGroup">
+            <label><i class="bi bi-person"></i> Theory Instructor</label>
+            <select class="form-input" id="editTeacher">
+              <option value="">Select instructor...</option>
+            </select>
+          </div>
+          <div class="form-field" id="practicalTeacherGroup" style="display: none">
+            <label><i class="bi bi-tools"></i> Lab Instructor</label>
+            <select class="form-input" id="editPracticalTeacher">
+              <option value="">Select instructor...</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Theory Time Selection -->
+        <div class="form-field time-section" id="theoryTimeSection">
+          <label><i class="bi bi-book"></i> Theory Time</label>
+          <div class="form-row">
+            <div class="form-field" style="margin-bottom: 0">
+              <input
+                type="time"
+                class="form-input"
+                id="editTheoryStart"
+                min="08:00"
+                max="15:00"
+                value="08:30"
+              />
+            </div>
+            <div class="form-field" style="margin-bottom: 0">
+              <input
+                type="time"
+                class="form-input"
+                id="editTheoryEnd"
+                min="08:00"
+                max="15:00"
+                value="10:00"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Practical Time Selection -->
+        <div class="form-field time-section" id="practicalTimeSection" style="display: none">
+          <label><i class="bi bi-pc-display"></i> Practical Time</label>
+          <div class="form-row">
+            <div class="form-field" style="margin-bottom: 0">
+              <input
+                type="time"
+                class="form-input"
+                id="editPracticalStart"
+                min="08:00"
+                max="15:00"
+                value="08:30"
+              />
+            </div>
+            <div class="form-field" style="margin-bottom: 0">
+              <input
+                type="time"
+                class="form-input"
+                id="editPracticalEnd"
+                min="08:00"
+                max="15:00"
+                value="10:00"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Room -->
+        <div class="form-field">
+          <label><i class="bi bi-geo-alt"></i> Room / Lab</label>
+          <input type="text" class="form-input" id="editRoom" placeholder="e.g. Room 101, Lab A" />
+        </div>
+      </div>
+
+      <div class="modal-footer-custom">
+        <button
+          type="button"
+          class="btn-modal btn-delete"
+          id="deleteBlockBtn"
+          style="display: none"
+        >
+          <i class="bi bi-trash3"></i> Delete
+        </button>
+        <div class="footer-actions">
+          <button type="button" class="btn-modal btn-cancel" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn-modal btn-save" id="saveBlockBtn">
+            <i class="bi bi-check2"></i> Save
+          </button>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<style>
+  .welcome-banner {
+    background: linear-gradient(135deg, #0d1b2a 0%, #1b3a5f 100%);
+    color: white;
+    padding: 25px 30px;
+    border-radius: 12px;
+  }
+
+  .stat-card {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    border-radius: 12px;
+    background: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease;
+  }
+  .stat-card:hover {
+    transform: translateY(-3px);
+  }
+  .stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-right: 15px;
+  }
+  .stat-primary .stat-icon {
+    background: rgba(13, 110, 253, 0.15);
+    color: #0d6efd;
+  }
+  .stat-success .stat-icon {
+    background: rgba(25, 135, 84, 0.15);
+    color: #198754;
+  }
+  .stat-info .stat-icon {
+    background: rgba(13, 202, 240, 0.15);
+    color: #0dcaf0;
+  }
+  .stat-warning .stat-icon {
+    background: rgba(255, 193, 7, 0.15);
+    color: #ffc107;
+  }
+  .stat-number {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #0d1b2a;
+  }
+  .stat-label {
+    color: #6c757d;
+    font-size: 0.9rem;
+  }
+
+  .semester-stat-card {
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .semester-header {
+    padding: 10px 15px;
+    font-weight: 600;
+    color: white;
+    text-align: center;
+  }
+  .sem-1 {
+    background: #0d6efd;
+  }
+  .sem-2 {
+    background: #6c757d;
+  }
+  .sem-3 {
+    background: #198754;
+  }
+  .sem-4 {
+    background: #20c997;
+  }
+  .semester-body {
+    padding: 15px;
+    background: #f8f9fa;
+  }
+
+  .action-card {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s ease;
+  }
+  .action-card:hover {
+    border-color: #0d1b2a;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    color: inherit;
+  }
+  .action-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+    margin-right: 15px;
+  }
+  .action-content h6 {
+    margin: 0;
+    font-weight: 600;
+  }
+  .action-arrow {
+    margin-left: auto;
+    color: #adb5bd;
+  }
+
+  .management-card {
+    border: none;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease;
+  }
+  .management-card:hover {
+    transform: translateY(-3px);
+  }
+  .mgmt-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+  }
+  .bg-primary-soft {
+    background: rgba(13, 110, 253, 0.1);
+  }
+  .bg-success-soft {
+    background: rgba(25, 135, 84, 0.1);
+  }
+  .bg-info-soft {
+    background: rgba(13, 202, 240, 0.1);
+  }
+
+  /* ========================================== */
+  /* CLEAN SCHEDULE BUILDER - PROFESSIONAL     */
+  /* ========================================== */
+
+  .scheduler-wrapper {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+  }
+
+  /* Header */
+  .scheduler-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #0d1b2a 0%, #1e3a5f 100%);
+    color: #fff;
+  }
+
+  .scheduler-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .brand-icon {
+    width: 42px;
+    height: 42px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+  }
+
+  .brand-text h5 {
+    margin: 0;
+    font-weight: 600;
+    font-size: 1.05rem;
+  }
+
+  .brand-text span {
+    font-size: 0.75rem;
+    opacity: 0.7;
+  }
+
+  .scheduler-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .save-indicator {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    background: rgba(34, 197, 94, 0.2);
+    border-radius: 6px;
+    font-size: 0.75rem;
+    color: #86efac;
+  }
+
+  .save-indicator.saving {
+    background: rgba(234, 179, 8, 0.2);
+    color: #fde047;
+  }
+
+  .save-indicator.error {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+  }
+
+  .ctrl-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    transition: background 0.2s;
+  }
+
+  .ctrl-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .ctrl-btn.delete:hover {
+    background: #ef4444;
+  }
+
+  /* Filters */
+  .scheduler-filters {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e5e7eb;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  .filter-section {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .filter-chip-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .filter-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .chip-row {
+    display: flex;
+    gap: 4px;
+  }
+
+  .chip {
+    padding: 6px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background: #fff;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .chip:hover {
+    border-color: #1e3a5f;
+    color: #1e3a5f;
+    background: #f0f7ff;
+  }
+
+  .chip.active {
+    background: linear-gradient(135deg, #0d1b2a 0%, #1e3a5f 100%);
+    border-color: #0d1b2a;
+    color: #fff;
+  }
+
+  .chip i {
+    font-size: 0.85rem;
+  }
+
+  .current-view {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    color: #059669;
+  }
+
+  .current-view i {
+    font-size: 0.9rem;
+  }
+
+  /* Grid Area */
+  .scheduler-grid-area {
+    padding: 16px;
+    background: #fff;
+    overflow-x: auto;
+  }
+
+  .scheduler-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .scheduler-table th {
+    padding: 12px 8px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: #374151;
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+  }
+
+  .scheduler-table th.time-col {
+    width: 90px;
+    background: #e5e7eb;
+    color: #1f2937;
+  }
+
+  .scheduler-table th .day-abbr {
+    display: none;
+  }
+
+  .scheduler-table td {
+    height: 65px;
+    vertical-align: middle;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    transition: background 0.15s;
+    position: relative;
+  }
+
+  .scheduler-table td:hover:not(.time-cell):not(.has-class) {
+    background: #f8fafc;
+  }
+
+  .scheduler-table td.time-cell {
+    background: #f9fafb;
+    text-align: center;
+    vertical-align: middle;
+    font-weight: 600;
+    font-size: 0.65rem;
+    color: #6b7280;
+    width: 65px;
+  }
+
+  .scheduler-table td.has-class {
+    padding: 2px;
+    background: #fff;
+    vertical-align: middle;
+  }
+
+  /* Empty Cell */
+  .empty-cell {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .add-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    background: #f3f4f6;
+    color: #9ca3af;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    transition: all 0.15s;
+    opacity: 0;
+  }
+
+  .empty-cell:hover .add-btn {
+    opacity: 1;
+    background: #3b82f6;
+    color: #fff;
+  }
+
+  /* Break Cell */
+  .break-cell {
+    background: #f9fafb;
+    text-align: center;
+    cursor: pointer;
+    vertical-align: middle;
+  }
+
+  .break-label {
+    display: inline-block;
+    padding: 8px 20px;
+    background: #fff;
+    color: #6b7280;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 4px;
+    border: 1px solid #d1d5db;
+    letter-spacing: 1px;
+  }
+
+  .break-cell:hover .break-label {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    color: #dc2626;
+  }
+
+  /* Class Card - Compact with light background */
+  .class-card {
+    height: 100%;
+    padding: 6px 8px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: all 0.15s;
+    border: none;
+    min-height: 55px;
+  }
+
+  .class-card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+  }
+
+  .class-type-badge {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-size: 0.45rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    background: rgba(0, 0, 0, 0.12);
+    color: #374151;
+  }
+
+  .class-subject {
+    font-weight: 700;
+    font-size: 0.7rem;
+    color: #1e293b;
+    margin-bottom: 3px;
+    line-height: 1.2;
+    word-wrap: break-word;
+    width: 100%;
+    text-align: center;
+  }
+
+  .class-info-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    width: 100%;
+  }
+
+  .info-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.58rem;
+    gap: 4px;
+  }
+
+  .info-row .teacher-name {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    color: #374151;
+  }
+
+  .info-row .teacher-name .type-badge {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.5rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .info-row .teacher-name .type-badge.theory {
+    background: #dbeafe;
+    color: #1e40af;
+  }
+
+  .info-row .teacher-name .type-badge.practical {
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  .info-row .teacher-name span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .info-row .time-slot {
+    font-size: 0.55rem;
+    color: #64748b;
+    white-space: nowrap;
+    font-weight: 500;
+    background: rgba(0, 0, 0, 0.05);
+    padding: 1px 4px;
+    border-radius: 3px;
+  }
+
+  .class-room {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    font-size: 0.5rem;
+    color: #6b7280;
+    margin-top: 2px;
+  }
+
+  /* Subject Color Themes - Light pastel backgrounds */
+  .color-blue {
+    background: #dbeafe;
+  }
+  .color-emerald {
+    background: #d1fae5;
+  }
+  .color-amber {
+    background: #fef3c7;
+  }
+  .color-rose {
+    background: #ffe4e6;
+  }
+  .color-violet {
+    background: #ede9fe;
+  }
+  .color-cyan {
+    background: #cffafe;
+  }
+  .color-slate {
+    background: #e2e8f0;
+  }
+  .color-pink {
+    background: #fce7f3;
+  }
+  .color-indigo {
+    background: #e0e7ff;
+  }
+  .color-teal {
+    background: #ccfbf1;
+  }
+  .color-sky {
+    background: #e0f2fe;
+  }
+
+  /* ===== MODAL STYLES ===== */
+  .scheduler-modal {
+    border: none;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    max-width: 420px;
+  }
+
+  .modal-header-custom {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #0d1b2a 0%, #1e3a5f 100%);
+    color: #fff;
+  }
+
+  .modal-icon {
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+  }
+
+  .modal-title-custom {
+    margin: 0;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  .modal-header-custom small {
+    opacity: 0.7;
+    font-size: 0.7rem;
+  }
+
+  .close-modal {
+    margin-left: auto;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+  }
+
+  .close-modal:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .modal-body-custom {
+    padding: 14px 16px;
+  }
+
+  .form-field {
+    margin-bottom: 10px;
+  }
+
+  .form-field label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #4b5563;
+    margin-bottom: 4px;
+  }
+
+  .form-field label i {
+    color: #3b82f6;
+  }
+
+  .form-row {
+    display: flex;
+    gap: 10px;
+  }
+
+  .form-row .form-field {
+    flex: 1;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    color: #1f2937;
+    background: #fff;
+    transition: border-color 0.15s;
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  /* Type Toggle */
+  .type-toggle {
+    display: flex;
+    gap: 3px;
+    background: #f3f4f6;
+    padding: 3px;
+    border-radius: 6px;
+  }
+
+  .type-option {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 7px 6px;
+    border: none;
+    border-radius: 5px;
+    background: transparent;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .type-option:hover {
+    color: #1f2937;
+  }
+
+  .type-option.active {
+    background: #fff;
+    color: #3b82f6;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+
+  .type-option i {
+    font-size: 0.8rem;
+  }
+
+  /* Modal Footer */
+  .modal-footer-custom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    background: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .footer-actions {
+    display: flex;
+    gap: 6px;
+  }
+
+  .btn-modal {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.15s;
+  }
+
+  .btn-cancel {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    color: #6b7280;
+  }
+
+  .btn-cancel:hover {
+    border-color: #d1d5db;
+    background: #f9fafb;
+  }
+
+  .btn-save {
+    background: linear-gradient(135deg, #0d1b2a 0%, #1e3a5f 100%);
+    color: #fff;
+  }
+
+  .btn-save:hover {
+    background: linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 100%);
+  }
+
+  .btn-delete {
+    background: #fef2f2;
+    color: #dc2626;
+  }
+
+  .btn-delete:hover {
+    background: #dc2626;
+    color: #fff;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .scheduler-table th .day-full {
+      display: none;
+    }
+    .scheduler-table th .day-abbr {
+      display: inline;
+    }
+    .filter-section {
+      gap: 12px;
+    }
+    .current-view {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Data
+    let scheduleData = [];
+    let subjects = [];
+    let teachers = [];
+    let editingCell = null;
+    let editingBlockIndex = -1;
+    let selectedLectureType = 'theory';
+
+    // Current selection state
+    let currentSemester = '1';
+    let currentShift = 'morning';
+    let currentSection = 'A';
+
+    const timeSlots = [
+      { label: '8:00 - 9:00', start: '8:00', end: '9:00' },
+      { label: '9:00 - 10:00', start: '9:00', end: '10:00' },
+      { label: '10:00 - 11:00', start: '10:00', end: '11:00' },
+      { label: '11:00 - 12:00', start: '11:00', end: '12:00' },
+      { label: '12:00 - 1:00', start: '12:00', end: '13:00' },
+      { label: '1:00 - 2:00', start: '13:00', end: '14:00' },
+      { label: '2:00 - 3:00', start: '14:00', end: '15:00' },
+    ];
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
+
+    // Track click timing for single vs double click
+    let clickTimeout = null;
+
+    // Elegant color palette for subjects
+    const subjectColors = [
+      'color-blue',
+      'color-emerald',
+      'color-amber',
+      'color-rose',
+      'color-violet',
+      'color-cyan',
+      'color-teal',
+      'color-indigo',
+      'color-sky',
+      'color-pink',
+      'color-slate',
+    ];
+    let subjectColorMap = {};
+
+    // Time utilities
+    function getRowFromTime(time) {
+      const idx = timeSlots.findIndex((t) => t.start === time);
+      return idx >= 0 ? idx : 0;
+    }
+
+    function getEndRowFromTime(time) {
+      const idx = timeSlots.findIndex((t) => t.end === time);
+      return idx >= 0 ? idx : 0;
+    }
+
+    function calculateRowSpan(startTime, endTime) {
+      const startRow = getRowFromTime(startTime);
+      const endRow = getEndRowFromTime(endTime);
+      return endRow - startRow + 1;
+    }
+
+    function formatTimeDisplay(startTime, endTime) {
+      const formatTime = (t) => {
+        const hour = parseInt(t.split(':')[0]);
+        const min = t.split(':')[1];
+        const ampm = hour >= 12 && hour !== 1 ? 'PM' : 'AM';
+        return `${t} ${ampm}`;
+      };
+      return `${formatTime(startTime)} - ${formatTime(endTime)}`;
+    }
+
+    // Assign colors to subjects
+    function assignSubjectColors() {
+      const usedSubjects = [...new Set(scheduleData.map((b) => b.subject).filter(Boolean))];
+      usedSubjects.forEach((subj, idx) => {
+        if (!subjectColorMap[subj]) {
+          subjectColorMap[subj] = subjectColors[idx % subjectColors.length];
+        }
+      });
+    }
+
+    // Update current view display
+    function updateDisplayBar() {
+      document.getElementById('displaySem').textContent = 'Sem ' + currentSemester;
+      document.getElementById('displayShift').textContent =
+        currentShift === 'morning' ? 'Morning' : 'Evening';
+      document.getElementById('displaySection').textContent = currentSection;
+    }
+
+    // Update save indicator
+    function updateSaveStatus(state, message) {
+      const indicator = document.getElementById('saveIndicator');
+      if (!indicator) return;
+
+      indicator.className = 'save-indicator ' + state;
+      if (state === 'saving') {
+        indicator.innerHTML = '<i class="bi bi-arrow-repeat spin"></i> ' + message;
+      } else if (state === 'error') {
+        indicator.innerHTML = '<i class="bi bi-exclamation-circle"></i> ' + message;
+      } else {
+        indicator.innerHTML = '<i class="bi bi-check-circle-fill"></i> ' + message;
+      }
+    }
+
+    // Load subjects and teachers for the selected semester
+    async function loadSubjectsAndTeachers() {
+      try {
+        const response = await fetch(`/admin/api/teachers-subjects/${currentSemester}`);
+        const data = await response.json();
+        subjects = data.subjects || [];
+        teachers = data.teachers || [];
+        populateDropdowns();
+      } catch (e) {
+        console.error('Error loading data:', e);
+      }
+    }
+
+    function populateDropdowns() {
+      const subjectSelect = document.getElementById('editSubject');
+
+      // Get unique subject names for dropdown
+      const uniqueSubjects = [...new Set(subjects.map((s) => s.name))];
+
+      subjectSelect.innerHTML = '<option value="">Select subject...</option>';
+      uniqueSubjects.forEach((name) => {
+        subjectSelect.innerHTML += `<option value="${name}">${name}</option>`;
+      });
+    }
+
+    // Filter teachers based on selected subject - find ALL teachers assigned to this subject
+    function getAssignedTeachers(subjectName) {
+      // Find ALL subject entries for this subject name across ALL sections
+      // This allows showing all teachers who teach this subject, regardless of which section
+      const matchingSubjects = subjects.filter((s) => s.name === subjectName);
+
+      // Collect all unique teacher names assigned to this subject
+      const theoryTeachers = [];
+      const practicalTeachers = [];
+
+      matchingSubjects.forEach((s) => {
+        if (s.teacher_name && !theoryTeachers.includes(s.teacher_name)) {
+          theoryTeachers.push(s.teacher_name);
+        }
+        if (s.practical_teacher_name && !practicalTeachers.includes(s.practical_teacher_name)) {
+          practicalTeachers.push(s.practical_teacher_name);
+        }
+      });
+
+      return {
+        theoryTeachers: theoryTeachers,
+        practicalTeachers: practicalTeachers,
+      };
+    }
+
+    function updateTeacherDropdowns(subjectName) {
+      const teacherSelect = document.getElementById('editTeacher');
+      const practicalTeacherSelect = document.getElementById('editPracticalTeacher');
+
+      const assigned = getAssignedTeachers(subjectName);
+
+      // Theory teachers: show all assigned teachers for this subject
+      if (assigned.theoryTeachers.length > 0) {
+        teacherSelect.innerHTML =
+          '<option value="">Select...</option>' +
+          assigned.theoryTeachers
+            .map((t, i) => `<option value="${t}" ${i === 0 ? 'selected' : ''}>${t}</option>`)
+            .join('');
+      } else {
+        teacherSelect.innerHTML =
+          '<option value="">Select...</option>' +
+          teachers.map((t) => `<option value="${t.name}">${t.name}</option>`).join('');
+      }
+
+      // Practical teachers: use practical teachers if set, otherwise use theory teachers
+      const practicalList =
+        assigned.practicalTeachers.length > 0
+          ? assigned.practicalTeachers
+          : assigned.theoryTeachers;
+
+      if (practicalList.length > 0) {
+        practicalTeacherSelect.innerHTML =
+          '<option value="">Select...</option>' +
+          practicalList
+            .map((t, i) => `<option value="${t}" ${i === 0 ? 'selected' : ''}>${t}</option>`)
+            .join('');
+      } else {
+        practicalTeacherSelect.innerHTML =
+          '<option value="">Select...</option>' +
+          teachers.map((t) => `<option value="${t.name}">${t.name}</option>`).join('');
+      }
+    }
+
+    // Re-filter teachers when lecture type changes
+    function refreshTeacherDropdownsForType() {
+      const subjectName = document.getElementById('editSubject').value;
+      if (subjectName) {
+        updateTeacherDropdowns(subjectName);
+      }
+    }
+
+    // Auto-fill teachers when subject is selected
+    document.getElementById('editSubject').addEventListener('change', function () {
+      const subjectName = this.value;
+
+      if (!subjectName) return;
+
+      // Update teacher dropdowns based on subject and current class
+      updateTeacherDropdowns(subjectName);
+
+      const assigned = getAssignedTeachers(subjectName);
+
+      // Auto-detect lecture type based on assigned teachers
+      if (assigned.theoryTeachers.length > 0 && assigned.practicalTeachers.length > 0) {
+        selectedLectureType = 'both';
+      } else if (assigned.practicalTeachers.length > 0 && assigned.theoryTeachers.length === 0) {
+        selectedLectureType = 'practical';
+      } else {
+        selectedLectureType = 'theory';
+      }
+
+      document.querySelectorAll('.type-option').forEach((b) => b.classList.remove('active'));
+      document
+        .querySelector(`.type-option[data-type="${selectedLectureType}"]`)
+        ?.classList.add('active');
+      updateLectureTypeUI();
+    });
+
+    // Lecture type toggle handler
+    function updateLectureTypeUI() {
+      const theoryGroup = document.getElementById('theoryTeacherGroup');
+      const practicalGroup = document.getElementById('practicalTeacherGroup');
+      const theoryTimeSection = document.getElementById('theoryTimeSection');
+      const practicalTimeSection = document.getElementById('practicalTimeSection');
+
+      if (selectedLectureType === 'theory') {
+        theoryGroup.style.display = 'block';
+        theoryGroup.querySelector('label').innerHTML = '<i class="bi bi-person"></i> Instructor';
+        practicalGroup.style.display = 'none';
+        theoryTimeSection.style.display = 'block';
+        theoryTimeSection.querySelector('label').innerHTML =
+          '<i class="bi bi-clock"></i> Class Time';
+        practicalTimeSection.style.display = 'none';
+      } else if (selectedLectureType === 'practical') {
+        theoryGroup.style.display = 'none';
+        practicalGroup.style.display = 'block';
+        practicalGroup.querySelector('label').innerHTML =
+          '<i class="bi bi-person"></i> Lab Instructor';
+        theoryTimeSection.style.display = 'none';
+        practicalTimeSection.style.display = 'block';
+        practicalTimeSection.querySelector('label').innerHTML =
+          '<i class="bi bi-pc-display"></i> Lab Time';
+      } else {
+        // Both - show both fields side by side
+        theoryGroup.style.display = 'block';
+        theoryGroup.querySelector('label').innerHTML =
+          '<i class="bi bi-person"></i> Theory Instructor';
+        practicalGroup.style.display = 'block';
+        practicalGroup.querySelector('label').innerHTML =
+          '<i class="bi bi-person"></i> Practical Instructor';
+        theoryTimeSection.style.display = 'block';
+        theoryTimeSection.querySelector('label').innerHTML =
+          '<i class="bi bi-book"></i> Theory Time';
+        practicalTimeSection.style.display = 'block';
+        practicalTimeSection.querySelector('label').innerHTML =
+          '<i class="bi bi-pc-display"></i> Practical Time';
+      }
+    }
+
+    document.querySelectorAll('.type-option').forEach((btn) => {
+      btn.addEventListener('click', function () {
+        document.querySelectorAll('.type-option').forEach((b) => b.classList.remove('active'));
+        this.classList.add('active');
+        selectedLectureType = this.dataset.type;
+        updateLectureTypeUI();
+        refreshTeacherDropdownsForType(); // Re-filter teachers when type changes
+      });
+    });
+
+    // Render the schedule grid
+    function renderGrid() {
+      const tbody = document.getElementById('scheduleBody');
+      tbody.innerHTML = '';
+
+      assignSubjectColors();
+
+      const occupiedCells = new Set();
+      scheduleData.forEach((block) => {
+        for (let r = block.row; r < block.row + (block.rowSpan || 1); r++) {
+          if (r !== block.row) {
+            occupiedCells.add(`${r}-${block.col}`);
+          }
+        }
+      });
+
+      // Helper to format time for display (convert 24h to 12h format)
+      const formatTime = (t) => {
+        if (!t) return '';
+        const [hours, mins] = t.split(':');
+        let h = parseInt(hours);
+        h = h % 12 || 12;
+        return `${h}:${mins}`;
+      };
+
+      // Find the time range for each row based on scheduled blocks
+      // Shows: earliest start time - latest end time (across all blocks, theory & practical)
+      const getRowTimeLabel = (row) => {
+        const blocksInRow = scheduleData.filter((b) => b.row === row);
+
+        if (blocksInRow.length > 0) {
+          let allTimes = [];
+
+          // Collect all start and end times from all blocks in this row
+          blocksInRow.forEach((block) => {
+            // Theory times
+            if (block.theoryStartTime)
+              allTimes.push({ time: block.theoryStartTime, type: 'start' });
+            if (block.theoryEndTime) allTimes.push({ time: block.theoryEndTime, type: 'end' });
+            // Practical times
+            if (block.practicalStartTime)
+              allTimes.push({ time: block.practicalStartTime, type: 'start' });
+            if (block.practicalEndTime)
+              allTimes.push({ time: block.practicalEndTime, type: 'end' });
+            // Legacy startTime/endTime
+            if (block.startTime && !block.theoryStartTime && !block.practicalStartTime) {
+              allTimes.push({ time: block.startTime, type: 'start' });
+            }
+            if (block.endTime && !block.theoryEndTime && !block.practicalEndTime) {
+              allTimes.push({ time: block.endTime, type: 'end' });
+            }
+          });
+
+          // Get earliest start time and latest end time
+          const startTimes = allTimes.filter((t) => t.type === 'start').map((t) => t.time);
+          const endTimes = allTimes.filter((t) => t.type === 'end').map((t) => t.time);
+
+          if (startTimes.length > 0 && endTimes.length > 0) {
+            // Sort to find min start and max end
+            startTimes.sort();
+            endTimes.sort();
+            const earliestStart = startTimes[0];
+            const latestEnd = endTimes[endTimes.length - 1];
+            return `${formatTime(earliestStart)} - ${formatTime(latestEnd)}`;
+          }
+        }
+
+        // Default to original time slot label if no block
+        return timeSlots[row].label;
+      };
+
+      for (let row = 0; row < timeSlots.length; row++) {
+        const tr = document.createElement('tr');
+        const slot = timeSlots[row];
+
+        const timeCell = document.createElement('td');
+        timeCell.className = 'time-cell';
+        timeCell.textContent = getRowTimeLabel(row);
+        tr.appendChild(timeCell);
+
+        for (let col = 0; col < 5; col++) {
+          if (occupiedCells.has(`${row}-${col}`)) continue;
+
+          const td = document.createElement('td');
+          td.dataset.row = row;
+          td.dataset.col = col;
+
+          const blockIdx = scheduleData.findIndex((b) => b.row === row && b.col === col);
+
+          // Check if this cell is marked as a break
+          const isBreakBlock = scheduleData.find(
+            (b) => b.row === row && b.col === col && b.isBreak
+          );
+
+          if (isBreakBlock) {
+            td.className = 'break-cell';
+            td.innerHTML = '<div class="break-label">Break</div>';
+            // Double-click to remove break
+            td.ondblclick = () => toggleBreak(row, col);
+            tr.appendChild(td);
+            continue;
+          }
+
+          if (blockIdx >= 0) {
+            const block = scheduleData[blockIdx];
+            td.className = 'has-class';
+            if (block.rowSpan > 1) td.rowSpan = block.rowSpan;
+
+            const colorClass = subjectColorMap[block.subject] || 'color-blue';
+
+            // Lecture type badge
+            const typeLabel =
+              block.lectureType === 'both'
+                ? 'T+P'
+                : block.lectureType === 'practical'
+                ? 'LAB'
+                : 'LEC';
+
+            // Build info rows (teacher + time on same row)
+            let infoHtml = '<div class="class-info-rows">';
+
+            if (block.lectureType === 'both') {
+              // Theory row
+              const theoryStart = block.theoryStartTime || block.startTime || '08:30';
+              const theoryEnd = block.theoryEndTime || block.endTime || '10:00';
+              if (block.teacher) {
+                infoHtml += `<div class="info-row">
+                  <span class="teacher-name"><span class="type-badge theory">T</span><span>${
+                    block.teacher
+                  }</span></span>
+                  <span class="time-slot">${formatTime(theoryStart)}-${formatTime(theoryEnd)}</span>
+                </div>`;
+              }
+              // Practical row
+              const practicalStart = block.practicalStartTime || theoryStart;
+              const practicalEnd = block.practicalEndTime || theoryEnd;
+              if (block.practicalTeacher) {
+                infoHtml += `<div class="info-row">
+                  <span class="teacher-name"><span class="type-badge practical">P</span><span>${
+                    block.practicalTeacher
+                  }</span></span>
+                  <span class="time-slot">${formatTime(practicalStart)}-${formatTime(
+                  practicalEnd
+                )}</span>
+                </div>`;
+              }
+            } else if (block.lectureType === 'practical') {
+              const practicalStart = block.practicalStartTime || block.startTime || '08:30';
+              const practicalEnd = block.practicalEndTime || block.endTime || '10:00';
+              if (block.practicalTeacher) {
+                infoHtml += `<div class="info-row">
+                  <span class="teacher-name"><span class="type-badge practical">P</span><span>${
+                    block.practicalTeacher
+                  }</span></span>
+                  <span class="time-slot">${formatTime(practicalStart)}-${formatTime(
+                  practicalEnd
+                )}</span>
+                </div>`;
+              }
+            } else {
+              const theoryStart = block.theoryStartTime || block.startTime || '08:30';
+              const theoryEnd = block.theoryEndTime || block.endTime || '10:00';
+              if (block.teacher) {
+                infoHtml += `<div class="info-row">
+                  <span class="teacher-name"><span class="type-badge theory">T</span><span>${
+                    block.teacher
+                  }</span></span>
+                  <span class="time-slot">${formatTime(theoryStart)}-${formatTime(theoryEnd)}</span>
+                </div>`;
+              }
+            }
+            infoHtml += '</div>';
+
+            td.innerHTML = `
+              <div class="class-card ${colorClass}">
+                <span class="class-type-badge">${typeLabel}</span>
+                <div class="class-subject">${block.subject || 'No Subject'}</div>
+                ${infoHtml}
+                ${
+                  block.room
+                    ? `<div class="class-room"><i class="bi bi-geo-alt-fill"></i> ${block.room}</div>`
+                    : ''
+                }
+              </div>
+            `;
+            td.onclick = () => openEditor(row, col, blockIdx);
+          } else {
+            // Empty cell - single click opens modal, double click adds break
+            td.innerHTML =
+              '<div class="empty-cell"><span class="add-btn"><i class="bi bi-plus-lg"></i></span></div>';
+
+            td.onclick = (e) => {
+              // Use timeout to detect if it's a single click (not part of double-click)
+              if (clickTimeout) {
+                clearTimeout(clickTimeout);
+                clickTimeout = null;
+                return; // This is second click of double-click, ignore
+              }
+              clickTimeout = setTimeout(() => {
+                clickTimeout = null;
+                openEditor(row, col, -1);
+              }, 250); // Wait 250ms to see if double-click comes
+            };
+
+            td.ondblclick = (e) => {
+              e.stopPropagation();
+              if (clickTimeout) {
+                clearTimeout(clickTimeout);
+                clickTimeout = null;
+              }
+              toggleBreak(row, col);
+            };
+          }
+
+          tr.appendChild(td);
+        }
+        tbody.appendChild(tr);
+      }
+    }
+
+    // Toggle break on double-click
+    async function toggleBreak(row, col) {
+      const existingIdx = scheduleData.findIndex((b) => b.row === row && b.col === col);
+
+      if (existingIdx >= 0 && scheduleData[existingIdx].isBreak) {
+        // Remove break
+        scheduleData.splice(existingIdx, 1);
+      } else if (existingIdx < 0) {
+        // Add break
+        scheduleData.push({
+          row,
+          col,
+          isBreak: true,
+          subject: 'Break',
+        });
+      }
+
+      renderGrid();
+      await saveSchedule();
+    }
+
+    // Open cell editor modal
+    function openEditor(row, col, blockIndex) {
+      editingCell = { row, col };
+      editingBlockIndex = blockIndex;
+
+      const modal = new bootstrap.Modal(document.getElementById('cellEditorModal'));
+
+      // Reset form with proper time format
+      document.getElementById('editSubject').value = '';
+      document.getElementById('editTeacher').value = '';
+      document.getElementById('editPracticalTeacher').value = '';
+      document.getElementById('editRoom').value = '';
+      document.getElementById('editTheoryStart').value = '08:30';
+      document.getElementById('editTheoryEnd').value = '10:00';
+      document.getElementById('editPracticalStart').value = '08:30';
+      document.getElementById('editPracticalEnd').value = '10:00';
+      selectedLectureType = 'theory';
+
+      document.querySelectorAll('.type-option').forEach((b) => b.classList.remove('active'));
+      document.querySelector('.type-option[data-type="theory"]')?.classList.add('active');
+      updateLectureTypeUI();
+
+      const deleteBtn = document.getElementById('deleteBlockBtn');
+
+      if (blockIndex >= 0) {
+        const block = scheduleData[blockIndex];
+        document.getElementById('editSubject').value = block.subject || '';
+        document.getElementById('editTeacher').value = block.teacher || '';
+        document.getElementById('editPracticalTeacher').value = block.practicalTeacher || '';
+        document.getElementById('editRoom').value = block.room || '';
+        document.getElementById('editTheoryStart').value =
+          block.theoryStartTime || block.startTime || '08:30';
+        document.getElementById('editTheoryEnd').value =
+          block.theoryEndTime || block.endTime || '10:00';
+        document.getElementById('editPracticalStart').value = block.practicalStartTime || '08:30';
+        document.getElementById('editPracticalEnd').value = block.practicalEndTime || '10:00';
+        selectedLectureType = block.lectureType || 'theory';
+
+        document.querySelectorAll('.type-option').forEach((b) => b.classList.remove('active'));
+        document
+          .querySelector(`.type-option[data-type="${selectedLectureType}"]`)
+          ?.classList.add('active');
+        updateLectureTypeUI();
+        deleteBtn.style.display = 'inline-flex';
+      } else {
+        deleteBtn.style.display = 'none';
+      }
+
+      modal.show();
+    }
+
+    // Save block
+    document.getElementById('saveBlockBtn').addEventListener('click', async function () {
+      const subject = document.getElementById('editSubject').value;
+      const teacher = document.getElementById('editTeacher').value;
+      const practicalTeacher = document.getElementById('editPracticalTeacher').value;
+      const room = document.getElementById('editRoom').value;
+      const theoryStartTime = document.getElementById('editTheoryStart').value;
+      const theoryEndTime = document.getElementById('editTheoryEnd').value;
+      const practicalStartTime = document.getElementById('editPracticalStart').value;
+      const practicalEndTime = document.getElementById('editPracticalEnd').value;
+
+      // Determine which times to use based on lecture type
+      let startTime, endTime;
+      if (selectedLectureType === 'theory') {
+        startTime = theoryStartTime;
+        endTime = theoryEndTime;
+      } else if (selectedLectureType === 'practical') {
+        startTime = practicalStartTime;
+        endTime = practicalEndTime;
+      } else {
+        // For 'both', use theory start and the later end time
+        startTime = theoryStartTime;
+        endTime = theoryEndTime > practicalEndTime ? theoryEndTime : practicalEndTime;
+      }
+
+      if (!subject) {
+        alert('Please select a subject');
+        return;
+      }
+
+      if (selectedLectureType === 'theory' && !teacher) {
+        alert('Please select an instructor');
+        return;
+      }
+      if (selectedLectureType === 'practical' && !practicalTeacher) {
+        alert('Please select a lab instructor');
+        return;
+      }
+      if (selectedLectureType === 'both' && (!teacher || !practicalTeacher)) {
+        alert('Please select both instructors');
+        return;
+      }
+
+      // Validate time selection
+      if (selectedLectureType === 'theory' || selectedLectureType === 'both') {
+        if (!theoryStartTime || !theoryEndTime) {
+          alert('Please select theory start and end time');
+          return;
+        }
+        if (theoryEndTime <= theoryStartTime) {
+          alert('Theory end time must be after start time!');
+          return;
+        }
+      }
+
+      if (selectedLectureType === 'practical' || selectedLectureType === 'both') {
+        if (!practicalStartTime || !practicalEndTime) {
+          alert('Please select practical start and end time');
+          return;
+        }
+        if (practicalEndTime <= practicalStartTime) {
+          alert('Practical end time must be after start time!');
+          return;
+        }
+      }
+
+      // Calculate row based on start time (simplified)
+      const startRow = editingCell.row;
+      const rowSpan = 1;
+
+      const blockData = {
+        row: startRow,
+        col: editingCell.col,
+        rowSpan,
+        colSpan: 1,
+        startTime,
+        endTime,
+        theoryStartTime: selectedLectureType !== 'practical' ? theoryStartTime : '',
+        theoryEndTime: selectedLectureType !== 'practical' ? theoryEndTime : '',
+        practicalStartTime: selectedLectureType !== 'theory' ? practicalStartTime : '',
+        practicalEndTime: selectedLectureType !== 'theory' ? practicalEndTime : '',
+        subject,
+        teacher: selectedLectureType !== 'practical' ? teacher : '',
+        practicalTeacher: selectedLectureType !== 'theory' ? practicalTeacher : '',
+        lectureType: selectedLectureType,
+        room,
+      };
+
+      if (editingBlockIndex >= 0) {
+        scheduleData[editingBlockIndex] = blockData;
+      } else {
+        scheduleData.push(blockData);
+      }
+
+      bootstrap.Modal.getInstance(document.getElementById('cellEditorModal')).hide();
+      renderGrid();
+      await saveSchedule();
+    });
+
+    // Delete block
+    document.getElementById('deleteBlockBtn').addEventListener('click', async function () {
+      if (editingBlockIndex >= 0) {
+        scheduleData.splice(editingBlockIndex, 1);
+        bootstrap.Modal.getInstance(document.getElementById('cellEditorModal')).hide();
+        renderGrid();
+        await saveSchedule();
+      }
+    });
+
+    // Load schedule from server
+    async function loadSchedule() {
+      try {
+        const response = await fetch(
+          `/admin/api/schedule/${currentSemester}/${currentShift}/${currentSection}`
+        );
+        const result = await response.json();
+        scheduleData = result.success ? result.data || [] : [];
+        renderGrid();
+      } catch (e) {
+        console.error('Error loading:', e);
+        scheduleData = [];
+        renderGrid();
+      }
+    }
+
+    // Save schedule to server
+    async function saveSchedule() {
+      updateSaveStatus('saving', 'Saving...');
+
+      try {
+        await fetch(`/admin/api/schedule/${currentSemester}/${currentShift}/${currentSection}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ schedule_data: scheduleData }),
+        });
+        updateSaveStatus('', 'Saved');
+      } catch (e) {
+        updateSaveStatus('error', 'Error');
+      }
+    }
+
+    // Clear schedule
+    document.getElementById('clearScheduleBtn').addEventListener('click', async function () {
+      if (confirm('Clear all entries from this timetable?')) {
+        scheduleData = [];
+        renderGrid();
+        await saveSchedule();
+      }
+    });
+
+    // Handle selection changes
+    async function handleSelectionChange(newSem, newShift, newSection) {
+      await saveSchedule();
+
+      currentSemester = newSem || currentSemester;
+      currentShift = newShift || currentShift;
+      currentSection = newSection || currentSection;
+
+      updateDisplayBar();
+
+      if (newSem) {
+        await loadSubjectsAndTeachers();
+      }
+
+      await loadSchedule();
+    }
+
+    // Semester pills click handlers
+    document.querySelectorAll('#semesterPills .chip').forEach((pill) => {
+      pill.addEventListener('click', async function () {
+        document
+          .querySelectorAll('#semesterPills .chip')
+          .forEach((p) => p.classList.remove('active'));
+        this.classList.add('active');
+        await handleSelectionChange(this.dataset.value, null, null);
+      });
+    });
+
+    // Shift toggle click handlers
+    document.querySelectorAll('#shiftToggle .chip').forEach((btn) => {
+      btn.addEventListener('click', async function () {
+        document
+          .querySelectorAll('#shiftToggle .chip')
+          .forEach((b) => b.classList.remove('active'));
+        this.classList.add('active');
+        await handleSelectionChange(null, this.dataset.value, null);
+      });
+    });
+
+    // Section pills click handlers
+    document.querySelectorAll('#sectionPills .chip').forEach((pill) => {
+      pill.addEventListener('click', async function () {
+        document
+          .querySelectorAll('#sectionPills .chip')
+          .forEach((p) => p.classList.remove('active'));
+        this.classList.add('active');
+        await handleSelectionChange(null, null, this.dataset.value);
+      });
+    });
+
+    // Initialize
+    updateDisplayBar();
+    loadSubjectsAndTeachers();
+    loadSchedule();
+  });
+</script>
+
+<style>
+  .spin {
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin {
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+</style>
 {% endblock %}

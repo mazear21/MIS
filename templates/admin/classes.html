@@ -5,77 +5,268 @@ content %}
   <div class="page-header">
     <div class="row align-items-center">
       <div class="col">
-        <h2><i class="bi bi-calendar me-2"></i>Semester Management</h2>
-        <p>MIS Program: 2 Years, 4 Semesters</p>
+        <h2><i class="bi bi-calendar3 me-2"></i>Semester Management</h2>
+        <p class="mb-0">MIS Program: 4 Semesters × 2 Shifts × 3 Classes</p>
       </div>
     </div>
-  </div>
-
-  <!-- Info Card -->
-  <div
-    class="alert alert-navy mb-4"
-    style="background-color: var(--navy-light); color: var(--white); border: none"
-  >
-    <i class="bi bi-info-circle me-2"></i>
-    <strong>MIS Program Structure:</strong> Year 1 (Sem 1 & 2) | Year 2 (Sem 3 & 4)
-    <br />
-    <small>Each semester has 5 subjects. Students are assigned to a specific semester.</small>
   </div>
 
   <!-- Year 1 -->
-  <h4 class="mb-3 text-navy"><i class="bi bi-1-circle me-2"></i>Year 1</h4>
-  <div class="row mb-4">
-    {% for cls in classes %} {% if cls.year == 1 %}
-    <div class="col-md-6 mb-3">
-      <div class="card h-100">
-        <div class="card-header"><i class="bi bi-calendar-check me-2"></i>{{ cls.name }}</div>
-        <div class="card-body">
-          <p class="text-muted">{{ cls.description or 'No description' }}</p>
+  <div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0"><i class="bi bi-1-circle me-2"></i>Year 1</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <!-- Semester 1 -->
+        <div class="col-md-6 mb-3">
+          <div class="semester-card">
+            <h6 class="semester-title"><i class="bi bi-calendar-check me-2"></i>Semester 1</h6>
+            <div class="shift-section">
+              <div class="shift-label"><i class="bi bi-sun text-warning me-1"></i>Morning</div>
+              <div class="class-buttons">
+                <a
+                  href="{{ url_for('admin_semester_students', semester=1, shift='morning', section='A') }}"
+                  class="class-link"
+                  >A</a
+                >
+                <a
+                  href="{{ url_for('admin_semester_students', semester=1, shift='morning', section='B') }}"
+                  class="class-link"
+                  >B</a
+                >
+                <a
+                  href="{{ url_for('admin_semester_students', semester=1, shift='morning', section='C') }}"
+                  class="class-link"
+                  >C</a
+                >
+              </div>
+            </div>
+            <div class="shift-section">
+              <div class="shift-label"><i class="bi bi-moon-stars text-dark me-1"></i>Night</div>
+              <div class="class-buttons">
+                <a
+                  href="{{ url_for('admin_semester_students', semester=1, shift='night', section='A') }}"
+                  class="class-link"
+                  >A</a
+                >
+                <a
+                  href="{{ url_for('admin_semester_students', semester=1, shift='night', section='B') }}"
+                  class="class-link"
+                  >B</a
+                >
+                <a
+                  href="{{ url_for('admin_semester_students', semester=1, shift='night', section='C') }}"
+                  class="class-link"
+                  >C</a
+                >
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="card-footer bg-white">
-          <a
-            href="{{ url_for('admin_class_students', class_id=cls.id) }}"
-            class="btn btn-sm btn-outline-primary"
-          >
-            <i class="bi bi-people me-1"></i>View Students
-          </a>
+        <!-- Semester 2 -->
+        <div class="col-md-6 mb-3">
+          <div class="semester-card">
+            <h6 class="semester-title"><i class="bi bi-calendar-check me-2"></i>Semester 2</h6>
+            <div class="shift-section">
+              <div class="shift-label"><i class="bi bi-sun text-warning me-1"></i>Morning</div>
+              <div class="class-buttons">
+                <a
+                  href="{{ url_for('admin_semester_students', semester=2, shift='morning', section='A') }}"
+                  class="class-link"
+                  >A</a
+                >
+                <a
+                  href="{{ url_for('admin_semester_students', semester=2, shift='morning', section='B') }}"
+                  class="class-link"
+                  >B</a
+                >
+                <a
+                  href="{{ url_for('admin_semester_students', semester=2, shift='morning', section='C') }}"
+                  class="class-link"
+                  >C</a
+                >
+              </div>
+            </div>
+            <div class="shift-section">
+              <div class="shift-label"><i class="bi bi-moon-stars text-dark me-1"></i>Night</div>
+              <div class="class-buttons">
+                <a
+                  href="{{ url_for('admin_semester_students', semester=2, shift='night', section='A') }}"
+                  class="class-link"
+                  >A</a
+                >
+                <a
+                  href="{{ url_for('admin_semester_students', semester=2, shift='night', section='B') }}"
+                  class="class-link"
+                  >B</a
+                >
+                <a
+                  href="{{ url_for('admin_semester_students', semester=2, shift='night', section='C') }}"
+                  class="class-link"
+                  >C</a
+                >
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    {% endif %} {% endfor %}
   </div>
 
   <!-- Year 2 -->
-  <h4 class="mb-3 text-navy"><i class="bi bi-2-circle me-2"></i>Year 2</h4>
-  <div class="row mb-4">
-    {% for cls in classes %} {% if cls.year == 2 %}
-    <div class="col-md-6 mb-3">
-      <div class="card h-100">
-        <div class="card-header"><i class="bi bi-calendar-check me-2"></i>{{ cls.name }}</div>
-        <div class="card-body">
-          <p class="text-muted">{{ cls.description or 'No description' }}</p>
+  <div class="card mb-4">
+    <div class="card-header bg-success text-white">
+      <h5 class="mb-0"><i class="bi bi-2-circle me-2"></i>Year 2</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <!-- Semester 3 -->
+        <div class="col-md-6 mb-3">
+          <div class="semester-card">
+            <h6 class="semester-title"><i class="bi bi-calendar-check me-2"></i>Semester 3</h6>
+            <div class="shift-section">
+              <div class="shift-label"><i class="bi bi-sun text-warning me-1"></i>Morning</div>
+              <div class="class-buttons">
+                <a
+                  href="{{ url_for('admin_semester_students', semester=3, shift='morning', section='A') }}"
+                  class="class-link"
+                  >A</a
+                >
+                <a
+                  href="{{ url_for('admin_semester_students', semester=3, shift='morning', section='B') }}"
+                  class="class-link"
+                  >B</a
+                >
+                <a
+                  href="{{ url_for('admin_semester_students', semester=3, shift='morning', section='C') }}"
+                  class="class-link"
+                  >C</a
+                >
+              </div>
+            </div>
+            <div class="shift-section">
+              <div class="shift-label"><i class="bi bi-moon-stars text-dark me-1"></i>Night</div>
+              <div class="class-buttons">
+                <a
+                  href="{{ url_for('admin_semester_students', semester=3, shift='night', section='A') }}"
+                  class="class-link"
+                  >A</a
+                >
+                <a
+                  href="{{ url_for('admin_semester_students', semester=3, shift='night', section='B') }}"
+                  class="class-link"
+                  >B</a
+                >
+                <a
+                  href="{{ url_for('admin_semester_students', semester=3, shift='night', section='C') }}"
+                  class="class-link"
+                  >C</a
+                >
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="card-footer bg-white">
-          <a
-            href="{{ url_for('admin_class_students', class_id=cls.id) }}"
-            class="btn btn-sm btn-outline-primary"
-          >
-            <i class="bi bi-people me-1"></i>View Students
-          </a>
+        <!-- Semester 4 -->
+        <div class="col-md-6 mb-3">
+          <div class="semester-card">
+            <h6 class="semester-title"><i class="bi bi-calendar-check me-2"></i>Semester 4</h6>
+            <div class="shift-section">
+              <div class="shift-label"><i class="bi bi-sun text-warning me-1"></i>Morning</div>
+              <div class="class-buttons">
+                <a
+                  href="{{ url_for('admin_semester_students', semester=4, shift='morning', section='A') }}"
+                  class="class-link"
+                  >A</a
+                >
+                <a
+                  href="{{ url_for('admin_semester_students', semester=4, shift='morning', section='B') }}"
+                  class="class-link"
+                  >B</a
+                >
+                <a
+                  href="{{ url_for('admin_semester_students', semester=4, shift='morning', section='C') }}"
+                  class="class-link"
+                  >C</a
+                >
+              </div>
+            </div>
+            <div class="shift-section">
+              <div class="shift-label"><i class="bi bi-moon-stars text-dark me-1"></i>Night</div>
+              <div class="class-buttons">
+                <a
+                  href="{{ url_for('admin_semester_students', semester=4, shift='night', section='A') }}"
+                  class="class-link"
+                  >A</a
+                >
+                <a
+                  href="{{ url_for('admin_semester_students', semester=4, shift='night', section='B') }}"
+                  class="class-link"
+                  >B</a
+                >
+                <a
+                  href="{{ url_for('admin_semester_students', semester=4, shift='night', section='C') }}"
+                  class="class-link"
+                  >C</a
+                >
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    {% endif %} {% endfor %}
   </div>
-
-  {% if not classes %}
-  <div class="card">
-    <div class="card-body text-center py-5">
-      <i class="bi bi-calendar-x text-muted" style="font-size: 4rem"></i>
-      <h5 class="mt-3">No Semesters Found</h5>
-      <p class="text-muted">Run init_db.py to initialize the 4 semesters.</p>
-    </div>
-  </div>
-  {% endif %}
 </div>
+
+<style>
+  .semester-card {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    height: 100%;
+  }
+  .semester-title {
+    color: #0d1b2a;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e0e0e0;
+  }
+  .shift-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #e9ecef;
+  }
+  .shift-section:last-child {
+    border-bottom: none;
+  }
+  .shift-label {
+    font-weight: 500;
+    color: #495057;
+  }
+  .class-buttons {
+    display: flex;
+    gap: 8px;
+  }
+  .class-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: white;
+    border: 2px solid #0d1b2a;
+    border-radius: 8px;
+    color: #0d1b2a;
+    font-weight: bold;
+    text-decoration: none;
+    transition: all 0.15s ease;
+  }
+  .class-link:hover {
+    background: #0d1b2a;
+    color: white;
+    transform: translateY(-2px);
+  }
+</style>
 {% endblock %}

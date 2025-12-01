@@ -21,6 +21,12 @@
 }
 
 /* General Styles */
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
 body {
   background-color: var(--off-white);
   font-family: 'Segoe UI', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -32,21 +38,28 @@ body {
 .navbar {
   background: var(--navy-dark) !important;
   box-shadow: 0 2px 10px rgba(10, 22, 40, 0.3);
-  padding: 12px 0;
+  padding: 6px 0;
 }
 
 .navbar-brand {
   font-weight: 700;
-  font-size: 1.4rem;
-  letter-spacing: 0.5px;
+  font-size: 1.1rem;
+  letter-spacing: 0.3px;
 }
 
 .navbar-dark .navbar-nav .nav-link {
   color: rgba(255, 255, 255, 0.85);
   font-weight: 500;
-  padding: 8px 16px;
-  border-radius: 6px;
+  padding: 6px 10px;
+  border-radius: 4px;
   transition: all 0.2s ease;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+}
+
+.navbar-dark .navbar-nav .nav-link i {
+  font-size: 0.85rem;
 }
 
 .navbar-dark .navbar-nav .nav-link:hover {
@@ -56,6 +69,57 @@ body {
 
 .navbar-dark .navbar-nav .nav-link.active {
   background: rgba(255, 255, 255, 0.15);
+}
+
+/* Fix dropdown in navbar - position fixed to viewport */
+.navbar .dropdown-menu {
+  min-width: 160px;
+  padding: 8px 0;
+  z-index: 9999 !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  position: absolute !important;
+  top: 100% !important;
+  right: 0 !important;
+  left: auto !important;
+  margin-top: 2px !important;
+}
+
+/* Ensure navbar doesn't clip dropdown */
+.navbar {
+  overflow: visible !important;
+}
+
+.navbar .container {
+  overflow: visible !important;
+}
+
+.navbar-collapse {
+  overflow: visible !important;
+}
+
+.navbar .dropdown-menu .dropdown-item {
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  color: #333333 !important;
+}
+
+.navbar .dropdown-menu .dropdown-item:hover {
+  background-color: #f0f0f0 !important;
+  color: #1a56a8 !important;
+}
+
+.navbar .dropdown-menu .dropdown-item-text {
+  padding: 6px 16px;
+  font-size: 0.75rem;
+  color: #666666 !important;
+}
+
+.navbar .dropdown-menu .dropdown-divider {
+  margin: 6px 0;
+  border-color: #e0e0e0;
 }
 
 /* Card Styles - Clean Academic Look */
@@ -76,41 +140,42 @@ body {
   color: var(--white) !important;
   border-radius: 8px 8px 0 0 !important;
   font-weight: 600;
-  padding: 16px 20px;
+  padding: 10px 14px;
   border-bottom: none;
+  font-size: 0.85rem;
 }
 
 .card-body {
-  padding: 24px;
+  padding: 12px;
 }
 
 .card-footer {
   background: var(--off-white);
   border-top: 1px solid var(--gray-light);
-  padding: 16px 20px;
+  padding: 10px 14px;
 }
 
 /* Page Header - Academic Style */
 .page-header {
   background: var(--white);
-  border-radius: 8px;
-  padding: 28px 32px;
-  margin-bottom: 28px;
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
   box-shadow: 0 2px 8px rgba(10, 22, 40, 0.06);
-  border-left: 4px solid var(--navy);
+  border-left: 3px solid var(--navy);
 }
 
 .page-header h2 {
   color: var(--navy);
-  margin-bottom: 6px;
+  margin-bottom: 2px;
   font-weight: 700;
-  font-size: 1.6rem;
+  font-size: 1.1rem;
 }
 
 .page-header p {
   color: var(--text-muted);
   margin-bottom: 0;
-  font-size: 0.95rem;
+  font-size: 0.8rem;
 }
 
 /* Stats Cards - Unified Navy Theme */
@@ -164,6 +229,7 @@ body {
   border-radius: 8px;
   overflow: hidden;
   margin-bottom: 0;
+  font-size: 0.85rem;
 }
 
 .table thead th {
@@ -171,16 +237,18 @@ body {
   color: var(--white);
   border: none;
   font-weight: 600;
-  padding: 14px 16px;
+  padding: 10px 12px;
   text-transform: uppercase;
-  font-size: 0.8rem;
-  letter-spacing: 0.5px;
+  font-size: 0.7rem;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
 }
 
 .table tbody td {
-  padding: 14px 16px;
+  padding: 8px 12px;
   border-bottom: 1px solid var(--gray-light);
   vertical-align: middle;
+  font-size: 0.8rem;
 }
 
 .table-hover tbody tr:hover {
@@ -195,8 +263,9 @@ body {
 /* Button Styles - Academic */
 .btn {
   border-radius: 6px;
-  padding: 10px 20px;
+  padding: 8px 16px;
   font-weight: 600;
+  font-size: 0.85rem;
   transition: all 0.2s ease;
   border: none;
 }
@@ -265,33 +334,41 @@ body {
 /* Form Styles - Academic */
 .form-control,
 .form-select {
-  border-radius: 6px;
-  border: 2px solid var(--gray-light);
-  padding: 12px 16px;
-  font-size: 0.95rem;
+  border-radius: 5px;
+  border: 1px solid var(--gray-light);
+  padding: 8px 12px;
+  font-size: 0.85rem;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .form-control:focus,
 .form-select:focus {
   border-color: var(--navy);
-  box-shadow: 0 0 0 3px rgba(26, 39, 68, 0.1);
+  box-shadow: 0 0 0 2px rgba(26, 39, 68, 0.1);
 }
 
 .form-label {
   font-weight: 600;
   color: var(--navy);
-  margin-bottom: 8px;
-  font-size: 0.9rem;
+  margin-bottom: 4px;
+  font-size: 0.8rem;
+}
+
+/* Compact form controls */
+.form-control-sm,
+.form-select-sm {
+  padding: 6px 10px;
+  font-size: 0.8rem;
 }
 
 /* Badge Styles - Academic */
 .badge {
   border-radius: 4px;
-  padding: 6px 12px;
+  padding: 4px 8px;
   font-weight: 600;
-  font-size: 0.75rem;
-  letter-spacing: 0.3px;
+  font-size: 0.7rem;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
 }
 
 .bg-primary {
@@ -570,6 +647,32 @@ footer small {
   }
 }
 
+/* Fix horizontal scroll from Bootstrap row negative margins */
+.container,
+.container-fluid {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+main {
+  overflow-x: hidden;
+}
+
+/* Ensure table doesn't cause overflow */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-responsive::-webkit-scrollbar {
+  height: 6px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: var(--gray);
+  border-radius: 3px;
+}
+
 /* Animation */
 @keyframes fadeIn {
   from {
@@ -596,8 +699,8 @@ optgroup {
 
 /* Table Action Buttons */
 .btn-sm {
-  padding: 6px 12px;
-  font-size: 0.8rem;
+  padding: 4px 8px;
+  font-size: 0.75rem;
 }
 
 /* Text Colors */
@@ -623,4 +726,118 @@ optgroup {
 .bg-navy-light {
   background-color: var(--navy-light) !important;
   color: var(--white) !important;
+}
+
+/* Nav Tabs - Centered icons and text */
+.nav-tabs {
+  border-bottom: 1px solid var(--gray-light);
+}
+
+.nav-tabs .nav-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+}
+
+.nav-tabs .nav-link i {
+  font-size: 0.85rem;
+}
+
+.nav-tabs .nav-link.active {
+  color: var(--navy);
+  font-weight: 600;
+  border-bottom-color: var(--navy);
+  background: transparent;
+}
+
+.nav-tabs .nav-link:hover:not(.active) {
+  color: var(--navy);
+  border-bottom-color: var(--gray-light);
+}
+
+/* Compact Modal Styling */
+.modal-content {
+  border: none;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.modal-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--gray-light);
+}
+
+.modal-header.bg-navy {
+  background: linear-gradient(135deg, #0d1b2a 0%, #1e3a5f 100%) !important;
+}
+
+.modal-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.modal-body {
+  padding: 16px;
+}
+
+.modal-footer {
+  padding: 10px 16px;
+  border-top: 1px solid var(--gray-light);
+  background: var(--off-white);
+}
+
+/* Compact stats cards */
+.card.border-0.bg-light .card-body {
+  padding: 12px !important;
+}
+
+.card.border-0.bg-light h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0;
+}
+
+.card.border-0.bg-light small {
+  font-size: 0.7rem;
+}
+
+/* Avatar sizing */
+.avatar-sm {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+/* Compact alert */
+.alert {
+  padding: 10px 14px;
+  font-size: 0.8rem;
+}
+
+/* Main content padding */
+main.py-4 {
+  padding-top: 1rem !important;
+  padding-bottom: 1rem !important;
+}
+
+/* Footer compact */
+footer.py-4 {
+  padding-top: 0.75rem !important;
+  padding-bottom: 0.75rem !important;
+}
+
+footer small {
+  font-size: 0.75rem;
 }

@@ -52,39 +52,58 @@
                         </div>
 
                         <hr class="my-4">
-                        <h6 class="text-navy mb-3"><i class="bi bi-mortarboard me-2"></i>Student Information</h6>
+                        <h6 class="text-navy mb-3"><i class="bi bi-mortarboard me-2"></i>Academic Assignment</h6>
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Semester <span class="text-danger">*</span></label>
-                                <select name="class_id" class="form-select" required>
-                                    <option value="">Select semester...</option>
-                                    <optgroup label="Year 1">
-                                        {% for cls in classes %}
-                                        {% if cls.year == 1 %}
-                                        <option value="{{ cls.id }}" {{ 'selected' if student.class_id == cls.id }}>{{ cls.name }}</option>
-                                        {% endif %}
-                                        {% endfor %}
-                                    </optgroup>
-                                    <optgroup label="Year 2">
-                                        {% for cls in classes %}
-                                        {% if cls.year == 2 %}
-                                        <option value="{{ cls.id }}" {{ 'selected' if student.class_id == cls.id }}>{{ cls.name }}</option>
-                                        {% endif %}
-                                        {% endfor %}
-                                    </optgroup>
+                                <label class="form-label">Year <span class="text-danger">*</span></label>
+                                <select name="year" id="yearSelect" class="form-select" required onchange="updateSemesterOptions()">
+                                    <option value="">Select year...</option>
+                                    <option value="1" {{ 'selected' if student.year == 1 }}>Year 1</option>
+                                    <option value="2" {{ 'selected' if student.year == 2 }}>Year 2</option>
                                 </select>
-                                <small class="text-muted">Student takes all 5 subjects in the selected semester</small>
                             </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Semester <span class="text-danger">*</span></label>
+                                <select name="semester" id="semesterSelect" class="form-select" required>
+                                    <option value="">Select semester...</option>
+                                    <option value="1" {{ 'selected' if student.semester == 1 }}>Semester 1</option>
+                                    <option value="2" {{ 'selected' if student.semester == 2 }}>Semester 2</option>
+                                    <option value="3" {{ 'selected' if student.semester == 3 }}>Semester 3</option>
+                                    <option value="4" {{ 'selected' if student.semester == 4 }}>Semester 4</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Shift <span class="text-danger">*</span></label>
+                                <select name="shift" class="form-select" required>
+                                    <option value="">Select shift...</option>
+                                    <option value="morning" {{ 'selected' if student.shift == 'morning' }}>☀ Morning</option>
+                                    <option value="night" {{ 'selected' if student.shift == 'night' }}>☽ Night</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Class</label>
+                                <select name="section" class="form-select">
+                                    <option value="">Not assigned yet</option>
+                                    <option value="A" {{ 'selected' if student.section == 'A' }}>Class A</option>
+                                    <option value="B" {{ 'selected' if student.section == 'B' }}>Class B</option>
+                                    <option value="C" {{ 'selected' if student.section == 'C' }}>Class C</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Student Number</label>
                                 <input type="text" name="student_number" class="form-control" value="{{ student.student_number or '' }}">
                             </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Phone</label>
-                            <input type="text" name="phone" class="form-control" value="{{ student.phone or '' }}">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Phone</label>
+                                <input type="text" name="phone" class="form-control" value="{{ student.phone or '' }}">
+                            </div>
                         </div>
 
                         <hr class="my-4">
@@ -100,4 +119,43 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function updateSemesterOptions() {
+    const yearSelect = document.getElementById('yearSelect');
+    const semesterSelect = document.getElementById('semesterSelect');
+    const year = parseInt(yearSelect.value);
+    const currentSemester = parseInt(semesterSelect.value);
+    
+    // Clear current options
+    semesterSelect.innerHTML = '<option value="">Select semester...</option>';
+    
+    if (year === 1) {
+        semesterSelect.innerHTML += '<option value="1">Semester 1</option>';
+        semesterSelect.innerHTML += '<option value="2">Semester 2</option>';
+        // Auto-select semester 1 if current value doesn't fit
+        if (currentSemester === 1 || currentSemester === 2) {
+            semesterSelect.value = currentSemester;
+        } else {
+            semesterSelect.value = 1;
+        }
+    } else if (year === 2) {
+        semesterSelect.innerHTML += '<option value="3">Semester 3</option>';
+        semesterSelect.innerHTML += '<option value="4">Semester 4</option>';
+        // Auto-select semester 3 if current value doesn't fit
+        if (currentSemester === 3 || currentSemester === 4) {
+            semesterSelect.value = currentSemester;
+        } else {
+            semesterSelect.value = 3;
+        }
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updateSemesterOptions();
+});
+</script>
 {% endblock %}

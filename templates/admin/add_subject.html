@@ -16,30 +16,6 @@
     </div>
   </div>
 
-  <!-- Program Structure Info -->
-  <div class="card mb-4">
-    <div class="card-body">
-      <div class="row text-center">
-        <div class="col-md-3">
-          <strong class="text-navy">Year 1 - Sem 1</strong>
-          <br /><small class="text-muted">5 Subjects</small>
-        </div>
-        <div class="col-md-3">
-          <strong class="text-navy">Year 1 - Sem 2</strong>
-          <br /><small class="text-muted">5 Subjects</small>
-        </div>
-        <div class="col-md-3">
-          <strong class="text-navy">Year 2 - Sem 3</strong>
-          <br /><small class="text-muted">5 Subjects</small>
-        </div>
-        <div class="col-md-3">
-          <strong class="text-navy">Year 2 - Sem 4</strong>
-          <br /><small class="text-muted">5 Subjects</small>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- Add Subject Form -->
   <div class="row justify-content-center">
     <div class="col-md-8">
@@ -58,31 +34,28 @@
               />
             </div>
 
-            <div class="mb-3">
-              <label class="form-label">Semester <span class="text-danger">*</span></label>
-              <select name="class_id" class="form-select" required>
-                <option value="">Select semester...</option>
-                <optgroup label="Year 1">
-                  {% for cls in classes %} {% if cls.year == 1 %}
-                  <option value="{{ cls.id }}">{{ cls.name }}</option>
-                  {% endif %} {% endfor %}
-                </optgroup>
-                <optgroup label="Year 2">
-                  {% for cls in classes %} {% if cls.year == 2 %}
-                  <option value="{{ cls.id }}">{{ cls.name }}</option>
-                  {% endif %} {% endfor %}
-                </optgroup>
-              </select>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Year <span class="text-danger">*</span></label>
+                <select name="year" id="yearSelect" class="form-select" required>
+                  <option value="">Select year...</option>
+                  <option value="1">Year 1</option>
+                  <option value="2">Year 2</option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Semester <span class="text-danger">*</span></label>
+                <select name="semester" id="semesterSelect" class="form-select" required>
+                  <option value="">Select semester...</option>
+                </select>
+              </div>
             </div>
 
-            <div class="mb-3">
-              <label class="form-label">Assign Teacher</label>
-              <select name="teacher_id" class="form-select">
-                <option value="">Select teacher (optional)...</option>
-                {% for teacher in teachers %}
-                <option value="{{ teacher.id }}">{{ teacher.full_name }}</option>
-                {% endfor %}
-              </select>
+            <div class="alert alert-info mb-3">
+              <i class="bi bi-info-circle me-2"></i>
+              Teacher assignments are managed in the
+              <a href="{{ url_for('admin_teachers') }}" class="alert-link">Teachers</a> tab after
+              creating the subject.
             </div>
 
             <div class="mb-3">
@@ -108,4 +81,22 @@
     </div>
   </div>
 </div>
+{% endblock %} {% block extra_js %}
+<script>
+  const yearSelect = document.getElementById('yearSelect');
+  const semesterSelect = document.getElementById('semesterSelect');
+
+  yearSelect.addEventListener('change', function () {
+    const year = this.value;
+    semesterSelect.innerHTML = '<option value="">Select semester...</option>';
+
+    if (year === '1') {
+      semesterSelect.innerHTML += '<option value="1">Semester 1</option>';
+      semesterSelect.innerHTML += '<option value="2">Semester 2</option>';
+    } else if (year === '2') {
+      semesterSelect.innerHTML += '<option value="3">Semester 3</option>';
+      semesterSelect.innerHTML += '<option value="4">Semester 4</option>';
+    }
+  });
+</script>
 {% endblock %}

@@ -30,13 +30,19 @@ CREATE TABLE users (
 
 -- =============================================
 -- 2. CLASSES TABLE
--- Stores class information (e.g., MIS Year 1, MIS Year 2)
+-- Stores class information with Year, Semester, Section, Shift
 -- =============================================
 CREATE TABLE classes (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    year INTEGER NOT NULL CHECK (year IN (1, 2)),
+    semester INTEGER NOT NULL CHECK (semester IN (1, 2, 3, 4)),
+    section VARCHAR(1) NOT NULL CHECK (section IN ('A', 'B', 'C')),
+    shift VARCHAR(10) NOT NULL CHECK (shift IN ('morning', 'night')),
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(year, semester, section, shift)
 );
 
 -- =============================================
@@ -67,12 +73,14 @@ CREATE TABLE students (
 -- =============================================
 -- 5. SUBJECTS TABLE
 -- Subjects taught in each class
+-- teacher_id = Theory teacher, practical_teacher_id = Practical/Lab teacher
 -- =============================================
 CREATE TABLE subjects (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     class_id INTEGER REFERENCES classes(id) ON DELETE CASCADE,
     teacher_id INTEGER REFERENCES teachers(id) ON DELETE SET NULL,
+    practical_teacher_id INTEGER REFERENCES teachers(id) ON DELETE SET NULL,
     description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

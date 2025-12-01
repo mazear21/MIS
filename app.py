@@ -165,17 +165,30 @@ def dashboard():
 @app.route('/admin/dashboard')
 @admin_required
 def admin_dashboard():
-    """Admin dashboard"""
+    """Admin dashboard with semester statistics"""
     users = db.get_all_users() or []
-    classes = db.get_all_classes() or []
     teachers = db.get_all_teachers() or []
-    students = db.get_all_students() or []
+    
+    # Get total student count directly from students table
+    student_count_result = db.execute_query("SELECT COUNT(*) as count FROM students", fetch_one=True)
+    total_students = student_count_result['count'] if student_count_result else 0
+    
+    # Get total unique subject count (count unique subject names)
+    subject_count_result = db.execute_query(
+        "SELECT COUNT(DISTINCT name) as count FROM subjects", 
+        fetch_one=True
+    )
+    total_subjects = subject_count_result['count'] if subject_count_result else 0
+    
+    # Get student counts per semester
+    semester_stats = db.get_student_counts_by_semester()
     
     stats = {
         'total_users': len(users),
-        'total_classes': len(classes),
         'total_teachers': len(teachers),
-        'total_students': len(students)
+        'total_students': total_students,
+        'total_subjects': total_subjects,
+        'semesters': semester_stats
     }
     
     return render_template('admin/dashboard.html', stats=stats)
@@ -195,9 +208,19 @@ def teacher_dashboard():
     homework = db.get_homework_by_teacher(teacher['id']) or []
     timetable = db.get_timetable_by_teacher(teacher['id']) or []
     
+    # Group subjects by name for cleaner display
+    grouped_subjects = {}
+    for s in subjects:
+        name = s['name']
+        if name not in grouped_subjects:
+            grouped_subjects[name] = {'count': 0, 'classes': []}
+        grouped_subjects[name]['count'] += 1
+        grouped_subjects[name]['classes'].append(s.get('class_name', ''))
+    
     return render_template('teacher/dashboard.html', 
                          teacher=teacher,
-                         subjects=subjects, 
+                         subjects=subjects,
+                         grouped_subjects=grouped_subjects,
                          homework=homework,
                          timetable=timetable)
 
@@ -315,6 +338,112 @@ def admin_delete_user(user_id):
     return redirect(url_for('admin_users'))
 
 
+@app.route('/admin/users/<int:user_id>/edit', methods=['POST'])
+@admin_required
+def admin_edit_user(user_id):
+    """Edit user details"""
+    full_name = request.form.get('full_name', '').strip()
+    email = request.form.get('email', '').strip()
+    new_password = request.form.get('new_password', '')
+    confirm_password = request.form.get('confirm_password', '')
+    
+    if not full_name:
+        flash('Full name is required.', 'warning')
+        return redirect(url_for('admin_users'))
+    
+    # Update basic info
+    result = db.update_user(user_id, full_name, email)
+    
+    # Update password if provided
+    if new_password:
+        if new_password != confirm_password:
+            flash('Passwords do not match.', 'danger')
+            return redirect(url_for('admin_users'))
+        
+        password_hash = generate_password_hash(new_password)
+        db.update_user_password(user_id, password_hash)
+    
+    if result:
+        flash('User updated successfully.', 'success')
+    else:
+        flash('Error updating user.', 'danger')
+    
+    return redirect(url_for('admin_users'))
+
+
+# =============================================
+# ADMIN - TEACHER MANAGEMENT
+# =============================================
+
+@app.route('/admin/teachers')
+@admin_required
+def admin_teachers():
+    """View all teachers with their subjects"""
+    teachers = db.get_all_teachers_with_subjects() or []
+    classes = db.get_all_classes() or []
+    unique_subjects = db.get_unique_subjects_by_semester() or []
+    # Get subjects for each teacher
+    for teacher in teachers:
+        teacher['subjects'] = db.get_subjects_by_teacher_id(teacher['teacher_id']) or []
+    return render_template('admin/teachers.html', teachers=teachers, classes=classes, unique_subjects=unique_subjects)
+
+
+@app.route('/admin/teachers/<int:teacher_id>/assign-subject', methods=['POST'])
+@admin_required
+def admin_assign_subject_to_teacher(teacher_id):
+    """Quick assign a subject to a teacher for multiple classes"""
+    subject_name = request.form.get('subject_name', '').strip()
+    class_ids = request.form.getlist('class_ids')  # Get multiple class IDs
+    
+    if not subject_name or not class_ids:
+        flash('Please enter subject name and select at least one class.', 'warning')
+        return redirect(url_for('admin_teachers'))
+    
+    success_count = 0
+    for class_id in class_ids:
+        # Check if subject already exists for this class
+        existing_subject = db.get_subject_by_name_and_class(subject_name, class_id)
+        
+        if existing_subject:
+            # Update the existing subject's teacher
+            result = db.update_subject_teacher(existing_subject['id'], teacher_id)
+            if result:
+                success_count += 1
+        else:
+            # Check if class already has 5 subjects
+            current_count = db.get_subject_count_by_class(class_id)
+            if current_count >= 5:
+                flash(f'Skipped: One class already has {current_count} subjects (maximum 5).', 'warning')
+                continue
+            
+            # Create the subject for this class
+            subject_id = db.create_subject(subject_name, class_id, teacher_id)
+            if subject_id:
+                success_count += 1
+    
+    if success_count > 0:
+        flash(f'Subject "{subject_name}" assigned to {success_count} class(es) successfully!', 'success')
+    else:
+        flash('Error assigning subject.', 'danger')
+    
+    return redirect(url_for('admin_teachers'))
+
+
+@app.route('/admin/teachers/unassign-subject/<int:subject_id>', methods=['POST'])
+@admin_required
+def admin_unassign_subject(subject_id):
+    """Remove a subject assignment (unassign teacher or delete subject)"""
+    # For now, we'll just remove the teacher assignment
+    result = db.update_subject_teacher(subject_id, None)
+    
+    if result:
+        flash('Subject unassigned successfully.', 'success')
+    else:
+        flash('Error unassigning subject.', 'danger')
+    
+    return redirect(url_for('admin_teachers'))
+
+
 # =============================================
 # ADMIN - CLASS MANAGEMENT
 # =============================================
@@ -322,9 +451,27 @@ def admin_delete_user(user_id):
 @app.route('/admin/classes')
 @admin_required
 def admin_classes():
-    """Manage classes"""
+    """Manage classes - shows all 4 semesters"""
     classes = db.get_all_classes() or []
     return render_template('admin/classes.html', classes=classes)
+
+
+@app.route('/admin/semester/<int:semester>/<shift>/<section>')
+@admin_required
+def admin_semester_students(semester, shift, section):
+    """View students by Semester/Shift/Section"""
+    students = db.get_students_by_semester(semester, shift, section) or []
+    year = 1 if semester <= 2 else 2
+    
+    # Build class_info for the template
+    class_info = {
+        'year': year,
+        'semester': semester,
+        'shift': shift,
+        'section': section
+    }
+    
+    return render_template('admin/class_students.html', class_info=class_info, students=students)
 
 
 @app.route('/admin/classes/add', methods=['GET', 'POST'])
@@ -336,18 +483,29 @@ def admin_add_class():
         description = request.form.get('description', '').strip()
         year = request.form.get('year', type=int)
         semester = request.form.get('semester', type=int)
+        section = request.form.get('section', '').strip()
+        shift = request.form.get('shift', '').strip()
         
-        if not name:
-            flash('Please enter a class name.', 'warning')
+        # Validation
+        if not all([name, year, semester, section, shift]):
+            flash('Please fill in all required fields.', 'warning')
             return render_template('admin/add_class.html')
         
-        class_id = db.create_class(name, description, year, semester)
+        # Validate year-semester combination
+        if year == 1 and semester not in [1, 2]:
+            flash('Year 1 can only have Semester 1 or 2.', 'danger')
+            return render_template('admin/add_class.html')
+        if year == 2 and semester not in [3, 4]:
+            flash('Year 2 can only have Semester 3 or 4.', 'danger')
+            return render_template('admin/add_class.html')
+        
+        class_id = db.create_class(name, year, semester, section, shift, description)
         
         if class_id:
             flash(f'Class "{name}" created successfully!', 'success')
             return redirect(url_for('admin_classes'))
         else:
-            flash('Error creating class.', 'danger')
+            flash('Error creating class. This class combination may already exist.', 'danger')
     
     return render_template('admin/add_class.html')
 
@@ -372,82 +530,147 @@ def admin_class_students(class_id):
 @app.route('/admin/students')
 @admin_required
 def admin_students():
-    """Manage students"""
+    """Manage students with Year/Shift/Section filters"""
     year = request.args.get('year')
-    class_id = request.args.get('class_id')
+    shift = request.args.get('shift')
+    section = request.args.get('section')
     
-    if year or class_id:
-        students = db.get_students_filtered(year=year, class_id=class_id) or []
-    else:
-        students = db.get_all_students() or []
+    # Get all students with new structure
+    students = db.get_all_students_v2() or []
     
-    classes = db.get_all_classes() or []
-    return render_template('admin/students.html', students=students, classes=classes)
+    # Apply filters
+    if year:
+        students = [s for s in students if s.get('year') == int(year)]
+    if shift:
+        students = [s for s in students if s.get('shift') == shift]
+    if section:
+        if section == 'none':
+            students = [s for s in students if not s.get('section')]
+        else:
+            students = [s for s in students if s.get('section') == section]
+    
+    return render_template('admin/students.html', students=students)
+
+
+@app.route('/admin/students/assign-sections', methods=['GET', 'POST'])
+@admin_required
+def admin_assign_sections():
+    """Assign sections to students who don't have one"""
+    if request.method == 'POST':
+        # Process section assignments
+        for key, value in request.form.items():
+            if key.startswith('section_') and value:
+                student_id = int(key.replace('section_', ''))
+                db.assign_student_section(student_id, value)
+        flash('Sections assigned successfully!', 'success')
+        return redirect(url_for('admin_students'))
+    
+    # Get students without sections, grouped by year and shift
+    students = db.get_students_without_section() or []
+    
+    # Group students by year and shift
+    grouped = {}
+    for s in students:
+        key = f"Year {s.get('year', '?')} - {(s.get('shift') or 'unknown').title()}"
+        if key not in grouped:
+            grouped[key] = []
+        grouped[key].append(s)
+    
+    return render_template('admin/assign_sections.html', grouped_students=grouped)
 
 
 @app.route('/admin/students/add', methods=['GET', 'POST'])
 @admin_required
 def admin_add_student():
-    """Add new student"""
-    classes = db.get_all_classes() or []
-    
+    """Add new student with Semester + Shift + Section (optional)"""
     if request.method == 'POST':
-        username = request.form.get('username', '').strip()
         password = request.form.get('password', '')
         full_name = request.form.get('full_name', '').strip()
-        email = request.form.get('email', '').strip()
-        class_id = request.form.get('class_id')
-        student_number = request.form.get('student_number', '').strip()
-        phone = request.form.get('phone', '').strip()
+        email = request.form.get('email', '').strip() or None  # Empty string becomes None
+        semester = request.form.get('semester', type=int)
+        shift = request.form.get('shift')
+        section = request.form.get('section') or None  # Optional now
+        phone = request.form.get('phone', '').strip() or None  # Empty string becomes None
         
-        # Validation
-        if not all([username, password, full_name, class_id, student_number]):
+        # Derive year from semester
+        year = 1 if semester <= 2 else 2
+        
+        # Validation - removed username, student_number, and section from required
+        if not all([password, full_name, semester, shift]):
             flash('Please fill in all required fields.', 'warning')
-            return render_template('admin/add_student.html', classes=classes)
+            return render_template('admin/add_student.html')
         
-        # Check if username exists
+        # Auto-generate unique student number (MIS + year + 5-digit sequence)
+        import datetime
+        current_year = datetime.datetime.now().year
+        
+        # Get the highest student number to generate next one
+        result = db.execute_query(
+            "SELECT student_number FROM students WHERE student_number LIKE %s ORDER BY student_number DESC LIMIT 1",
+            (f'MIS{current_year}%',),
+            fetch_one=True
+        )
+        
+        if result and result['student_number']:
+            # Extract the sequence number and increment
+            last_num = result['student_number']
+            try:
+                seq = int(last_num[-5:]) + 1
+            except:
+                seq = 1
+        else:
+            seq = 1
+        
+        student_number = f"MIS{current_year}{seq:05d}"
+        
+        # Auto-generate username from student number
+        username = student_number.lower()
+        
+        # Check if username exists (shouldn't happen with unique student numbers)
         if db.get_user_by_username(username):
-            flash('Username already exists.', 'danger')
-            return render_template('admin/add_student.html', classes=classes)
+            flash('Error generating unique student ID. Please try again.', 'danger')
+            return render_template('admin/add_student.html')
         
         # Create user
         password_hash = generate_password_hash(password)
         user_id = db.create_user(username, password_hash, full_name, 'student', email)
         
         if user_id:
-            db.create_student(user_id, class_id, student_number, phone)
-            flash(f'Student "{full_name}" created successfully!', 'success')
+            db.create_student_with_semester(user_id, year, semester, shift, section, student_number, phone)
+            flash(f'Student "{full_name}" added with ID: {student_number}!', 'success')
             return redirect(url_for('admin_students'))
         else:
             flash('Error creating student.', 'danger')
     
-    return render_template('admin/add_student.html', classes=classes)
+    return render_template('admin/add_student.html')
 
 
 @app.route('/admin/students/<int:student_id>/edit', methods=['GET', 'POST'])
 @admin_required
 def admin_edit_student(student_id):
-    """Edit student"""
+    """Edit student with Year/Shift/Section"""
     student = db.get_student_by_id(student_id)
     if not student:
         flash('Student not found.', 'danger')
         return redirect(url_for('admin_students'))
     
-    classes = db.get_all_classes() or []
-    
     if request.method == 'POST':
         full_name = request.form.get('full_name', '').strip()
         email = request.form.get('email', '').strip()
-        class_id = request.form.get('class_id')
+        year = request.form.get('year')
+        semester = request.form.get('semester')
+        shift = request.form.get('shift')
+        section = request.form.get('section') or None
         student_number = request.form.get('student_number', '').strip()
         phone = request.form.get('phone', '').strip()
         password = request.form.get('password', '')
         
-        if not full_name or not class_id:
-            flash('Please fill in all required fields.', 'warning')
-            return render_template('admin/edit_student.html', student=student, classes=classes)
+        if not full_name or not year or not semester or not shift:
+            flash('Please fill in all required fields (Full Name, Year, Semester, Shift).', 'warning')
+            return render_template('admin/edit_student.html', student=student)
         
-        db.update_student(student_id, full_name, email, class_id, student_number, phone)
+        # Update student with new fields including semester
+        db.update_student_v2(student_id, full_name, email, int(year), int(semester), shift, section, student_number, phone)
         
         # Update password if provided
         if password:
@@ -458,7 +681,7 @@ def admin_edit_student(student_id):
         flash('Student updated successfully!', 'success')
         return redirect(url_for('admin_students'))
     
-    return render_template('admin/edit_student.html', student=student, classes=classes)
+    return render_template('admin/edit_student.html', student=student)
 
 
 @app.route('/admin/students/<int:student_id>/delete', methods=['POST'])
@@ -480,30 +703,51 @@ def admin_delete_student(student_id):
 @app.route('/admin/subjects')
 @admin_required
 def admin_subjects():
-    """Manage subjects"""
-    subjects = db.get_all_subjects() or []
-    classes = db.get_all_classes() or []
-    return render_template('admin/subjects.html', subjects=subjects, classes=classes)
+    """Manage subjects - grouped by semester only"""
+    subjects = db.get_subjects_grouped_by_semester() or []
+    semesters = db.get_semesters()
+    return render_template('admin/subjects.html', subjects=subjects, semesters=semesters)
 
 
 @app.route('/admin/subjects/add', methods=['GET', 'POST'])
 @admin_required
 def admin_add_subject():
     """Add new subject"""
-    classes = db.get_all_classes() or []
+    semesters = db.get_semesters()
     teachers = db.get_all_teachers() or []
     
     if request.method == 'POST':
         name = request.form.get('name', '').strip()
-        class_id = request.form.get('class_id')
+        year = request.form.get('year')
+        semester = request.form.get('semester')
         teacher_id = request.form.get('teacher_id')
+        practical_teacher_id = request.form.get('practical_teacher_id')
         description = request.form.get('description', '').strip()
         
-        if not name or not class_id:
-            flash('Please enter subject name and select a class.', 'warning')
-            return render_template('admin/add_subject.html', classes=classes, teachers=teachers)
+        if not name or not year or not semester:
+            flash('Please enter subject name and select a semester.', 'warning')
+            return render_template('admin/add_subject.html', semesters=semesters, teachers=teachers)
         
-        subject_id = db.create_subject(name, class_id, teacher_id if teacher_id else None, description)
+        # Get first class for this semester to link the subject
+        class_id = db.get_first_class_for_semester(year, semester)
+        if not class_id:
+            flash('No class found for this semester. Please create classes first.', 'danger')
+            return render_template('admin/add_subject.html', semesters=semesters, teachers=teachers)
+        
+        # Check subject count for this semester
+        existing_subjects = [s for s in (db.get_subjects_grouped_by_semester() or []) 
+                          if s['year'] == int(year) and s['semester'] == int(semester)]
+        if len(existing_subjects) >= 5:
+            flash(f'Cannot add subject: Semester {semester} already has 5 subjects (maximum allowed).', 'danger')
+            return render_template('admin/add_subject.html', semesters=semesters, teachers=teachers)
+        
+        subject_id = db.create_subject(
+            name, 
+            class_id, 
+            teacher_id if teacher_id else None, 
+            practical_teacher_id if practical_teacher_id else None,
+            description
+        )
         
         if subject_id:
             flash(f'Subject "{name}" created successfully!', 'success')
@@ -511,7 +755,7 @@ def admin_add_subject():
         else:
             flash('Error creating subject.', 'danger')
     
-    return render_template('admin/add_subject.html', classes=classes, teachers=teachers)
+    return render_template('admin/add_subject.html', semesters=semesters, teachers=teachers)
 
 
 @app.route('/admin/subjects/<int:subject_id>/edit', methods=['GET', 'POST'])
@@ -523,24 +767,39 @@ def admin_edit_subject(subject_id):
         flash('Subject not found.', 'danger')
         return redirect(url_for('admin_subjects'))
     
-    classes = db.get_all_classes() or []
+    semesters = db.get_semesters()
     teachers = db.get_all_teachers() or []
     
     if request.method == 'POST':
         name = request.form.get('name', '').strip()
-        class_id = request.form.get('class_id')
+        year = request.form.get('year')
+        semester = request.form.get('semester')
         teacher_id = request.form.get('teacher_id')
+        practical_teacher_id = request.form.get('practical_teacher_id')
         description = request.form.get('description', '').strip()
         
-        if not name or not class_id:
+        if not name or not year or not semester:
             flash('Please enter subject name and select a semester.', 'warning')
-            return render_template('admin/edit_subject.html', subject=subject, classes=classes, teachers=teachers)
+            return render_template('admin/edit_subject.html', subject=subject, semesters=semesters, teachers=teachers)
         
-        db.update_subject(subject_id, name, class_id, teacher_id if teacher_id else None, description)
+        # Get first class for this semester
+        class_id = db.get_first_class_for_semester(year, semester)
+        if not class_id:
+            flash('No class found for this semester.', 'danger')
+            return render_template('admin/edit_subject.html', subject=subject, semesters=semesters, teachers=teachers)
+        
+        db.update_subject(
+            subject_id, 
+            name, 
+            class_id, 
+            teacher_id if teacher_id else None, 
+            practical_teacher_id if practical_teacher_id else None,
+            description
+        )
         flash('Subject updated successfully!', 'success')
         return redirect(url_for('admin_subjects'))
     
-    return render_template('admin/edit_subject.html', subject=subject, classes=classes, teachers=teachers)
+    return render_template('admin/edit_subject.html', subject=subject, semesters=semesters, teachers=teachers)
 
 
 @app.route('/admin/subjects/<int:subject_id>/delete', methods=['POST'])
@@ -564,14 +823,40 @@ def admin_delete_subject(subject_id):
 @app.route('/teacher/attendance')
 @teacher_required
 def teacher_attendance():
-    """Attendance management page"""
+    """Attendance management page - grouped by subject name"""
     teacher = db.get_teacher_by_user_id(session['user_id'])
     if not teacher:
         flash('Teacher profile not found.', 'danger')
         return redirect(url_for('dashboard'))
     
     subjects = db.get_subjects_by_teacher(teacher['id']) or []
-    return render_template('teacher/attendance.html', subjects=subjects, teacher=teacher)
+    
+    # Group subjects by name - ONE card per subject, with classes inside
+    grouped_subjects = {}
+    for s in subjects:
+        name = s['name']
+        if name not in grouped_subjects:
+            grouped_subjects[name] = {'classes': []}
+        
+        # Parse class info from class_name (e.g., "Year 1 - Sem 1 - Section A - Morning")
+        class_name = s.get('class_name', '')
+        parts = class_name.split(' - ')
+        year = parts[0].replace('Year ', '') if len(parts) > 0 else '?'
+        semester = parts[1].replace('Sem ', '') if len(parts) > 1 else '?'
+        section = parts[2].replace('Section ', '') if len(parts) > 2 else ''
+        shift = parts[3].lower() if len(parts) > 3 else 'morning'
+        
+        grouped_subjects[name]['classes'].append({
+            'subject_id': s['id'],
+            'class_id': s.get('class_id'),
+            'class_name': class_name,
+            'year': year,
+            'semester': semester,
+            'section': section,
+            'shift': shift
+        })
+    
+    return render_template('teacher/attendance.html', grouped_subjects=grouped_subjects, teacher=teacher)
 
 
 @app.route('/teacher/attendance/take/<int:subject_id>', methods=['GET', 'POST'])
@@ -685,14 +970,39 @@ def teacher_attendance_logs(subject_id):
 @app.route('/teacher/grades')
 @teacher_required
 def teacher_grades():
-    """Grades management page"""
+    """Grades management page - grouped by subject name"""
     teacher = db.get_teacher_by_user_id(session['user_id'])
     if not teacher:
         flash('Teacher profile not found.', 'danger')
         return redirect(url_for('dashboard'))
     
     subjects = db.get_subjects_by_teacher(teacher['id']) or []
-    return render_template('teacher/grades.html', subjects=subjects, teacher=teacher)
+    
+    # Group subjects by name
+    grouped_subjects = {}
+    for s in subjects:
+        name = s['name']
+        if name not in grouped_subjects:
+            grouped_subjects[name] = {'classes': []}
+        
+        class_name = s.get('class_name', '')
+        parts = class_name.split(' - ')
+        year = parts[0].replace('Year ', '') if len(parts) > 0 else '?'
+        semester = parts[1].replace('Sem ', '') if len(parts) > 1 else '?'
+        section = parts[2].replace('Section ', '') if len(parts) > 2 else ''
+        shift = parts[3].lower() if len(parts) > 3 else 'morning'
+        
+        grouped_subjects[name]['classes'].append({
+            'subject_id': s['id'],
+            'class_id': s.get('class_id'),
+            'class_name': class_name,
+            'year': year,
+            'semester': semester,
+            'section': section,
+            'shift': shift
+        })
+    
+    return render_template('teacher/grades.html', grouped_subjects=grouped_subjects, teacher=teacher)
 
 
 @app.route('/teacher/grades/add/<int:subject_id>', methods=['GET', 'POST'])
@@ -821,14 +1131,38 @@ def teacher_add_homework():
 @app.route('/teacher/topics')
 @teacher_required
 def teacher_topics():
-    """Weekly topics management"""
+    """Weekly topics management - grouped by subject name"""
     teacher = db.get_teacher_by_user_id(session['user_id'])
     if not teacher:
         flash('Teacher profile not found.', 'danger')
         return redirect(url_for('dashboard'))
     
     subjects = db.get_subjects_by_teacher(teacher['id']) or []
-    return render_template('teacher/topics.html', subjects=subjects)
+    
+    # Group subjects by name
+    grouped_subjects = {}
+    for s in subjects:
+        name = s['name']
+        if name not in grouped_subjects:
+            grouped_subjects[name] = {'classes': []}
+        
+        class_name = s.get('class_name', '')
+        parts = class_name.split(' - ')
+        year = parts[0].replace('Year ', '') if len(parts) > 0 else '?'
+        semester = parts[1].replace('Sem ', '') if len(parts) > 1 else '?'
+        section = parts[2].replace('Section ', '') if len(parts) > 2 else ''
+        shift = parts[3].lower() if len(parts) > 3 else 'morning'
+        
+        grouped_subjects[name]['classes'].append({
+            'subject_id': s['id'],
+            'class_name': class_name,
+            'year': year,
+            'semester': semester,
+            'section': section,
+            'shift': shift
+        })
+    
+    return render_template('teacher/topics.html', grouped_subjects=grouped_subjects)
 
 
 @app.route('/teacher/topics/<int:subject_id>', methods=['GET', 'POST'])
@@ -1073,6 +1407,95 @@ def student_files():
 # =============================================
 # INITIALIZE DEFAULT ADMIN
 # =============================================
+
+# =============================================
+# ADMIN - SCHEDULE BUILDER API
+# =============================================
+
+@app.route('/admin/api/schedule/<int:semester>/<shift>/<section>', methods=['GET'])
+@admin_required
+def api_get_schedule(semester, shift, section):
+    """API: Get schedule for a semester/shift/section"""
+    import json
+    schedule = db.get_schedule(semester, shift, section)
+    if schedule and schedule.get('schedule_data'):
+        data = schedule['schedule_data']
+        # If it's already a list/dict, return as-is
+        if isinstance(data, (list, dict)):
+            return {'success': True, 'data': data}
+        # If it's a string, parse it
+        return {'success': True, 'data': json.loads(data)}
+    return {'success': True, 'data': []}
+
+
+@app.route('/admin/api/schedule/<int:semester>/<shift>/<section>', methods=['POST'])
+@admin_required
+def api_save_schedule(semester, shift, section):
+    """API: Save schedule for a semester/shift/section"""
+    import json
+    data = request.get_json()
+    schedule_data = data.get('schedule_data', [])
+    
+    result = db.save_schedule(semester, shift, section, json.dumps(schedule_data))
+    if result:
+        return {'success': True, 'message': 'Schedule saved successfully!'}
+    return {'success': False, 'message': 'Error saving schedule'}, 500
+
+
+@app.route('/admin/api/teachers-subjects/<int:semester>')
+@admin_required
+def api_get_teachers_subjects_by_semester(semester):
+    """API: Get teachers and subjects for a specific semester"""
+    subjects = db.get_all_subjects() or []
+    
+    # Filter subjects by semester
+    semester_subjects = [s for s in subjects if s.get('semester') == semester]
+    
+    # Get ALL subjects with their assigned teachers and class info
+    subject_list = []
+    for s in semester_subjects:
+        subject_list.append({
+            'id': s['id'],
+            'name': s['name'],
+            'class_id': s.get('class_id'),
+            'section': s.get('section', ''),
+            'shift': s.get('shift', ''),
+            'year': s.get('year'),
+            'teacher_name': s.get('teacher_name', ''),
+            'teacher_id': s.get('teacher_id'),
+            'practical_teacher_name': s.get('practical_teacher_name', ''),
+            'practical_teacher_id': s.get('practical_teacher_id')
+        })
+    
+    # Get ALL teachers for dropdown
+    all_teachers = db.get_all_teachers() or []
+    teachers_list = [{'id': t['id'], 'name': t['full_name']} for t in all_teachers]
+    
+    return {
+        'subjects': subject_list,
+        'teachers': teachers_list
+    }
+
+
+@app.route('/admin/api/teachers-subjects')
+@admin_required
+def api_get_teachers_subjects():
+    """API: Get all teachers and subjects for schedule dropdown"""
+    teachers = db.get_all_teachers() or []
+    subjects = db.get_all_subjects() or []
+    
+    return {
+        'teachers': [{'id': t['id'], 'name': t['full_name']} for t in teachers],
+        'subjects': [{
+            'id': s['id'], 
+            'name': s['name'], 
+            'semester': s.get('semester'), 
+            'year': s.get('year'), 
+            'teacher_name': s.get('teacher_name'),
+            'practical_teacher_name': s.get('practical_teacher_name')
+        } for s in subjects]
+    }
+
 
 def init_admin():
     """Create default admin user if not exists"""

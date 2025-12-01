@@ -1,16 +1,36 @@
-{% extends 'base.html' %} {% block title %}{{ class_info.name }} - Students{% endblock %} {% block
-content %}
+{% extends 'base.html' %} {% block title %}Semester {{ class_info.semester }} - Class {{
+class_info.section }}{% endblock %} {% block content %}
 <div class="container">
   <!-- Page Header -->
   <div class="page-header">
     <div class="row align-items-center">
       <div class="col">
-        <h2><i class="bi bi-people me-2"></i>{{ class_info.name }} - Students</h2>
-        <p>Students enrolled in this semester</p>
+        <h2>
+          {% if class_info.shift == 'morning' %}
+          <i class="bi bi-sun text-warning me-2"></i>
+          {% else %}
+          <i class="bi bi-moon-stars text-primary me-2"></i>
+          {% endif %} Semester {{ class_info.semester }} - Class {{ class_info.section }}
+        </h2>
+        <p class="mb-0">
+          <span class="badge bg-{{ 'primary' if class_info.year == 1 else 'success' }} me-2">
+            Year {{ class_info.year }}
+          </span>
+          <span class="badge bg-info me-2"> Semester {{ class_info.semester }} </span>
+          <span
+            class="badge bg-{{ 'warning text-dark' if class_info.shift == 'morning' else 'dark' }} me-2"
+          >
+            {{ class_info.shift|title }} Shift
+          </span>
+          <span class="badge bg-navy">{{ students|length }} Students</span>
+        </p>
       </div>
       <div class="col-auto">
+        <a href="{{ url_for('admin_add_student') }}" class="btn btn-primary me-2">
+          <i class="bi bi-person-plus me-1"></i>Add Student
+        </a>
         <a href="{{ url_for('admin_classes') }}" class="btn btn-outline-secondary">
-          <i class="bi bi-arrow-left me-1"></i>Back to Semesters
+          <i class="bi bi-arrow-left me-1"></i>Back
         </a>
       </div>
     </div>
@@ -47,14 +67,11 @@ content %}
           </tbody>
         </table>
       </div>
-      <div class="mt-3">
-        <span class="badge bg-navy fs-6">Total Students: {{ students|length }}</span>
-      </div>
       {% else %}
       <div class="text-center py-5">
         <i class="bi bi-people text-muted" style="font-size: 4rem"></i>
-        <h5 class="mt-3">No Students in This Semester</h5>
-        <p class="text-muted">Add students and assign them to this semester.</p>
+        <h5 class="mt-3">No Students in This Class</h5>
+        <p class="text-muted">Add students and assign them to this class.</p>
         <a href="{{ url_for('admin_add_student') }}" class="btn btn-primary">
           <i class="bi bi-person-plus me-1"></i>Add Student
         </a>
