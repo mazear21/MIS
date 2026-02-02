@@ -19,10 +19,10 @@ cur.execute('SELECT COUNT(*) FROM students WHERE year IS NOT NULL')
 print(f'Students with Year: {cur.fetchone()[0]}')
 
 cur.execute('SELECT COUNT(*) FROM students WHERE section IS NOT NULL')
-print(f'Students with Section: {cur.fetchone()[0]}')
+print(f'Students with Class: {cur.fetchone()[0]}')
 
 cur.execute('SELECT COUNT(*) FROM students WHERE section IS NULL')
-print(f'Students WITHOUT Section: {cur.fetchone()[0]}')
+print(f'Students WITHOUT Class: {cur.fetchone()[0]}')
 
 print('\n=== STUDENT DISTRIBUTION ===')
 cur.execute('''
@@ -33,7 +33,7 @@ cur.execute('''
 ''')
 for r in cur.fetchall():
     section = r[2] if r[2] else 'Not Assigned'
-    print(f'  Year {r[0]}, {r[1]}, Section {section}: {r[3]} students')
+    print(f'  Year {r[0]}, {r[1]}, Class {section}: {r[3]} students')
 
 print('\n=== TABLES STATUS ===')
 cur.execute("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'semester_subjects')")

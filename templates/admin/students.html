@@ -93,7 +93,7 @@
                     </thead>
                     <tbody>
                         {% for student in students %}
-                        <tr>
+                        <tr id="student-row-{{ student.id }}">
                             <td>{{ loop.index }}</td>
                             <td><strong>{{ student.student_number or '-' }}</strong></td>
                             <td>{{ student.full_name }}</td>
@@ -122,9 +122,19 @@
                             </td>
                             <td>{{ student.email or '-' }}</td>
                             <td>
-                                <a href="{{ url_for('admin_edit_student', student_id=student.id) }}" class="btn btn-sm btn-outline-primary" title="Edit">
+                                <button type="button" class="btn btn-sm btn-outline-primary edit-student-btn" 
+                                        title="Edit"
+                                        data-id="{{ student.id }}"
+                                        data-fullname="{{ student.full_name }}"
+                                        data-email="{{ student.email or '' }}"
+                                        data-studentnumber="{{ student.student_number or '' }}"
+                                        data-year="{{ student.year or '' }}"
+                                        data-semester="{{ student.semester or '1' }}"
+                                        data-shift="{{ student.shift or '' }}"
+                                        data-section="{{ student.section or '' }}"
+                                        data-phone="{{ student.phone or '' }}">
                                     <i class="bi bi-pencil"></i>
-                                </a>
+                                </button>
                                 <form action="{{ url_for('admin_delete_student', student_id=student.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this student?');">
                                     <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
                                         <i class="bi bi-trash"></i>
@@ -149,4 +159,234 @@
         </div>
     </div>
 </div>
+
+<!-- Edit Student Modal -->
+<div class="modal fade" id="editStudentModal" tabindex="-1" aria-labelledby="editStudentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #0000ff 0%, #0000cc 100%); color: white;">
+                <h5 class="modal-title" id="editStudentModalLabel">
+                    <i class="bi bi-pencil-square me-2"></i>Edit Student
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editStudentForm">
+                <div class="modal-body">
+                    <input type="hidden" id="edit_student_id" name="student_id">
+                    
+                    <!-- Account Information Section -->
+                    <h6 class="text-primary mb-3"><i class="bi bi-person-badge me-2"></i>Account Information</h6>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="edit_student_number" class="form-label">Student Number</label>
+                            <input type="text" class="form-control" id="edit_student_number" name="student_number" placeholder="e.g., MIS25101">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit_password" class="form-label">New Password</label>
+                            <input type="password" class="form-control" id="edit_password" name="password" placeholder="Leave blank to keep current">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit_full_name" class="form-label">Full Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="edit_full_name" name="full_name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit_email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="edit_email" name="email" placeholder="student@example.com">
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <!-- Academic Assignment Section -->
+                    <h6 class="text-primary mb-3"><i class="bi bi-mortarboard me-2"></i>Academic Assignment</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="edit_year" class="form-label">Year <span class="text-danger">*</span></label>
+                            <select class="form-select" id="edit_year" name="year" required>
+                                <option value="">Select Year</option>
+                                <option value="1">Year 1</option>
+                                <option value="2">Year 2</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit_semester" class="form-label">Semester <span class="text-danger">*</span></label>
+                            <select class="form-select" id="edit_semester" name="semester" required>
+                                <option value="1">Semester 1</option>
+                                <option value="2">Semester 2</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit_shift" class="form-label">Shift <span class="text-danger">*</span></label>
+                            <select class="form-select" id="edit_shift" name="shift" required>
+                                <option value="">Select Shift</option>
+                                <option value="morning">☀ Morning</option>
+                                <option value="night">☽ Night</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit_section" class="form-label">Class</label>
+                            <select class="form-select" id="edit_section" name="section">
+                                <option value="">Not Assigned</option>
+                                <option value="A">Class A</option>
+                                <option value="B">Class B</option>
+                                <option value="C">Class C</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit_phone" class="form-label">Phone</label>
+                            <input type="text" class="form-control" id="edit_phone" name="phone" placeholder="07xxxxxxxxx">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg me-1"></i>Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="saveStudentBtn">
+                        <i class="bi bi-check-lg me-1"></i>Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="bi bi-check-circle me-2"></i>
+                <span id="toastMessage">Student updated successfully!</span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const editModal = new bootstrap.Modal(document.getElementById('editStudentModal'));
+    const editForm = document.getElementById('editStudentForm');
+    const saveBtn = document.getElementById('saveStudentBtn');
+    const toast = new bootstrap.Toast(document.getElementById('successToast'));
+    
+    // Handle edit button clicks
+    document.querySelectorAll('.edit-student-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Populate the form with student data
+            document.getElementById('edit_student_id').value = this.dataset.id;
+            document.getElementById('edit_full_name').value = this.dataset.fullname;
+            document.getElementById('edit_email').value = this.dataset.email;
+            document.getElementById('edit_student_number').value = this.dataset.studentnumber;
+            document.getElementById('edit_year').value = this.dataset.year;
+            document.getElementById('edit_semester').value = this.dataset.semester || '1';
+            document.getElementById('edit_shift').value = this.dataset.shift;
+            document.getElementById('edit_section').value = this.dataset.section;
+            document.getElementById('edit_phone').value = this.dataset.phone;
+            document.getElementById('edit_password').value = '';
+            
+            // Show the modal
+            editModal.show();
+        });
+    });
+    
+    // Handle form submission
+    editForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(editForm);
+        const studentId = formData.get('student_id');
+        
+        // Disable button and show loading
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Saving...';
+        
+        fetch('/admin/students/' + studentId + '/edit-ajax', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Close modal
+                editModal.hide();
+                
+                // Show success toast
+                document.getElementById('toastMessage').textContent = data.message;
+                toast.show();
+                
+                // Update the table row with new data
+                updateTableRow(studentId, data.student);
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while saving.');
+        })
+        .finally(() => {
+            // Re-enable button
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Save Changes';
+        });
+    });
+    
+    // Function to update table row after edit
+    function updateTableRow(studentId, student) {
+        const row = document.getElementById('student-row-' + studentId);
+        if (!row) return;
+        
+        const cells = row.querySelectorAll('td');
+        
+        // Update Student Number (cell 1)
+        cells[1].innerHTML = '<strong>' + (student.student_number || '-') + '</strong>';
+        
+        // Update Full Name (cell 2)
+        cells[2].textContent = student.full_name;
+        
+        // Update Year (cell 3)
+        if (student.year) {
+            cells[3].innerHTML = '<span class="badge bg-primary">Year ' + student.year + '</span>';
+        } else {
+            cells[3].innerHTML = '<span class="badge bg-secondary">-</span>';
+        }
+        
+        // Update Shift (cell 4)
+        if (student.shift === 'morning') {
+            cells[4].innerHTML = '<span class="badge bg-warning text-dark"><i class="bi bi-sun"></i> Morning</span>';
+        } else if (student.shift === 'night') {
+            cells[4].innerHTML = '<span class="badge bg-dark"><i class="bi bi-moon-stars"></i> Night</span>';
+        } else {
+            cells[4].innerHTML = '<span class="badge bg-secondary">-</span>';
+        }
+        
+        // Update Class/Section (cell 5)
+        if (student.section) {
+            cells[5].innerHTML = '<span class="badge bg-success">Class ' + student.section + '</span>';
+        } else {
+            cells[5].innerHTML = '<span class="badge bg-danger">Not Assigned</span>';
+        }
+        
+        // Update Email (cell 6)
+        cells[6].textContent = student.email || '-';
+        
+        // Update the edit button data attributes
+        const editBtn = row.querySelector('.edit-student-btn');
+        if (editBtn) {
+            editBtn.dataset.fullname = student.full_name;
+            editBtn.dataset.email = student.email || '';
+            editBtn.dataset.studentnumber = student.student_number || '';
+            editBtn.dataset.year = student.year || '';
+            editBtn.dataset.semester = student.semester || '1';
+            editBtn.dataset.shift = student.shift || '';
+            editBtn.dataset.section = student.section || '';
+            editBtn.dataset.phone = student.phone || '';
+        }
+    }
+});
+</script>
 {% endblock %}

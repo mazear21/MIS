@@ -148,9 +148,9 @@ def main():
     ''')
     rows = cur.fetchall()
     if rows:
-        print('\nStudents by Year/Shift/Section:')
+        print('\nStudents by Year/Shift/Class:')
         for r in rows:
-            print(f'  Year {r[0]} - {r[1]} - Section {r[2]}: {r[3]} students')
+            print(f'  Year {r[0]} - {r[1]} - Class {r[2]}: {r[3]} students')
     
     conn.close()
     print('\nMigration completed!')

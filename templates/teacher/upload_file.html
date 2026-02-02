@@ -25,17 +25,44 @@
                 <div class="card-body p-4">
                     <form method="POST" enctype="multipart/form-data" id="uploadForm">
                         <div class="row g-3">
-                            <div class="col-md-6">
-                                <label for="subject_id" class="form-label fw-semibold">
+                            <!-- Subject Selection -->
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">
                                     <i class="bi bi-book me-1"></i>Subject <span class="text-danger">*</span>
                                 </label>
-                                <select class="form-select" id="subject_id" name="subject_id" required>
-                                    <option value="">Select Subject</option>
-                                    {% for subject in subjects %}
-                                    <option value="{{ subject.id }}">{{ subject.name }} (Semester {{ subject.semester }})</option>
+                                <select id="subjectSelect" class="form-select" required>
+                                    <option value="">Select subject...</option>
+                                    {% for subject_name in unique_subjects %}
+                                    <option value="{{ subject_name }}">{{ subject_name }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
+
+                            <!-- Class Checkboxes (shown after subject selection) -->
+                            <div id="classCheckboxes" class="col-12" style="display: none;">
+                                <label class="form-label fw-semibold">Upload to Classes <span class="text-danger">*</span></label>
+                                <div class="d-flex gap-2 mb-2">
+                                    <button type="button" id="selectAll" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-check-all me-1"></i>Select All
+                                    </button>
+                                    <button type="button" id="deselectAll" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-x-lg me-1"></i>Deselect All
+                                    </button>
+                                    <div class="btn-group" role="group">
+                                        <button type="button" id="shiftMorning" class="btn btn-sm btn-primary shift-btn active">
+                                            <i class="bi bi-sun me-1"></i>Morning
+                                        </button>
+                                        <button type="button" id="shiftNight" class="btn btn-sm btn-outline-primary shift-btn">
+                                            <i class="bi bi-moon me-1"></i>Night
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="checkboxContainer" class="row g-2">
+                                    <!-- Checkboxes will be populated by JavaScript -->
+                                </div>
+                                <small class="text-muted mt-2 d-block">Select one or more classes to upload this file</small>
+                            </div>
+
                             <div class="col-md-6">
                                 <label for="week_number" class="form-label fw-semibold">
                                     <i class="bi bi-calendar-week me-1"></i>Week Number
@@ -46,6 +73,13 @@
                                     <option value="{{ i }}">Week {{ i }}</option>
                                     {% endfor %}
                                 </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="file" class="form-label fw-semibold">
+                                    <i class="bi bi-file-earmark-arrow-up me-1"></i>File <span class="text-danger">*</span>
+                                </label>
+                                <input type="file" class="form-control" id="file" name="file" required
+                                       accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.zip,.rar,.jpg,.jpeg,.png,.gif">
                             </div>
                             <div class="col-12">
                                 <label for="title" class="form-label fw-semibold">
@@ -62,12 +96,7 @@
                                           placeholder="Brief description of the file content (optional)"></textarea>
                             </div>
                             <div class="col-12">
-                                <label for="file" class="form-label fw-semibold">
-                                    <i class="bi bi-file-earmark-arrow-up me-1"></i>File <span class="text-danger">*</span>
-                                </label>
-                                <input type="file" class="form-control" id="file" name="file" required
-                                       accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.zip,.rar,.jpg,.jpeg,.png,.gif">
-                                <div class="form-text mt-2">
+                                <div class="form-text">
                                     <strong>Allowed:</strong> PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX, TXT, ZIP, RAR, JPG, JPEG, PNG, GIF (Max 50MB)
                                 </div>
                             </div>
@@ -89,4 +118,137 @@
         </div>
     </div>
 </div>
+
+<script>
+// Store subjects data from server with shift info
+const subjectsData = [
+  {% for subject in subjects %}
+  {
+    id: {{ subject.id }},
+    name: "{{ subject.name }}",
+    class_id: {{ subject.class_id }},
+    class_name: "{{ subject.class_name }}",
+    shift: "{{ subject.class_name }}".toLowerCase().includes('morning') ? 'morning' : 'night'
+  }{% if not loop.last %},{% endif %}
+  {% endfor %}
+];
+
+// Helper function to format class name (remove Year, show Sem + Class)
+function formatClassName(className) {
+  const parts = className.split(' - ');
+  if (parts.length >= 3) {
+    const part2 = parts[2].replace(/Section\s+/i, 'Class ');
+    return `${parts[1]} - ${part2}`;
+  }
+  return className.replace(/Section\s+/i, 'Class ');
+}
+
+const subjectSelect = document.getElementById('subjectSelect');
+const classCheckboxes = document.getElementById('classCheckboxes');
+const checkboxContainer = document.getElementById('checkboxContainer');
+const selectAllBtn = document.getElementById('selectAll');
+const deselectAllBtn = document.getElementById('deselectAll');
+const shiftMorningBtn = document.getElementById('shiftMorning');
+const shiftNightBtn = document.getElementById('shiftNight');
+
+let currentShift = 'morning';
+let currentSubject = '';
+
+// Function to render checkboxes based on subject and shift
+function renderCheckboxes() {
+  if (!currentSubject) {
+    classCheckboxes.style.display = 'none';
+    checkboxContainer.innerHTML = '';
+    return;
+  }
+  
+  const matchingSubjects = subjectsData.filter(s => 
+    s.name === currentSubject && s.shift === currentShift
+  );
+  
+  if (matchingSubjects.length === 0) {
+    checkboxContainer.innerHTML = '<div class="col-12 text-muted"><i class="bi bi-info-circle me-1"></i>No classes found for this shift</div>';
+  } else {
+    checkboxContainer.innerHTML = matchingSubjects.map(subject => `
+      <div class="col-md-6">
+        <div class="form-check class-checkbox-item">
+          <input 
+            class="form-check-input class-checkbox" 
+            type="checkbox" 
+            name="subject_ids" 
+            value="${subject.id}" 
+            id="subject_${subject.id}"
+          >
+          <label class="form-check-label" for="subject_${subject.id}">
+            <i class="bi bi-mortarboard me-1"></i>${formatClassName(subject.class_name)}
+          </label>
+        </div>
+      </div>
+    `).join('');
+  }
+  
+  classCheckboxes.style.display = 'block';
+}
+
+subjectSelect.addEventListener('change', function() {
+  currentSubject = this.value;
+  renderCheckboxes();
+});
+
+shiftMorningBtn.addEventListener('click', function() {
+  currentShift = 'morning';
+  shiftMorningBtn.classList.remove('btn-outline-primary');
+  shiftMorningBtn.classList.add('btn-primary', 'active');
+  shiftNightBtn.classList.remove('btn-primary', 'active');
+  shiftNightBtn.classList.add('btn-outline-primary');
+  renderCheckboxes();
+});
+
+shiftNightBtn.addEventListener('click', function() {
+  currentShift = 'night';
+  shiftNightBtn.classList.remove('btn-outline-primary');
+  shiftNightBtn.classList.add('btn-primary', 'active');
+  shiftMorningBtn.classList.remove('btn-primary', 'active');
+  shiftMorningBtn.classList.add('btn-outline-primary');
+  renderCheckboxes();
+});
+
+selectAllBtn.addEventListener('click', function() {
+  document.querySelectorAll('.class-checkbox').forEach(cb => cb.checked = true);
+});
+
+deselectAllBtn.addEventListener('click', function() {
+  document.querySelectorAll('.class-checkbox').forEach(cb => cb.checked = false);
+});
+
+document.querySelector('form').addEventListener('submit', function(e) {
+  const checkedBoxes = document.querySelectorAll('.class-checkbox:checked');
+  if (checkedBoxes.length === 0) {
+    e.preventDefault();
+    alert('Please select at least one class for the file upload.');
+  }
+});
+</script>
+
+<style>
+.class-checkbox-item {
+  padding: 10px 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  transition: all 0.2s ease;
+}
+.class-checkbox-item:hover {
+  background: #e7f1ff;
+  border-color: #0000ff;
+}
+.class-checkbox-item .form-check-input:checked + .form-check-label {
+  color: #0000ff;
+  font-weight: 500;
+}
+.class-checkbox-item .form-check-input:checked {
+  background-color: #0000ff;
+  border-color: #0000ff;
+}
+</style>
 {% endblock %}

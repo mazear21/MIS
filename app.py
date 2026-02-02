@@ -79,16 +79,30 @@ def teacher_required(f):
 @app.context_processor
 def inject_user():
     """Make user info available to all templates"""
+    from datetime import datetime
+    context = {'now': datetime.now}
     if 'user_id' in session:
-        return {
-            'current_user': {
-                'id': session.get('user_id'),
-                'username': session.get('username'),
-                'full_name': session.get('full_name'),
-                'role': session.get('role')
-            }
+        context['current_user'] = {
+            'id': session.get('user_id'),
+            'username': session.get('username'),
+            'full_name': session.get('full_name'),
+            'role': session.get('role')
         }
-    return {'current_user': None}
+    else:
+        context['current_user'] = None
+    return context
+
+
+# =============================================
+# TEMPLATE FILTERS
+# =============================================
+
+@app.template_filter('replace_section')
+def replace_section_filter(text):
+    """Replace 'Section' with 'Class' in text"""
+    if text:
+        return text.replace('Section', 'Class')
+    return text
 
 
 # =============================================
@@ -459,7 +473,7 @@ def admin_classes():
 @app.route('/admin/semester/<int:semester>/<shift>/<section>')
 @admin_required
 def admin_semester_students(semester, shift, section):
-    """View students by Semester/Shift/Section"""
+    """View students by Semester/Shift/Class"""
     students = db.get_students_by_semester(semester, shift, section) or []
     year = 1 if semester <= 2 else 2
     
@@ -530,7 +544,7 @@ def admin_class_students(class_id):
 @app.route('/admin/students')
 @admin_required
 def admin_students():
-    """Manage students with Year/Shift/Section filters"""
+    """Manage students with Year/Shift/Class filters"""
     year = request.args.get('year')
     shift = request.args.get('shift')
     section = request.args.get('section')
@@ -555,14 +569,14 @@ def admin_students():
 @app.route('/admin/students/assign-sections', methods=['GET', 'POST'])
 @admin_required
 def admin_assign_sections():
-    """Assign sections to students who don't have one"""
+    """Assign classes to students who don't have one"""
     if request.method == 'POST':
-        # Process section assignments
+        # Process class assignments
         for key, value in request.form.items():
             if key.startswith('section_') and value:
                 student_id = int(key.replace('section_', ''))
                 db.assign_student_section(student_id, value)
-        flash('Sections assigned successfully!', 'success')
+        flash('Classes assigned successfully!', 'success')
         return redirect(url_for('admin_students'))
     
     # Get students without sections, grouped by year and shift
@@ -582,7 +596,7 @@ def admin_assign_sections():
 @app.route('/admin/students/add', methods=['GET', 'POST'])
 @admin_required
 def admin_add_student():
-    """Add new student with Semester + Shift + Section (optional)"""
+    """Add new student with Semester + Shift + Class (optional)"""
     if request.method == 'POST':
         password = request.form.get('password', '')
         full_name = request.form.get('full_name', '').strip()
@@ -645,6 +659,72 @@ def admin_add_student():
     return render_template('admin/add_student.html')
 
 
+@app.route('/admin/students/add-ajax', methods=['POST'])
+@admin_required
+def admin_add_student_ajax():
+    """AJAX endpoint to add student without page reload"""
+    from flask import jsonify
+    
+    password = request.form.get('password', '')
+    full_name = request.form.get('full_name', '').strip()
+    email = request.form.get('email', '').strip() or None
+    semester = request.form.get('semester', type=int)
+    shift = request.form.get('shift')
+    section = request.form.get('section') or None
+    phone = request.form.get('phone', '').strip() or None
+    
+    # Derive year from semester
+    year = 1 if semester <= 2 else 2
+    
+    # Validation
+    if not all([password, full_name, semester, shift]):
+        return jsonify({'success': False, 'message': 'Please fill in all required fields.'})
+    
+    # Auto-generate unique student number
+    import datetime
+    current_year = datetime.datetime.now().year
+    
+    result = db.execute_query(
+        "SELECT student_number FROM students WHERE student_number LIKE %s ORDER BY student_number DESC LIMIT 1",
+        (f'MIS{current_year}%',),
+        fetch_one=True
+    )
+    
+    if result and result['student_number']:
+        try:
+            seq = int(result['student_number'][-5:]) + 1
+        except:
+            seq = 1
+    else:
+        seq = 1
+    
+    student_number = f"MIS{current_year}{seq:05d}"
+    username = student_number.lower()
+    
+    if db.get_user_by_username(username):
+        return jsonify({'success': False, 'message': 'Error generating unique student ID.'})
+    
+    # Create user
+    password_hash = generate_password_hash(password)
+    user_id = db.create_user(username, password_hash, full_name, 'student', email)
+    
+    if user_id:
+        db.create_student_with_semester(user_id, year, semester, shift, section, student_number, phone)
+        return jsonify({
+            'success': True,
+            'message': f'Student "{full_name}" added with ID: {student_number}',
+            'student': {
+                'name': full_name,
+                'student_number': student_number,
+                'semester': semester,
+                'shift': shift,
+                'section': section
+            }
+        })
+    else:
+        return jsonify({'success': False, 'message': 'Error creating student.'})
+
+
 @app.route('/admin/students/<int:student_id>/edit', methods=['GET', 'POST'])
 @admin_required
 def admin_edit_student(student_id):
@@ -682,6 +762,55 @@ def admin_edit_student(student_id):
         return redirect(url_for('admin_students'))
     
     return render_template('admin/edit_student.html', student=student)
+
+
+@app.route('/admin/students/<int:student_id>/edit-ajax', methods=['POST'])
+@admin_required
+def admin_edit_student_ajax(student_id):
+    """Edit student via AJAX"""
+    student = db.get_student_by_id(student_id)
+    if not student:
+        return jsonify({'success': False, 'message': 'Student not found.'})
+    
+    full_name = request.form.get('full_name', '').strip()
+    email = request.form.get('email', '').strip()
+    year = request.form.get('year')
+    semester = request.form.get('semester')
+    shift = request.form.get('shift')
+    section = request.form.get('section') or None
+    student_number = request.form.get('student_number', '').strip()
+    phone = request.form.get('phone', '').strip()
+    password = request.form.get('password', '')
+    
+    if not full_name or not year or not semester or not shift:
+        return jsonify({'success': False, 'message': 'Please fill in all required fields.'})
+    
+    # Update student
+    db.update_student_v2(student_id, full_name, email, int(year), int(semester), shift, section, student_number, phone)
+    
+    # Update password if provided
+    if password:
+        password_hash = generate_password_hash(password)
+        db.execute_query("UPDATE users SET password_hash = %s WHERE id = %s", 
+                       (password_hash, student['user_id']))
+    
+    # Return updated student data
+    return jsonify({
+        'success': True,
+        'message': 'Student updated successfully!',
+        'student': {
+            'id': student_id,
+            'full_name': full_name,
+            'email': email,
+            'year': int(year),
+            'semester': int(semester),
+            'shift': shift,
+            'section': section,
+            'student_number': student_number,
+            'phone': phone
+        }
+    })
+
 
 
 @app.route('/admin/students/<int:student_id>/delete', methods=['POST'])
@@ -888,7 +1017,8 @@ def teacher_take_attendance(subject_id):
             db.record_attendance(student['id'], subject_id, teacher['id'], attendance_date, status, notes)
         
         flash('Attendance recorded successfully!', 'success')
-        return redirect(url_for('teacher_attendance'))
+        # Stay on the same page instead of redirecting
+        return redirect(url_for('teacher_take_attendance', subject_id=subject_id, date=attendance_date))
     
     # Get existing attendance for the date
     existing_attendance = db.get_attendance_by_subject_date(subject_id, attendance_date) or []
@@ -1097,31 +1227,35 @@ def teacher_add_homework():
     
     subjects = db.get_subjects_by_teacher(teacher['id']) or []
     
+    # Get unique subject names for dropdown
+    unique_subjects = sorted(set(s['name'] for s in subjects))
+    
     if request.method == 'POST':
-        subject_id = request.form.get('subject_id')
+        subject_ids = request.form.getlist('subject_ids')  # Get list of selected subject IDs
         title = request.form.get('title', '').strip()
         description = request.form.get('description', '').strip()
         due_date = request.form.get('due_date', '')
         
-        if not all([subject_id, title, due_date]):
+        if not all([subject_ids, title, due_date]):
             flash('Please fill in all required fields.', 'warning')
-            return render_template('teacher/add_homework.html', subjects=subjects)
+            return render_template('teacher/add_homework.html', subjects=subjects, unique_subjects=unique_subjects)
         
-        # Get class_id from subject
-        subject = next((s for s in subjects if s['id'] == int(subject_id)), None)
-        if not subject:
-            flash('Invalid subject.', 'danger')
-            return render_template('teacher/add_homework.html', subjects=subjects)
+        # Create homework for each selected subject/class
+        success_count = 0
+        for subject_id in subject_ids:
+            subject = next((s for s in subjects if s['id'] == int(subject_id)), None)
+            if subject:
+                hw_id = db.create_homework(subject['class_id'], int(subject_id), teacher['id'], title, description, due_date)
+                if hw_id:
+                    success_count += 1
         
-        hw_id = db.create_homework(subject['class_id'], subject_id, teacher['id'], title, description, due_date)
-        
-        if hw_id:
-            flash('Homework created successfully!', 'success')
+        if success_count > 0:
+            flash(f'Homework created successfully for {success_count} class(es)!', 'success')
             return redirect(url_for('teacher_homework'))
         else:
             flash('Error creating homework.', 'danger')
     
-    return render_template('teacher/add_homework.html', subjects=subjects)
+    return render_template('teacher/add_homework.html', subjects=subjects, unique_subjects=unique_subjects)
 
 
 # =============================================
@@ -1227,8 +1361,11 @@ def teacher_upload_file():
     
     subjects = db.get_subjects_by_teacher(teacher['id']) or []
     
+    # Get unique subject names for dropdown
+    unique_subjects = sorted(set(s['name'] for s in subjects))
+    
     if request.method == 'POST':
-        subject_id = request.form.get('subject_id')
+        subject_ids = request.form.getlist('subject_ids')  # Get list of selected subject IDs
         title = request.form.get('title', '').strip()
         description = request.form.get('description', '').strip()
         week_number = request.form.get('week_number', '')
@@ -1243,9 +1380,9 @@ def teacher_upload_file():
             flash('No file selected.', 'warning')
             return redirect(request.url)
         
-        if not subject_id or not title:
+        if not subject_ids or not title:
             flash('Please fill in all required fields.', 'warning')
-            return redirect(request.url)
+            return render_template('teacher/upload_file.html', subjects=subjects, unique_subjects=unique_subjects)
         
         if file and allowed_file(file.filename):
             # Create unique filename
@@ -1253,37 +1390,51 @@ def teacher_upload_file():
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
             filename = f"{timestamp}_{original_filename}"
             
-            # Create subject subfolder
-            subject_folder = os.path.join(app.config['UPLOAD_FOLDER'], f"subject_{subject_id}")
-            os.makedirs(subject_folder, exist_ok=True)
-            
-            file_path = os.path.join(subject_folder, filename)
-            file.save(file_path)
-            
-            # Get file info
-            file_size = os.path.getsize(file_path)
+            # Save file once
+            file_path = None
+            file_size = 0
             file_type = original_filename.rsplit('.', 1)[1].lower() if '.' in original_filename else 'unknown'
-            
-            # Save to database
             week_num = int(week_number) if week_number else None
-            db.create_lecture_file(
-                subject_id=int(subject_id),
-                teacher_id=teacher['id'],
-                title=title,
-                description=description,
-                file_name=original_filename,
-                file_path=file_path,
-                file_size=file_size,
-                file_type=file_type,
-                week_number=week_num
-            )
             
-            flash(f'File "{original_filename}" uploaded successfully!', 'success')
-            return redirect(url_for('teacher_files'))
+            # Upload to each selected subject/class
+            success_count = 0
+            for subject_id in subject_ids:
+                # Create subject subfolder
+                subject_folder = os.path.join(app.config['UPLOAD_FOLDER'], f"subject_{subject_id}")
+                os.makedirs(subject_folder, exist_ok=True)
+                
+                file_path_individual = os.path.join(subject_folder, filename)
+                
+                # Save file for first subject, copy for others
+                if success_count == 0:
+                    file.save(file_path_individual)
+                    file_size = os.path.getsize(file_path_individual)
+                    file_path = file_path_individual
+                else:
+                    # Copy file from first upload
+                    import shutil
+                    shutil.copy2(file_path, file_path_individual)
+                
+                # Save to database
+                db.create_lecture_file(
+                    subject_id=int(subject_id),
+                    teacher_id=teacher['id'],
+                    title=title,
+                    description=description,
+                    file_name=original_filename,
+                    file_path=file_path_individual,
+                    file_size=file_size,
+                    file_type=file_type,
+                    week_number=week_num
+                )
+                success_count += 1
+            
+            flash(f'File "{original_filename}" uploaded successfully to {success_count} class(es)!', 'success')
+            return redirect(url_for('teacher_upload_file'))
         else:
             flash('File type not allowed. Allowed: PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX, TXT, ZIP, RAR, Images', 'danger')
     
-    return render_template('teacher/upload_file.html', subjects=subjects)
+    return render_template('teacher/upload_file.html', subjects=subjects, unique_subjects=unique_subjects)
 
 
 @app.route('/teacher/files/delete/<int:file_id>', methods=['POST'])
@@ -1504,6 +1655,137 @@ def init_admin():
         password_hash = generate_password_hash('admin123')
         db.create_user('admin', password_hash, 'System Administrator', 'admin', 'admin@mis.edu')
         print("Default admin created. Username: admin, Password: admin123")
+
+
+# =============================================
+# AJAX ROUTES FOR MODAL EDITING
+# =============================================
+
+@app.route('/admin/users/<int:user_id>/edit-ajax', methods=['POST'])
+@admin_required
+def admin_edit_user_ajax(user_id):
+    """Edit user via AJAX"""
+    from flask import jsonify
+    full_name = request.form.get('full_name', '').strip()
+    email = request.form.get('email', '').strip()
+    new_password = request.form.get('new_password', '')
+    confirm_password = request.form.get('confirm_password', '')
+    
+    if not full_name:
+        return jsonify({'success': False, 'message': 'Full name is required.'})
+    
+    # Validate password if provided
+    if new_password:
+        if len(new_password) < 6:
+            return jsonify({'success': False, 'message': 'Password must be at least 6 characters long.'})
+        if new_password != confirm_password:
+            return jsonify({'success': False, 'message': 'Passwords do not match.'})
+    
+    # Update basic info
+    result = db.update_user(user_id, full_name, email)
+    
+    # Update password if provided
+    if new_password:
+        password_hash = generate_password_hash(new_password)
+        password_result = db.update_user_password(user_id, password_hash)
+        if password_result is None:
+            return jsonify({'success': False, 'message': 'Error updating password.'})
+    
+    if result is not None:
+        return jsonify({
+            'success': True,
+            'message': 'User updated successfully!' + (' Password changed.' if new_password else ''),
+            'user': {
+                'id': user_id,
+                'full_name': full_name,
+                'email': email
+            }
+        })
+    return jsonify({'success': False, 'message': 'Error updating user.'})
+
+
+@app.route('/admin/users/add-ajax', methods=['POST'])
+@admin_required
+def admin_add_user_ajax():
+    """Add user via AJAX"""
+    from flask import jsonify
+    username = request.form.get('username', '').strip()
+    full_name = request.form.get('full_name', '').strip()
+    email = request.form.get('email', '').strip()
+    role = request.form.get('role', '').strip()
+    password = request.form.get('password', '')
+    
+    if not username or not full_name or not role or not password:
+        return jsonify({'success': False, 'message': 'Please fill in all required fields.'})
+    
+    # Check if username exists
+    existing = db.get_user_by_username(username)
+    if existing:
+        return jsonify({'success': False, 'message': 'Username already exists.'})
+    
+    password_hash = generate_password_hash(password)
+    result = db.create_user(username, password_hash, full_name, role, email)
+    
+    if result:
+        return jsonify({'success': True, 'message': 'User created successfully!'})
+    return jsonify({'success': False, 'message': 'Error creating user.'})
+
+
+@app.route('/admin/subjects/<int:subject_id>/edit-ajax', methods=['POST'])
+@admin_required
+def admin_edit_subject_ajax(subject_id):
+    """Edit subject via AJAX"""
+    from flask import jsonify
+    name = request.form.get('name', '').strip()
+    year = request.form.get('year')
+    semester = request.form.get('semester')
+    
+    if not name or not year or not semester:
+        return jsonify({'success': False, 'message': 'Please fill in all required fields.'})
+    
+    # Get first class for this semester
+    class_id = db.get_first_class_for_semester(year, semester)
+    if not class_id:
+        return jsonify({'success': False, 'message': 'No class found for this semester.'})
+    
+    result = db.update_subject(subject_id, name, class_id, None, None, None)
+    
+    if result is not None:
+        return jsonify({
+            'success': True,
+            'message': 'Subject updated successfully!',
+            'subject': {
+                'id': subject_id,
+                'name': name,
+                'year': int(year),
+                'semester': int(semester)
+            }
+        })
+    return jsonify({'success': False, 'message': 'Error updating subject.'})
+
+
+@app.route('/admin/subjects/add-ajax', methods=['POST'])
+@admin_required
+def admin_add_subject_ajax():
+    """Add subject via AJAX"""
+    from flask import jsonify
+    name = request.form.get('name', '').strip()
+    year = request.form.get('year')
+    semester = request.form.get('semester')
+    
+    if not name or not year or not semester:
+        return jsonify({'success': False, 'message': 'Please fill in all required fields.'})
+    
+    # Get first class for this semester
+    class_id = db.get_first_class_for_semester(year, semester)
+    if not class_id:
+        return jsonify({'success': False, 'message': 'No class found for this semester. Create classes first.'})
+    
+    result = db.create_subject(name, class_id, None, None, None)
+    
+    if result:
+        return jsonify({'success': True, 'message': 'Subject created successfully!'})
+    return jsonify({'success': False, 'message': 'Error creating subject.'})
 
 
 # =============================================

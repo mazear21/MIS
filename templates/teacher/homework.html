@@ -42,7 +42,7 @@
                 {% endif %}
               </td>
               <td>{{ hw.subject_name }}</td>
-              <td><span class="badge bg-navy">{{ hw.class_name }}</span></td>
+              <td><span class="badge bg-navy">{{ hw.class_name|replace_section }}</span></td>
               <td>{{ hw.due_date }}</td>
               <td>
                 {% if hw.due_date.isoformat() < today %}

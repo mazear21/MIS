@@ -1,5 +1,6 @@
-{% extends 'base.html' %} {% block title %}Manage Users - MIS System{% endblock %} {% block content
-%}
+{% extends 'base.html' %}
+{% block title %}Manage Users - MIS System{% endblock %}
+{% block content %}
 <div class="container">
   <!-- Page Header -->
   <div class="page-header">
@@ -9,9 +10,9 @@
         <p class="text-muted mb-0">Manage system accounts and credentials</p>
       </div>
       <div class="col-auto">
-        <a href="{{ url_for('admin_add_user') }}" class="btn btn-primary">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
           <i class="bi bi-person-plus me-1"></i>Add User
-        </a>
+        </button>
       </div>
     </div>
   </div>
@@ -29,9 +30,7 @@
     <div class="col-md-3 col-6 mb-2">
       <div class="card border-0 bg-light">
         <div class="card-body py-2 text-center">
-          <h4 class="mb-0 text-danger">
-            {{ users | selectattr('role', 'equalto', 'admin') | list | length }}
-          </h4>
+          <h4 class="mb-0 text-danger">{{ users | selectattr('role', 'equalto', 'admin') | list | length }}</h4>
           <small class="text-muted" style="font-size: 0.7rem">Administrators</small>
         </div>
       </div>
@@ -39,9 +38,7 @@
     <div class="col-md-3 col-6 mb-2">
       <div class="card border-0 bg-light">
         <div class="card-body py-2 text-center">
-          <h4 class="mb-0 text-primary">
-            {{ users | selectattr('role', 'equalto', 'teacher') | list | length }}
-          </h4>
+          <h4 class="mb-0 text-primary">{{ users | selectattr('role', 'equalto', 'teacher') | list | length }}</h4>
           <small class="text-muted" style="font-size: 0.7rem">Teachers</small>
         </div>
       </div>
@@ -49,9 +46,7 @@
     <div class="col-md-3 col-6 mb-2">
       <div class="card border-0 bg-light">
         <div class="card-body py-2 text-center">
-          <h4 class="mb-0 text-success">
-            {{ users | selectattr('role', 'equalto', 'student') | list | length }}
-          </h4>
+          <h4 class="mb-0 text-success">{{ users | selectattr('role', 'equalto', 'student') | list | length }}</h4>
           <small class="text-muted" style="font-size: 0.7rem">Students</small>
         </div>
       </div>
@@ -61,35 +56,17 @@
   <!-- Role Tabs -->
   <ul class="nav nav-tabs mb-0" id="userTabs" role="tablist">
     <li class="nav-item" role="presentation">
-      <button
-        class="nav-link active"
-        id="admins-tab"
-        data-bs-toggle="tab"
-        data-bs-target="#admins"
-        type="button"
-      >
+      <button class="nav-link active" id="admins-tab" data-bs-toggle="tab" data-bs-target="#admins" type="button">
         <i class="bi bi-shield-lock me-1"></i>Administrators
       </button>
     </li>
     <li class="nav-item" role="presentation">
-      <button
-        class="nav-link"
-        id="teachers-tab"
-        data-bs-toggle="tab"
-        data-bs-target="#teachers"
-        type="button"
-      >
+      <button class="nav-link" id="teachers-tab" data-bs-toggle="tab" data-bs-target="#teachers" type="button">
         <i class="bi bi-person-badge me-1"></i>Teachers
       </button>
     </li>
     <li class="nav-item" role="presentation">
-      <button
-        class="nav-link"
-        id="students-tab"
-        data-bs-toggle="tab"
-        data-bs-target="#students"
-        type="button"
-      >
+      <button class="nav-link" id="students-tab" data-bs-toggle="tab" data-bs-target="#students" type="button">
         <i class="bi bi-mortarboard me-1"></i>Students
       </button>
     </li>
@@ -100,7 +77,8 @@
       <div class="tab-content" id="userTabsContent">
         <!-- Administrators Tab -->
         <div class="tab-pane fade show active" id="admins" role="tabpanel">
-          {% set admins = users | selectattr('role', 'equalto', 'admin') | list %} {% if admins %}
+          {% set admins = users | selectattr('role', 'equalto', 'admin') | list %}
+          {% if admins %}
           <div class="table-responsive">
             <table class="table table-hover mb-0">
               <thead class="table-light">
@@ -113,41 +91,31 @@
               </thead>
               <tbody>
                 {% for user in admins %}
-                <tr>
+                <tr id="user-row-{{ user.id }}">
                   <td>
                     <div class="d-flex align-items-center">
                       <div class="avatar-sm bg-danger me-2">{{ user.full_name[0] | upper }}</div>
                       <div>
-                        <strong>{{ user.full_name }}</strong>
+                        <strong class="user-fullname">{{ user.full_name }}</strong>
                         <br /><small class="text-muted">@{{ user.username }}</small>
                       </div>
                     </div>
                   </td>
-                  <td>{{ user.email or '—' }}</td>
+                  <td class="user-email">{{ user.email or '—' }}</td>
                   <td>{{ user.created_at.strftime('%Y-%m-%d') if user.created_at else '—' }}</td>
                   <td class="text-center">
-                    <button
-                      class="btn btn-sm btn-outline-primary edit-user-btn"
-                      data-bs-toggle="modal"
-                      data-bs-target="#editUserModal"
-                      data-user-id="{{ user.id }}"
-                      data-user-name="{{ user.full_name }}"
-                      data-user-username="{{ user.username }}"
-                      data-user-email="{{ user.email or '' }}"
-                      data-user-role="{{ user.role }}"
-                    >
+                    <button class="btn btn-sm btn-outline-primary edit-user-btn"
+                      data-id="{{ user.id }}"
+                      data-fullname="{{ user.full_name }}"
+                      data-username="{{ user.username }}"
+                      data-email="{{ user.email or '' }}"
+                      data-role="{{ user.role }}"
+                      data-password="{{ user.password_hash }}">
                       <i class="bi bi-pencil"></i>
                     </button>
                     {% if user.id != current_user.id %}
-                    <form
-                      action="{{ url_for('admin_delete_user', user_id=user.id) }}"
-                      method="POST"
-                      class="d-inline"
-                      onsubmit="return confirm('Delete this administrator?');"
-                    >
-                      <button type="submit" class="btn btn-sm btn-outline-danger">
-                        <i class="bi bi-trash"></i>
-                      </button>
+                    <form action="{{ url_for('admin_delete_user', user_id=user.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this administrator?');">
+                      <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
                     </form>
                     {% endif %}
                   </td>
@@ -166,8 +134,8 @@
 
         <!-- Teachers Tab -->
         <div class="tab-pane fade" id="teachers" role="tabpanel">
-          {% set teacher_users = users | selectattr('role', 'equalto', 'teacher') | list %} {% if
-          teacher_users %}
+          {% set teacher_users = users | selectattr('role', 'equalto', 'teacher') | list %}
+          {% if teacher_users %}
           <div class="table-responsive">
             <table class="table table-hover mb-0">
               <thead class="table-light">
@@ -180,40 +148,30 @@
               </thead>
               <tbody>
                 {% for user in teacher_users %}
-                <tr>
+                <tr id="user-row-{{ user.id }}">
                   <td>
                     <div class="d-flex align-items-center">
                       <div class="avatar-sm bg-primary me-2">{{ user.full_name[0] | upper }}</div>
                       <div>
-                        <strong>{{ user.full_name }}</strong>
+                        <strong class="user-fullname">{{ user.full_name }}</strong>
                         <br /><small class="text-muted">@{{ user.username }}</small>
                       </div>
                     </div>
                   </td>
-                  <td>{{ user.email or '—' }}</td>
+                  <td class="user-email">{{ user.email or '—' }}</td>
                   <td>{{ user.created_at.strftime('%Y-%m-%d') if user.created_at else '—' }}</td>
                   <td class="text-center">
-                    <button
-                      class="btn btn-sm btn-outline-primary edit-user-btn"
-                      data-bs-toggle="modal"
-                      data-bs-target="#editUserModal"
-                      data-user-id="{{ user.id }}"
-                      data-user-name="{{ user.full_name }}"
-                      data-user-username="{{ user.username }}"
-                      data-user-email="{{ user.email or '' }}"
-                      data-user-role="{{ user.role }}"
-                    >
+                    <button class="btn btn-sm btn-outline-primary edit-user-btn"
+                      data-id="{{ user.id }}"
+                      data-fullname="{{ user.full_name }}"
+                      data-username="{{ user.username }}"
+                      data-email="{{ user.email or '' }}"
+                      data-role="{{ user.role }}"
+                      data-password="{{ user.password_hash }}">
                       <i class="bi bi-pencil"></i>
                     </button>
-                    <form
-                      action="{{ url_for('admin_delete_user', user_id=user.id) }}"
-                      method="POST"
-                      class="d-inline"
-                      onsubmit="return confirm('Delete this teacher?');"
-                    >
-                      <button type="submit" class="btn btn-sm btn-outline-danger">
-                        <i class="bi bi-trash"></i>
-                      </button>
+                    <form action="{{ url_for('admin_delete_user', user_id=user.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this teacher?');">
+                      <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
                     </form>
                   </td>
                 </tr>
@@ -236,8 +194,8 @@
 
         <!-- Students Tab -->
         <div class="tab-pane fade" id="students" role="tabpanel">
-          {% set student_users = users | selectattr('role', 'equalto', 'student') | list %} {% if
-          student_users %}
+          {% set student_users = users | selectattr('role', 'equalto', 'student') | list %}
+          {% if student_users %}
           <div class="table-responsive">
             <table class="table table-hover mb-0">
               <thead class="table-light">
@@ -250,40 +208,30 @@
               </thead>
               <tbody>
                 {% for user in student_users %}
-                <tr>
+                <tr id="user-row-{{ user.id }}">
                   <td>
                     <div class="d-flex align-items-center">
                       <div class="avatar-sm bg-success me-2">{{ user.full_name[0] | upper }}</div>
                       <div>
-                        <strong>{{ user.full_name }}</strong>
+                        <strong class="user-fullname">{{ user.full_name }}</strong>
                         <br /><small class="text-muted">@{{ user.username }}</small>
                       </div>
                     </div>
                   </td>
-                  <td>{{ user.email or '—' }}</td>
+                  <td class="user-email">{{ user.email or '—' }}</td>
                   <td>{{ user.created_at.strftime('%Y-%m-%d') if user.created_at else '—' }}</td>
                   <td class="text-center">
-                    <button
-                      class="btn btn-sm btn-outline-primary edit-user-btn"
-                      data-bs-toggle="modal"
-                      data-bs-target="#editUserModal"
-                      data-user-id="{{ user.id }}"
-                      data-user-name="{{ user.full_name }}"
-                      data-user-username="{{ user.username }}"
-                      data-user-email="{{ user.email or '' }}"
-                      data-user-role="{{ user.role }}"
-                    >
+                    <button class="btn btn-sm btn-outline-primary edit-user-btn"
+                      data-id="{{ user.id }}"
+                      data-fullname="{{ user.full_name }}"
+                      data-username="{{ user.username }}"
+                      data-email="{{ user.email or '' }}"
+                      data-role="{{ user.role }}"
+                      data-password="{{ user.password_hash }}">
                       <i class="bi bi-pencil"></i>
                     </button>
-                    <form
-                      action="{{ url_for('admin_delete_user', user_id=user.id) }}"
-                      method="POST"
-                      class="d-inline"
-                      onsubmit="return confirm('Delete this student?');"
-                    >
-                      <button type="submit" class="btn btn-sm btn-outline-danger">
-                        <i class="bi bi-trash"></i>
-                      </button>
+                    <form action="{{ url_for('admin_delete_user', user_id=user.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this student?');">
+                      <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
                     </form>
                   </td>
                 </tr>
@@ -308,67 +256,145 @@
   </div>
 </div>
 
+<!-- Add User Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header" style="background: linear-gradient(135deg, #0000ff 0%, #0000cc 100%); color: white;">
+        <h5 class="modal-title"><i class="bi bi-person-plus me-2"></i>Add New User</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="addUserForm">
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Username <span class="text-danger">*</span></label>
+              <input type="text" name="username" id="addUsername" class="form-control" required placeholder="e.g., john_doe">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Role <span class="text-danger">*</span></label>
+              <select name="role" id="addRole" class="form-select" required>
+                <option value="">Select Role</option>
+                <option value="admin">Administrator</option>
+                <option value="teacher">Teacher</option>
+              </select>
+              <small class="text-muted">Students are added via Student Management</small>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Full Name <span class="text-danger">*</span></label>
+              <input type="text" name="full_name" id="addFullName" class="form-control" required placeholder="John Doe">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Email</label>
+              <input type="email" name="email" id="addEmail" class="form-control" placeholder="user@example.com">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Password <span class="text-danger">*</span></label>
+              <input type="password" name="password" id="addPassword" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Confirm Password <span class="text-danger">*</span></label>
+              <input type="password" name="confirm_password" id="addConfirmPassword" class="form-control" required>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="addUserBtn">
+            <i class="bi bi-plus-lg me-1"></i>Add User
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <!-- Edit User Modal -->
 <div class="modal fade" id="editUserModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header bg-navy text-white">
-        <h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Edit User</h5>
+      <div class="modal-header" style="background: linear-gradient(135deg, #0000ff 0%, #0000cc 100%); color: white;">
+        <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Edit User</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <form id="editUserForm" method="POST">
+      <form id="editUserForm">
+        <input type="hidden" id="editUserId" name="user_id">
         <div class="modal-body">
-          <div class="mb-3">
-            <label class="form-label">Full Name <span class="text-danger">*</span></label>
-            <input type="text" name="full_name" id="editFullName" class="form-control" required />
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Username</label>
-            <input type="text" id="editUsername" class="form-control" disabled />
-            <small class="text-muted">Username cannot be changed</small>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Email</label>
-            <input
-              type="email"
-              name="email"
-              id="editEmail"
-              class="form-control"
-              placeholder="user@example.com"
-            />
-          </div>
-          <hr />
-          <div class="mb-3">
-            <label class="form-label">New Password</label>
-            <input
-              type="password"
-              name="new_password"
-              id="editPassword"
-              class="form-control"
-              placeholder="Leave blank to keep current"
-            />
-            <small class="text-muted">Only fill this if you want to change the password</small>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Confirm New Password</label>
-            <input
-              type="password"
-              name="confirm_password"
-              id="editConfirmPassword"
-              class="form-control"
-              placeholder="Confirm new password"
-            />
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Username</label>
+              <input type="text" id="editUsername" class="form-control" disabled>
+              <small class="text-muted">Cannot be changed</small>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Role</label>
+              <input type="text" id="editRole" class="form-control" disabled>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Full Name <span class="text-danger">*</span></label>
+              <input type="text" name="full_name" id="editFullName" class="form-control" required>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Email</label>
+              <input type="email" name="email" id="editEmail" class="form-control" placeholder="user@example.com">
+            </div>
+            <div class="col-12"><hr></div>
+            <div class="col-12">
+              <label class="form-label">Current Password (Encrypted)</label>
+              <div class="input-group">
+                <input type="text" id="currentPasswordHash" class="form-control" readonly style="font-family: monospace; font-size: 0.75rem;">
+                <button class="btn btn-outline-secondary" type="button" id="copyPasswordHash" title="Copy">
+                  <i class="bi bi-clipboard"></i>
+                </button>
+              </div>
+              <small class="text-muted">This is the encrypted password stored in database. Cannot be decrypted.</small>
+            </div>
+            <div class="col-12 mt-2">
+              <div class="alert alert-info mb-0">
+                <i class="bi bi-shield-lock me-2"></i><strong>Password Management</strong>
+                <p class="mb-0 mt-2"><small>Enter a new password below to change it, or leave blank to keep the current password.</small></p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">New Password</label>
+              <div class="input-group">
+                <input type="password" name="new_password" id="editPassword" class="form-control" placeholder="Enter new password">
+                <button class="btn btn-outline-secondary" type="button" id="toggleEditPassword">
+                  <i class="bi bi-eye"></i>
+                </button>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Confirm Password</label>
+              <div class="input-group">
+                <input type="password" name="confirm_password" id="editConfirmPassword" class="form-control" placeholder="Confirm new password">
+                <button class="btn btn-outline-secondary" type="button" id="toggleEditConfirm">
+                  <i class="bi bi-eye"></i>
+                </button>
+              </div>
+            </div>
+            <div class="col-12">
+              <small class="text-muted"><i class="bi bi-info-circle me-1"></i>Password must be at least 6 characters</small>
+            </div>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-            Cancel
-          </button>
-          <button type="submit" class="btn btn-primary">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="saveUserBtn">
             <i class="bi bi-check-lg me-1"></i>Save Changes
           </button>
         </div>
       </form>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert">
+    <div class="d-flex">
+      <div class="toast-body"><i class="bi bi-check-circle me-2"></i><span id="toastMessage">Success!</span></div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
     </div>
   </div>
 </div>
@@ -386,37 +412,183 @@
     font-size: 0.7rem;
   }
 </style>
+{% endblock %}
 
+{% block extra_js %}
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const editModal = document.getElementById('editUserModal');
-
-    editModal.addEventListener('show.bs.modal', function (event) {
-      const btn = event.relatedTarget;
-      const userId = btn.dataset.userId;
-      const fullName = btn.dataset.userName;
-      const username = btn.dataset.userUsername;
-      const email = btn.dataset.userEmail;
-
-      document.getElementById('editFullName').value = fullName;
-      document.getElementById('editUsername').value = username;
-      document.getElementById('editEmail').value = email;
-      document.getElementById('editPassword').value = '';
-      document.getElementById('editConfirmPassword').value = '';
-
-      document.getElementById('editUserForm').action = '/admin/users/' + userId + '/edit';
+document.addEventListener('DOMContentLoaded', function() {
+    const editModal = new bootstrap.Modal(document.getElementById('editUserModal'));
+    const addModal = new bootstrap.Modal(document.getElementById('addUserModal'));
+    const toast = new bootstrap.Toast(document.getElementById('successToast'));
+    
+    // Edit User Button Click
+    document.querySelectorAll('.edit-user-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.getElementById('editUserId').value = this.dataset.id;
+            document.getElementById('editFullName').value = this.dataset.fullname;
+            document.getElementById('editUsername').value = this.dataset.username;
+            document.getElementById('editEmail').value = this.dataset.email;
+            document.getElementById('editRole').value = this.dataset.role.charAt(0).toUpperCase() + this.dataset.role.slice(1);
+            document.getElementById('currentPasswordHash').value = this.dataset.password || 'No password set';
+            document.getElementById('editPassword').value = '';
+            document.getElementById('editConfirmPassword').value = '';
+            editModal.show();
+        });
     });
-
-    // Password confirmation validation
-    document.getElementById('editUserForm').addEventListener('submit', function (e) {
-      const password = document.getElementById('editPassword').value;
-      const confirm = document.getElementById('editConfirmPassword').value;
-
-      if (password && password !== confirm) {
+    
+    // Copy password hash button
+    document.getElementById('copyPasswordHash').addEventListener('click', function() {
+        const hashField = document.getElementById('currentPasswordHash');
+        hashField.select();
+        document.execCommand('copy');
+        
+        const icon = this.querySelector('i');
+        icon.classList.remove('bi-clipboard');
+        icon.classList.add('bi-check');
+        setTimeout(() => {
+            icon.classList.remove('bi-check');
+            icon.classList.add('bi-clipboard');
+        }, 2000);
+    });
+    
+    // Edit User Form Submit
+    document.getElementById('editUserForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        alert('Passwords do not match!');
-      }
+        
+        const password = document.getElementById('editPassword').value;
+        const confirm = document.getElementById('editConfirmPassword').value;
+        
+        // Validate password if provided
+        if (password) {
+            if (password.length < 6) {
+                alert('Password must be at least 6 characters long!');
+                return;
+            }
+            if (password !== confirm) {
+                alert('Passwords do not match!');
+                return;
+            }
+        }
+        
+        const formData = new FormData(this);
+        const userId = formData.get('user_id');
+        const saveBtn = document.getElementById('saveUserBtn');
+        
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Saving...';
+        
+        fetch('/admin/users/' + userId + '/edit-ajax', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                editModal.hide();
+                document.getElementById('toastMessage').textContent = data.message;
+                toast.show();
+                
+                // Update the row
+                const row = document.getElementById('user-row-' + userId);
+                if (row) {
+                    row.querySelector('.user-fullname').textContent = data.user.full_name;
+                    row.querySelector('.user-email').textContent = data.user.email || '—';
+                    
+                    // Update button data
+                    const btn = row.querySelector('.edit-user-btn');
+                    btn.dataset.fullname = data.user.full_name;
+                    btn.dataset.email = data.user.email || '';
+                }
+                
+                // Clear password fields
+                document.getElementById('editPassword').value = '';
+                document.getElementById('editConfirmPassword').value = '';
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred.');
+        })
+        .finally(() => {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Save Changes';
+        });
     });
-  });
+    
+    // Password Toggle for Edit Form
+    document.getElementById('toggleEditPassword').addEventListener('click', function() {
+        const input = document.getElementById('editPassword');
+        const icon = this.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        }
+    });
+    
+    document.getElementById('toggleEditConfirm').addEventListener('click', function() {
+        const input = document.getElementById('editConfirmPassword');
+        const icon = this.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        }
+    });
+    
+    // Add User Form Submit
+    document.getElementById('addUserForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const password = document.getElementById('addPassword').value;
+        const confirm = document.getElementById('addConfirmPassword').value;
+        
+        if (password !== confirm) {
+            alert('Passwords do not match!');
+            return;
+        }
+        
+        const formData = new FormData(this);
+        const addBtn = document.getElementById('addUserBtn');
+        
+        addBtn.disabled = true;
+        addBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Adding...';
+        
+        fetch('/admin/users/add-ajax', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                addModal.hide();
+                document.getElementById('toastMessage').textContent = data.message;
+                toast.show();
+                // Reload to show new user
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred.');
+        })
+        .finally(() => {
+            addBtn.disabled = false;
+            addBtn.innerHTML = '<i class="bi bi-plus-lg me-1"></i>Add User';
+        });
+    });
+});
 </script>
 {% endblock %}

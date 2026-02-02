@@ -22,14 +22,14 @@ def main():
     print('Creating additional classes...')
     new_classes = [
         # Year 1 - Sem 1
-        ('Year 1 - Sem 1 - Section B - Morning', 1, 1, 'B', 'morning'),
-        ('Year 1 - Sem 1 - Section C - Morning', 1, 1, 'C', 'morning'),
-        ('Year 1 - Sem 1 - Section A - Night', 1, 1, 'A', 'night'),
-        ('Year 1 - Sem 1 - Section B - Night', 1, 1, 'B', 'night'),
+        ('Year 1 - Sem 1 - Class B - Morning', 1, 1, 'B', 'morning'),
+        ('Year 1 - Sem 1 - Class C - Morning', 1, 1, 'C', 'morning'),
+        ('Year 1 - Sem 1 - Class A - Night', 1, 1, 'A', 'night'),
+        ('Year 1 - Sem 1 - Class B - Night', 1, 1, 'B', 'night'),
         # Year 2 - Sem 3
-        ('Year 2 - Sem 3 - Section B - Morning', 2, 3, 'B', 'morning'),
-        ('Year 2 - Sem 3 - Section C - Morning', 2, 3, 'C', 'morning'),
-        ('Year 2 - Sem 3 - Section A - Night', 2, 3, 'A', 'night'),
+        ('Year 2 - Sem 3 - Class B - Morning', 2, 3, 'B', 'morning'),
+        ('Year 2 - Sem 3 - Class C - Morning', 2, 3, 'C', 'morning'),
+        ('Year 2 - Sem 3 - Class A - Night', 2, 3, 'A', 'night'),
     ]
     
     for name, year, sem, sec, shift in new_classes:
@@ -94,7 +94,7 @@ def main():
     # =============================================
     # 3. CREATE SUBJECTS (5 per class for class 1)
     # =============================================
-    print('\nCreating subjects for Year 1 - Sem 1 - Section A - Morning (class_id=1)...')
+    print('\nCreating subjects for Year 1 - Sem 1 - Class A - Morning (class_id=1)...')
     
     # Get teacher IDs
     cursor.execute('SELECT id FROM teachers ORDER BY id LIMIT 5')
@@ -125,7 +125,7 @@ def main():
                 print(f'  ! Error: {e}')
     
     # Subjects for Year 2 - Sem 3 (class_id=3)
-    print('\nCreating subjects for Year 2 - Sem 3 - Section A - Morning (class_id=3)...')
+    print('\nCreating subjects for Year 2 - Sem 3 - Class A - Morning (class_id=3)...')
     subjects_sem3 = [
         ('Database Management', 'SQL and database design'),
         ('Web Development', 'HTML, CSS, JavaScript, Flask'),

@@ -248,8 +248,8 @@ def create_user(username, password_hash, full_name, role, email=None):
 
 
 def get_all_users():
-    """Get all users"""
-    query = "SELECT id, username, full_name, role, email, created_at FROM users ORDER BY id"
+    """Get all users with password hash"""
+    query = "SELECT id, username, full_name, role, email, created_at, password_hash FROM users ORDER BY id"
     return execute_query(query, fetch_all=True)
 
 

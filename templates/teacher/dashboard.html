@@ -16,30 +16,38 @@ content %}
   <div class="row mb-4">
     <div class="col-md-3 col-sm-6 mb-3">
       <a href="{{ url_for('teacher_attendance') }}" class="quick-action-card">
-        <i class="bi bi-calendar-check"></i>
-        <h5>Take Attendance</h5>
-        <p>Record daily attendance</p>
+        <div class="quick-action-card-content">
+          <i class="bi bi-calendar-check"></i>
+          <h5>Take Attendance</h5>
+          <p>Record daily attendance</p>
+        </div>
       </a>
     </div>
     <div class="col-md-3 col-sm-6 mb-3">
       <a href="{{ url_for('teacher_grades') }}" class="quick-action-card">
-        <i class="bi bi-clipboard-data"></i>
-        <h5>Manage Grades</h5>
-        <p>Add quiz/exam grades</p>
+        <div class="quick-action-card-content">
+          <i class="bi bi-clipboard-data"></i>
+          <h5>Manage Grades</h5>
+          <p>Add quiz/exam grades</p>
+        </div>
       </a>
     </div>
     <div class="col-md-3 col-sm-6 mb-3">
       <a href="{{ url_for('teacher_homework') }}" class="quick-action-card">
-        <i class="bi bi-journal-text"></i>
-        <h5>Assign Homework</h5>
-        <p>Create assignments</p>
+        <div class="quick-action-card-content">
+          <i class="bi bi-journal-text"></i>
+          <h5>Assign Homework</h5>
+          <p>Create assignments</p>
+        </div>
       </a>
     </div>
     <div class="col-md-3 col-sm-6 mb-3">
       <a href="{{ url_for('teacher_topics') }}" class="quick-action-card">
-        <i class="bi bi-list-task"></i>
-        <h5>Weekly Topics</h5>
-        <p>Track syllabus progress</p>
+        <div class="quick-action-card-content">
+          <i class="bi bi-list-task"></i>
+          <h5>Weekly Topics</h5>
+          <p>Track syllabus progress</p>
+        </div>
       </a>
     </div>
   </div>
@@ -81,7 +89,7 @@ content %}
               <strong>{{ hw.title }}</strong>
               <br />
               <small class="text-muted">
-                {{ hw.subject_name }} - {{ hw.class_name }}
+                {{ hw.subject_name }} - {{ hw.class_name|replace_section }}
                 <br />Due: {{ hw.due_date }}
               </small>
             </li>
@@ -122,7 +130,7 @@ content %}
               <td><strong>{{ entry.day_of_week }}</strong></td>
               <td>{{ entry.start_time }} - {{ entry.end_time }}</td>
               <td>{{ entry.subject_name }}</td>
-              <td><span class="badge bg-navy">{{ entry.class_name }}</span></td>
+              <td><span class="badge bg-navy">{{ entry.class_name|replace_section }}</span></td>
               <td>{{ entry.room or '-' }}</td>
             </tr>
             {% endfor %}
