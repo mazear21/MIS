@@ -3,6 +3,26 @@
 {% block title %}Manage Students - MIS System{% endblock %}
 
 {% block content %}
+<style>
+    /* Pagination styling for better visibility */
+    #paginationControls .page-link {
+        color: #0000ff;
+        font-weight: 600;
+    }
+    #paginationControls .page-item.active .page-link {
+        background-color: #0000ff;
+        border-color: #0000ff;
+        color: #ffffff !important;
+        font-weight: 700;
+    }
+    #paginationControls .page-item.disabled .page-link {
+        color: #6c757d;
+    }
+    #paginationControls .page-link:hover {
+        color: #0000cc;
+        background-color: #e9ecef;
+    }
+</style>
 <div class="container">
     <!-- Page Header -->
     <div class="page-header">
@@ -31,29 +51,49 @@
         </div>
     </div>
 
-    <!-- Filter by Year/Shift -->
+    <!-- Filter bar -->
     <div class="card mb-3">
         <div class="card-body py-2">
-            <form method="GET" class="row g-2 align-items-end">
-                <div class="col-md-3">
-                    <label class="form-label">Filter by Year</label>
-                    <select name="year" class="form-select" onchange="this.form.submit()">
+            <form method="GET" id="filterForm" class="row g-2 align-items-end">
+                <div class="col-md-2">
+                    <label class="form-label mb-1" style="font-size:0.8rem;">Year</label>
+                    <select name="year" id="filterYear" class="form-select form-select-sm" onchange="updateSemesterFilter(); this.form.submit()">
                         <option value="">All Years</option>
                         <option value="1" {{ 'selected' if request.args.get('year') == '1' }}>Year 1</option>
                         <option value="2" {{ 'selected' if request.args.get('year') == '2' }}>Year 2</option>
                     </select>
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label">Filter by Shift</label>
-                    <select name="shift" class="form-select" onchange="this.form.submit()">
+                <div class="col-md-2">
+                    <label class="form-label mb-1" style="font-size:0.8rem;">Semester</label>
+                    <select name="semester" id="filterSemester" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="">All Semesters</option>
+                        {% set sel_year = request.args.get('year', '') %}
+                        {% set sel_sem = request.args.get('semester', '') %}
+                        {% if sel_year == '1' %}
+                        <option value="1" {{ 'selected' if sel_sem == '1' }}>Sem 1</option>
+                        <option value="2" {{ 'selected' if sel_sem == '2' }}>Sem 2</option>
+                        {% elif sel_year == '2' %}
+                        <option value="3" {{ 'selected' if sel_sem == '3' }}>Sem 3</option>
+                        <option value="4" {{ 'selected' if sel_sem == '4' }}>Sem 4</option>
+                        {% else %}
+                        <option value="1" {{ 'selected' if sel_sem == '1' }}>Sem 1</option>
+                        <option value="2" {{ 'selected' if sel_sem == '2' }}>Sem 2</option>
+                        <option value="3" {{ 'selected' if sel_sem == '3' }}>Sem 3</option>
+                        <option value="4" {{ 'selected' if sel_sem == '4' }}>Sem 4</option>
+                        {% endif %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label mb-1" style="font-size:0.8rem;">Shift</label>
+                    <select name="shift" class="form-select form-select-sm" onchange="this.form.submit()">
                         <option value="">All Shifts</option>
                         <option value="morning" {{ 'selected' if request.args.get('shift') == 'morning' }}>☀ Morning</option>
                         <option value="night" {{ 'selected' if request.args.get('shift') == 'night' }}>☽ Night</option>
                     </select>
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label">Filter by Class</label>
-                    <select name="section" class="form-select" onchange="this.form.submit()">
+                <div class="col-md-2">
+                    <label class="form-label mb-1" style="font-size:0.8rem;">Class</label>
+                    <select name="section" class="form-select form-select-sm" onchange="this.form.submit()">
                         <option value="">All Classes</option>
                         <option value="A" {{ 'selected' if request.args.get('section') == 'A' }}>Class A</option>
                         <option value="B" {{ 'selected' if request.args.get('section') == 'B' }}>Class B</option>
@@ -61,10 +101,17 @@
                         <option value="none" {{ 'selected' if request.args.get('section') == 'none' }}>Not Assigned</option>
                     </select>
                 </div>
-                <div class="col-md-3">
-                    <a href="{{ url_for('admin_students') }}" class="btn btn-outline-secondary">
-                        <i class="bi bi-x-lg me-1"></i>Clear Filters
+                <div class="col-md-2">
+                    <label class="form-label mb-1" style="font-size:0.8rem;">Search</label>
+                    <input type="text" id="studentSearch" class="form-control form-control-sm" placeholder="First name or ID...">
+                </div>
+                <div class="col-md-2 d-flex gap-1">
+                    <a href="{{ url_for('admin_students') }}" class="btn btn-outline-secondary btn-sm flex-fill" title="Clear Filters">
+                        <i class="bi bi-x-lg me-1"></i>Clear
                     </a>
+                    <button type="button" class="btn btn-outline-dark btn-sm" onclick="printStudents()" title="Print">
+                        <i class="bi bi-printer"></i>
+                    </button>
                 </div>
             </form>
         </div>
@@ -74,32 +121,58 @@
     <div class="card">
         <div class="card-body">
             {% if students %}
-            <div class="mb-3">
-                <span class="badge bg-navy fs-6">Total Students: {{ students|length }}</span>
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="badge bg-navy fs-6">
+                        Showing <span id="showingCount">0</span> of <span id="totalCount">{{ students|length }}</span> students
+                    </span>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-secondary" onclick="changePageSize(10)">10</button>
+                        <button type="button" class="btn btn-outline-secondary active" onclick="changePageSize(25)">25</button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="changePageSize(50)">50</button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="changePageSize(100)">100</button>
+                    </div>
+                </div>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0" id="paginationControls">
+                        <!-- Populated by JavaScript -->
+                    </ul>
+                </nav>
             </div>
             <div class="table-responsive">
-                <table class="table table-hover">
+                <table class="table table-hover" id="studentsTable">
                     <thead>
                         <tr>
                             <th>#</th>
                             <th>Student Number</th>
                             <th>Full Name</th>
                             <th>Year</th>
+                            <th>Semester</th>
                             <th>Shift</th>
                             <th>Class</th>
                             <th>Email</th>
-                            <th>Actions</th>
+                            <th class="no-print">Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="studentsTableBody">
                         {% for student in students %}
-                        <tr id="student-row-{{ student.id }}">
-                            <td>{{ loop.index }}</td>
+                        <tr class="student-row" 
+                            data-student-name="{{ student.full_name|lower }}" 
+                            data-student-id="{{ (student.student_number or '')|lower }}"
+                            id="student-row-{{ student.id }}">
+                            <td class="row-number">{{ loop.index }}</td>
                             <td><strong>{{ student.student_number or '-' }}</strong></td>
                             <td>{{ student.full_name }}</td>
                             <td>
                                 {% if student.year %}
                                 <span class="badge bg-primary">Year {{ student.year }}</span>
+                                {% else %}
+                                <span class="badge bg-secondary">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if student.semester %}
+                                <span class="badge bg-info text-dark">Sem {{ student.semester }}</span>
                                 {% else %}
                                 <span class="badge bg-secondary">-</span>
                                 {% endif %}
@@ -121,7 +194,7 @@
                                 {% endif %}
                             </td>
                             <td>{{ student.email or '-' }}</td>
-                            <td>
+                            <td class="no-print">
                                 <button type="button" class="btn btn-sm btn-outline-primary edit-student-btn" 
                                         title="Edit"
                                         data-id="{{ student.id }}"
@@ -213,6 +286,8 @@
                             <select class="form-select" id="edit_semester" name="semester" required>
                                 <option value="1">Semester 1</option>
                                 <option value="2">Semester 2</option>
+                                <option value="3">Semester 3</option>
+                                <option value="4">Semester 4</option>
                             </select>
                         </div>
                         <div class="col-md-6">
@@ -273,16 +348,40 @@ document.addEventListener('DOMContentLoaded', function() {
     const saveBtn = document.getElementById('saveStudentBtn');
     const toast = new bootstrap.Toast(document.getElementById('successToast'));
     
+    // Update semester options based on year
+    function updateEditSemesterOptions(year, selectedSemester) {
+        const semSelect = document.getElementById('edit_semester');
+        semSelect.innerHTML = '';
+        if (year == 1) {
+            semSelect.innerHTML = '<option value="1">Semester 1</option><option value="2">Semester 2</option>';
+            semSelect.value = (selectedSemester == 1 || selectedSemester == 2) ? selectedSemester : '1';
+        } else if (year == 2) {
+            semSelect.innerHTML = '<option value="3">Semester 3</option><option value="4">Semester 4</option>';
+            semSelect.value = (selectedSemester == 3 || selectedSemester == 4) ? selectedSemester : '3';
+        } else {
+            semSelect.innerHTML = '<option value="1">Semester 1</option><option value="2">Semester 2</option><option value="3">Semester 3</option><option value="4">Semester 4</option>';
+            if (selectedSemester) semSelect.value = selectedSemester;
+        }
+    }
+
+    // Year change => update semesters
+    document.getElementById('edit_year').addEventListener('change', function() {
+        updateEditSemesterOptions(this.value, null);
+    });
+
     // Handle edit button clicks
     document.querySelectorAll('.edit-student-btn').forEach(btn => {
         btn.addEventListener('click', function() {
+            const year = this.dataset.year;
+            const semester = this.dataset.semester || '1';
+            
             // Populate the form with student data
             document.getElementById('edit_student_id').value = this.dataset.id;
             document.getElementById('edit_full_name').value = this.dataset.fullname;
             document.getElementById('edit_email').value = this.dataset.email;
             document.getElementById('edit_student_number').value = this.dataset.studentnumber;
-            document.getElementById('edit_year').value = this.dataset.year;
-            document.getElementById('edit_semester').value = this.dataset.semester || '1';
+            document.getElementById('edit_year').value = year;
+            updateEditSemesterOptions(year, semester);
             document.getElementById('edit_shift').value = this.dataset.shift;
             document.getElementById('edit_section').value = this.dataset.section;
             document.getElementById('edit_phone').value = this.dataset.phone;
@@ -355,25 +454,32 @@ document.addEventListener('DOMContentLoaded', function() {
             cells[3].innerHTML = '<span class="badge bg-secondary">-</span>';
         }
         
-        // Update Shift (cell 4)
-        if (student.shift === 'morning') {
-            cells[4].innerHTML = '<span class="badge bg-warning text-dark"><i class="bi bi-sun"></i> Morning</span>';
-        } else if (student.shift === 'night') {
-            cells[4].innerHTML = '<span class="badge bg-dark"><i class="bi bi-moon-stars"></i> Night</span>';
+        // Update Semester (cell 4)
+        if (student.semester) {
+            cells[4].innerHTML = '<span class="badge bg-info text-dark">Sem ' + student.semester + '</span>';
         } else {
             cells[4].innerHTML = '<span class="badge bg-secondary">-</span>';
         }
-        
-        // Update Class/Section (cell 5)
-        if (student.section) {
-            cells[5].innerHTML = '<span class="badge bg-success">Class ' + student.section + '</span>';
+
+        // Update Shift (cell 5)
+        if (student.shift === 'morning') {
+            cells[5].innerHTML = '<span class="badge bg-warning text-dark"><i class="bi bi-sun"></i> Morning</span>';
+        } else if (student.shift === 'night') {
+            cells[5].innerHTML = '<span class="badge bg-dark"><i class="bi bi-moon-stars"></i> Night</span>';
         } else {
-            cells[5].innerHTML = '<span class="badge bg-danger">Not Assigned</span>';
+            cells[5].innerHTML = '<span class="badge bg-secondary">-</span>';
         }
-        
-        // Update Email (cell 6)
-        cells[6].textContent = student.email || '-';
-        
+
+        // Update Class/Section (cell 6)
+        if (student.section) {
+            cells[6].innerHTML = '<span class="badge bg-success">Class ' + student.section + '</span>';
+        } else {
+            cells[6].innerHTML = '<span class="badge bg-danger">Not Assigned</span>';
+        }
+
+        // Update Email (cell 7)
+        cells[7].textContent = student.email || '-';
+
         // Update the edit button data attributes
         const editBtn = row.querySelector('.edit-student-btn');
         if (editBtn) {
@@ -388,5 +494,231 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+
+// --- Semester filter update based on Year ---
+function updateSemesterFilter() {
+    const year = document.getElementById('filterYear').value;
+    const semSelect = document.getElementById('filterSemester');
+    const currentVal = semSelect.value;
+    semSelect.innerHTML = '<option value="">All Semesters</option>';
+    if (year === '1') {
+        semSelect.innerHTML += '<option value="1">Sem 1</option><option value="2">Sem 2</option>';
+    } else if (year === '2') {
+        semSelect.innerHTML += '<option value="3">Sem 3</option><option value="4">Sem 4</option>';
+    } else {
+        semSelect.innerHTML += '<option value="1">Sem 1</option><option value="2">Sem 2</option><option value="3">Sem 3</option><option value="4">Sem 4</option>';
+    }
+    // Re-select if still valid
+    for (let opt of semSelect.options) {
+        if (opt.value === currentVal) { semSelect.value = currentVal; break; }
+    }
+}
+
+// --- Client-side search filter with first-name matching ---
+let currentPage = 1;
+let pageSize = 25;
+let filteredRows = [];
+
+function filterTable() {
+    const query = document.getElementById('studentSearch').value.toLowerCase().trim();
+    const rows = document.querySelectorAll('.student-row');
+    
+    if (!query) {
+        // Show all rows
+        filteredRows = Array.from(rows);
+    } else {
+        // Split search term into words
+        const searchWords = query.split(/\s+/).filter(w => w.length > 0);
+        
+        filteredRows = Array.from(rows).filter(row => {
+            const studentName = row.dataset.studentName || '';
+            const studentId = row.dataset.studentId || '';
+            
+            // Split student name into words - only match FIRST name
+            const nameWords = studentName.split(/\s+/);
+            const firstName = nameWords[0] || '';
+            
+            // For single search word, match first name or student ID
+            if (searchWords.length === 1) {
+                const searchWord = searchWords[0];
+                const firstNameMatch = firstName.startsWith(searchWord);
+                const idMatch = studentId.includes(searchWord);
+                return firstNameMatch || idMatch;
+            } else {
+                // For multiple words, match all words in order (first name, last name, etc.)
+                return searchWords.every((searchWord, index) => {
+                    if (index < nameWords.length) {
+                        return nameWords[index].startsWith(searchWord);
+                    }
+                    return false;
+                });
+            }
+        });
+    }
+    
+    currentPage = 1;
+    displayPage();
+}
+
+function displayPage() {
+    const allRows = document.querySelectorAll('.student-row');
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    
+    // Hide all rows first
+    allRows.forEach(row => row.style.display = 'none');
+    
+    // Show only filtered rows for current page
+    filteredRows.forEach((row, index) => {
+        if (index >= startIndex && index < endIndex) {
+            row.style.display = '';
+            // Update row number
+            const rowNum = row.querySelector('.row-number');
+            if (rowNum) rowNum.textContent = index + 1;
+        }
+    });
+    
+    // Update counters
+    document.getElementById('showingCount').textContent = filteredRows.length;
+    document.getElementById('totalCount').textContent = allRows.length;
+    
+    // Update pagination controls
+    renderPagination();
+}
+
+function renderPagination() {
+    const totalPages = Math.ceil(filteredRows.length / pageSize);
+    const paginationControls = document.getElementById('paginationControls');
+    paginationControls.innerHTML = '';
+    
+    if (totalPages <= 1) return;
+    
+    // Previous button
+    const prevLi = document.createElement('li');
+    prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+    prevLi.innerHTML = `<a class="page-link" href="#" onclick="goToPage(${currentPage - 1}); return false;">«</a>`;
+    paginationControls.appendChild(prevLi);
+    
+    // Page numbers
+    const maxButtons = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+    let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+    
+    if (endPage - startPage < maxButtons - 1) {
+        startPage = Math.max(1, endPage - maxButtons + 1);
+    }
+    
+    if (startPage > 1) {
+        const firstLi = document.createElement('li');
+        firstLi.className = 'page-item';
+        firstLi.innerHTML = `<a class="page-link" href="#" onclick="goToPage(1); return false;">1</a>`;
+        paginationControls.appendChild(firstLi);
+        
+        if (startPage > 2) {
+            const dotsLi = document.createElement('li');
+            dotsLi.className = 'page-item disabled';
+            dotsLi.innerHTML = `<span class="page-link">...</span>`;
+            paginationControls.appendChild(dotsLi);
+        }
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+        const li = document.createElement('li');
+        li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+        li.innerHTML = `<a class="page-link" href="#" onclick="goToPage(${i}); return false;">${i}</a>`;
+        paginationControls.appendChild(li);
+    }
+    
+    if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+            const dotsLi = document.createElement('li');
+            dotsLi.className = 'page-item disabled';
+            dotsLi.innerHTML = `<span class="page-link">...</span>`;
+            paginationControls.appendChild(dotsLi);
+        }
+        
+        const lastLi = document.createElement('li');
+        lastLi.className = 'page-item';
+        lastLi.innerHTML = `<a class="page-link" href="#" onclick="goToPage(${totalPages}); return false;">${totalPages}</a>`;
+        paginationControls.appendChild(lastLi);
+    }
+    
+    // Next button
+    const nextLi = document.createElement('li');
+    nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+    nextLi.innerHTML = `<a class="page-link" href="#" onclick="goToPage(${currentPage + 1}); return false;">»</a>`;
+    paginationControls.appendChild(nextLi);
+}
+
+function goToPage(page) {
+    const totalPages = Math.ceil(filteredRows.length / pageSize);
+    if (page < 1 || page > totalPages) return;
+    currentPage = page;
+    displayPage();
+}
+
+function changePageSize(size) {
+    pageSize = size;
+    currentPage = 1;
+    
+    // Update button states
+    document.querySelectorAll('.btn-group button').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    displayPage();
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const allRows = document.querySelectorAll('.student-row');
+    filteredRows = Array.from(allRows);
+    displayPage();
+    
+    // Add search input listener
+    const searchInput = document.getElementById('studentSearch');
+    if (searchInput) {
+        searchInput.addEventListener('input', filterTable);
+    }
+});
+
+// --- Print students list ---
+function printStudents() {
+    // Temporarily show all filtered rows for print
+    const allRows = document.querySelectorAll('.student-row');
+    allRows.forEach(row => row.style.display = 'none');
+    filteredRows.forEach(row => row.style.display = '');
+    
+    const printContent = document.querySelector('.table-responsive').innerHTML;
+    
+    // Restore pagination display
+    displayPage();
+    
+    const year = document.getElementById('filterYear');
+    const sem = document.getElementById('filterSemester');
+    const yearText = year.options[year.selectedIndex].text;
+    const semText = sem.options[sem.selectedIndex].text;
+    const title = 'Student List' + (year.value ? ' — ' + yearText : '') + (sem.value ? ' — ' + semText : '');
+
+    const win = window.open('', '_blank');
+    win.document.write(`
+        <html><head><title>${title}</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+        <style>
+            body { padding: 20px; font-size: 13px; }
+            h3 { margin-bottom: 15px; color: #0000cc; }
+            .no-print { display: none !important; }
+            .badge { padding: 4px 8px; font-size: 11px; }
+            @media print { .no-print { display: none !important; } }
+        </style></head><body>
+        <h3><img src="" style="height:30px;margin-right:8px;">EPU MIS — ${title}</h3>
+        <p style="font-size:11px;color:#666;">Printed: ${new Date().toLocaleString()} &nbsp;|&nbsp; Total: ${filteredRows.length} students</p>
+        ${printContent}
+        <script>setTimeout(()=>{window.print();window.close();},400)<\/script>
+        </body></html>
+    `);
+    win.document.close();
+}
 </script>
 {% endblock %}

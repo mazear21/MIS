@@ -6,6 +6,7 @@
 -- Drop tables if they exist (for fresh setup)
 DROP TABLE IF EXISTS homework CASCADE;
 DROP TABLE IF EXISTS weekly_topics CASCADE;
+DROP TABLE IF EXISTS grade_components CASCADE;
 DROP TABLE IF EXISTS grades CASCADE;
 DROP TABLE IF EXISTS attendance CASCADE;
 DROP TABLE IF EXISTS subjects CASCADE;
@@ -86,6 +87,24 @@ CREATE TABLE subjects (
 );
 
 -- =============================================
+-- 5.5. GRADE COMPONENTS TABLE
+-- Defines grading rubric/distribution for each subject
+-- Multiple components per subject (e.g., 3 homeworks, 2 quizzes)
+-- =============================================
+CREATE TABLE grade_components (
+    id SERIAL PRIMARY KEY,
+    subject_id INTEGER NOT NULL REFERENCES subjects(id) ON DELETE CASCADE,
+    component_type VARCHAR(50) NOT NULL CHECK (component_type IN ('homework', 'quiz', 'report', 'project', 'exam', 'midterm', 'final', 'lab_report', 'activity', 'seminar')),
+    component_name VARCHAR(100) NOT NULL,
+    max_score DECIMAL(5,2) NOT NULL CHECK (max_score > 0),
+    weight_percentage DECIMAL(5,2) NOT NULL CHECK (weight_percentage >= 0 AND weight_percentage <= 100),
+    display_order INTEGER DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_grade_components_subject ON grade_components(subject_id);
+
+-- =============================================
 -- 6. ATTENDANCE TABLE
 -- Daily attendance records
 -- =============================================
@@ -110,7 +129,7 @@ CREATE TABLE grades (
     student_id INTEGER NOT NULL REFERENCES students(id) ON DELETE CASCADE,
     subject_id INTEGER NOT NULL REFERENCES subjects(id) ON DELETE CASCADE,
     teacher_id INTEGER REFERENCES teachers(id) ON DELETE SET NULL,
-    grade_type VARCHAR(50) NOT NULL CHECK (grade_type IN ('quiz', 'exam', 'homework', 'midterm', 'final', 'project')),
+    grade_type VARCHAR(50) NOT NULL CHECK (grade_type IN ('quiz', 'exam', 'homework', 'midterm', 'final', 'project', 'activity', 'report', 'seminar', 'lab_report')),
     title VARCHAR(100),
     score DECIMAL(5,2) NOT NULL,
     max_score DECIMAL(5,2) DEFAULT 100,

@@ -267,7 +267,7 @@ extra_css %}
     <div class="card-footer py-2">
       <div class="d-flex justify-content-between align-items-center">
         <span>Total: <strong>{{ students|length }}</strong> students</span>
-        <button type="button" class="btn btn-primary" onclick="saveAttendance()">
+        <button type="button" class="btn btn-primary" onclick="saveAttendance(event)">
           <i class="bi bi-save me-1"></i>Save Attendance
         </button>
       </div>
@@ -517,23 +517,75 @@ extra_css %}
     document.getElementById('absentCount').textContent = 'Absent: ' + a;
   }
 
-  function saveAttendance() {
+  function saveAttendance(event) {
     const date = document.getElementById('attendanceDate').value;
     if (!date) {
-      alert('Select date');
+      showToastMessage('Please select date', 'warning');
       return;
     }
-    document.getElementById('formDate').value = date;
-    const fd = document.getElementById('formData');
-    fd.innerHTML = '';
+
+    // Build form data
+    const formData = new FormData();
+    formData.append('date', date);
     rows.forEach((r) => {
-      const inp = document.createElement('input');
-      inp.type = 'hidden';
-      inp.name = 'status_' + r.dataset.studentId;
-      inp.value = r.dataset.status;
-      fd.appendChild(inp);
+      formData.append('status_' + r.dataset.studentId, r.dataset.status);
     });
-    document.getElementById('attendanceForm').submit();
+
+    // Disable button and show loading
+    const saveBtn = event.target;
+    const originalHTML = saveBtn.innerHTML;
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Saving...';
+
+    // Send AJAX request
+    fetch('{{ url_for("teacher_take_attendance", subject_id=subject.id) }}', {
+      method: 'POST',
+      body: formData,
+    })
+      .then((response) => {
+        if (response.ok) {
+          showToastMessage('Attendance saved successfully!', 'success');
+          // Reset all students to Present
+          setAll('present');
+        } else {
+          showToastMessage('Failed to save attendance', 'danger');
+        }
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+        showToastMessage('Error saving attendance', 'danger');
+      })
+      .finally(() => {
+        // Re-enable button
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = originalHTML;
+      });
+  }
+
+  // Toast notification function
+  let toastContainer = null;
+  function showToastMessage(message, type = 'info') {
+    if (!toastContainer) {
+      toastContainer = document.createElement('div');
+      toastContainer.id = 'toastContainer';
+      toastContainer.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999;';
+      document.body.appendChild(toastContainer);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type} alert-dismissible fade show`;
+    toast.style.cssText = 'min-width: 250px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);';
+    toast.innerHTML = `
+      ${message}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+
+    toastContainer.appendChild(toast);
+
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => toast.remove(), 150);
+    }, 3000);
   }
 </script>
 {% endblock %}

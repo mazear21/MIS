@@ -1,16 +1,20 @@
-{% extends 'base.html' %}
-{% block title %}Manage Subjects - MIS System{% endblock %}
-{% block content %}
+{% extends 'base.html' %} {% block title %}Manage Subjects - MIS System{% endblock %} {% block
+content %}
 <div class="container">
   <!-- Page Header -->
   <div class="page-header">
     <div class="row align-items-center">
       <div class="col">
         <h2><i class="bi bi-journal-bookmark me-2"></i>Subject Management</h2>
-        <p class="text-muted mb-0">Manage subjects - 5 per semester, 20 total</p>
+        <p class="text-muted mb-0">Manage subjects for all semesters</p>
       </div>
       <div class="col-auto">
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSubjectModal">
+        <button
+          type="button"
+          class="btn btn-primary"
+          data-bs-toggle="modal"
+          data-bs-target="#addSubjectModal"
+        >
           <i class="bi bi-plus-lg me-1"></i>Add Subject
         </button>
       </div>
@@ -39,7 +43,7 @@
     </div>
     <div class="col-6 col-md-3">
       <div class="card border-0 bg-light text-center py-3">
-        <div class="fs-3 fw-bold text-dark">{{ subjects|length }}</div>
+        <div class="fs-3 fw-bold text-dark">{{ subjects|unique(attribute='id')|list|length }}</div>
         <small class="text-muted">Total</small>
       </div>
     </div>
@@ -48,30 +52,53 @@
   <!-- Year 1 -->
   <h5 class="mb-3"><i class="bi bi-1-circle me-2"></i>Year 1</h5>
   <div class="row mb-4">
-    {% set sem1_subjects = subjects|selectattr('year', 'equalto', 1)|selectattr('semester', 'equalto', 1)|list %}
-    {% set sem2_subjects = subjects|selectattr('year', 'equalto', 1)|selectattr('semester', 'equalto', 2)|list %}
+    {% set sem1_subjects = subjects|selectattr('semester', 'equalto', 1)|unique(attribute='id')|list
+    %} {% set sem2_subjects = subjects|selectattr('semester', 'equalto',
+    2)|unique(attribute='id')|list %}
 
     <!-- Semester 1 -->
     <div class="col-md-6 mb-3">
       <div class="card h-100">
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-2">
+        <div
+          class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-2"
+        >
           <span>Semester 1</span>
           <span class="badge bg-white text-primary">{{ sem1_subjects|length }}/5</span>
         </div>
         <ul class="list-group list-group-flush">
           {% for subject in sem1_subjects %}
-          <li class="list-group-item d-flex justify-content-between align-items-center py-2" id="subject-row-{{ subject.id }}">
+          <li
+            class="list-group-item d-flex justify-content-between align-items-center py-2"
+            id="subject-row-{{ subject.id }}"
+          >
             <span class="subject-name">{{ subject.name }}</span>
             <div>
-              <button class="btn btn-sm btn-outline-secondary py-0 px-2 edit-subject-btn"
+              <a
+                href="{{ url_for('admin_subject_grading', subject_id=subject.id) }}"
+                class="btn btn-sm btn-outline-primary py-0 px-2"
+                title="Grade Distribution"
+              >
+                <i class="bi bi-calculator"></i>
+              </a>
+              <button
+                class="btn btn-sm btn-outline-secondary py-0 px-2 edit-subject-btn"
                 data-id="{{ subject.id }}"
                 data-name="{{ subject.name }}"
-                data-year="{{ subject.year }}"
-                data-semester="{{ subject.semester }}">
+                data-year="1"
+                data-semester="{{ subject.semester }}"
+                data-description="{{ subject.description or '' }}"
+              >
                 <i class="bi bi-pencil"></i>
               </button>
-              <form action="{{ url_for('admin_delete_subject', subject_id=subject.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete?');">
-                <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-2"><i class="bi bi-trash"></i></button>
+              <form
+                action="{{ url_for('admin_delete_subject', subject_id=subject.id) }}"
+                method="POST"
+                class="d-inline"
+                onsubmit="return confirm('Delete?');"
+              >
+                <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-2">
+                  <i class="bi bi-trash"></i>
+                </button>
               </form>
             </div>
           </li>
@@ -85,24 +112,39 @@
     <!-- Semester 2 -->
     <div class="col-md-6 mb-3">
       <div class="card h-100">
-        <div class="card-header bg-info text-white d-flex justify-content-between align-items-center py-2">
+        <div
+          class="card-header bg-info text-white d-flex justify-content-between align-items-center py-2"
+        >
           <span>Semester 2</span>
           <span class="badge bg-white text-info">{{ sem2_subjects|length }}/5</span>
         </div>
         <ul class="list-group list-group-flush">
           {% for subject in sem2_subjects %}
-          <li class="list-group-item d-flex justify-content-between align-items-center py-2" id="subject-row-{{ subject.id }}">
+          <li
+            class="list-group-item d-flex justify-content-between align-items-center py-2"
+            id="subject-row-{{ subject.id }}"
+          >
             <span class="subject-name">{{ subject.name }}</span>
             <div>
-              <button class="btn btn-sm btn-outline-secondary py-0 px-2 edit-subject-btn"
+              <button
+                class="btn btn-sm btn-outline-secondary py-0 px-2 edit-subject-btn"
                 data-id="{{ subject.id }}"
                 data-name="{{ subject.name }}"
-                data-year="{{ subject.year }}"
-                data-semester="{{ subject.semester }}">
+                data-year="1"
+                data-semester="{{ subject.semester }}"
+                data-description="{{ subject.description or '' }}"
+              >
                 <i class="bi bi-pencil"></i>
               </button>
-              <form action="{{ url_for('admin_delete_subject', subject_id=subject.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete?');">
-                <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-2"><i class="bi bi-trash"></i></button>
+              <form
+                action="{{ url_for('admin_delete_subject', subject_id=subject.id) }}"
+                method="POST"
+                class="d-inline"
+                onsubmit="return confirm('Delete?');"
+              >
+                <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-2">
+                  <i class="bi bi-trash"></i>
+                </button>
               </form>
             </div>
           </li>
@@ -117,30 +159,53 @@
   <!-- Year 2 -->
   <h5 class="mb-3"><i class="bi bi-2-circle me-2"></i>Year 2</h5>
   <div class="row">
-    {% set sem3_subjects = subjects|selectattr('year', 'equalto', 2)|selectattr('semester', 'equalto', 3)|list %}
-    {% set sem4_subjects = subjects|selectattr('year', 'equalto', 2)|selectattr('semester', 'equalto', 4)|list %}
+    {% set sem3_subjects = subjects|selectattr('semester', 'equalto', 3)|unique(attribute='id')|list
+    %} {% set sem4_subjects = subjects|selectattr('semester', 'equalto',
+    4)|unique(attribute='id')|list %}
 
     <!-- Semester 3 -->
     <div class="col-md-6 mb-3">
       <div class="card h-100">
-        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center py-2">
+        <div
+          class="card-header bg-success text-white d-flex justify-content-between align-items-center py-2"
+        >
           <span>Semester 3</span>
           <span class="badge bg-white text-success">{{ sem3_subjects|length }}/5</span>
         </div>
         <ul class="list-group list-group-flush">
           {% for subject in sem3_subjects %}
-          <li class="list-group-item d-flex justify-content-between align-items-center py-2" id="subject-row-{{ subject.id }}">
+          <li
+            class="list-group-item d-flex justify-content-between align-items-center py-2"
+            id="subject-row-{{ subject.id }}"
+          >
             <span class="subject-name">{{ subject.name }}</span>
             <div>
-              <button class="btn btn-sm btn-outline-secondary py-0 px-2 edit-subject-btn"
+              <a
+                href="{{ url_for('admin_subject_grading', subject_id=subject.id) }}"
+                class="btn btn-sm btn-outline-primary py-0 px-2"
+                title="Grade Distribution"
+              >
+                <i class="bi bi-calculator"></i>
+              </a>
+              <button
+                class="btn btn-sm btn-outline-secondary py-0 px-2 edit-subject-btn"
                 data-id="{{ subject.id }}"
                 data-name="{{ subject.name }}"
-                data-year="{{ subject.year }}"
-                data-semester="{{ subject.semester }}">
+                data-year="2"
+                data-semester="{{ subject.semester }}"
+                data-description="{{ subject.description or '' }}"
+              >
                 <i class="bi bi-pencil"></i>
               </button>
-              <form action="{{ url_for('admin_delete_subject', subject_id=subject.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete?');">
-                <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-2"><i class="bi bi-trash"></i></button>
+              <form
+                action="{{ url_for('admin_delete_subject', subject_id=subject.id) }}"
+                method="POST"
+                class="d-inline"
+                onsubmit="return confirm('Delete?');"
+              >
+                <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-2">
+                  <i class="bi bi-trash"></i>
+                </button>
               </form>
             </div>
           </li>
@@ -154,24 +219,46 @@
     <!-- Semester 4 -->
     <div class="col-md-6 mb-3">
       <div class="card h-100">
-        <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center py-2">
+        <div
+          class="card-header bg-warning text-dark d-flex justify-content-between align-items-center py-2"
+        >
           <span>Semester 4</span>
           <span class="badge bg-white text-warning">{{ sem4_subjects|length }}/5</span>
         </div>
         <ul class="list-group list-group-flush">
           {% for subject in sem4_subjects %}
-          <li class="list-group-item d-flex justify-content-between align-items-center py-2" id="subject-row-{{ subject.id }}">
+          <li
+            class="list-group-item d-flex justify-content-between align-items-center py-2"
+            id="subject-row-{{ subject.id }}"
+          >
             <span class="subject-name">{{ subject.name }}</span>
             <div>
-              <button class="btn btn-sm btn-outline-secondary py-0 px-2 edit-subject-btn"
+              <a
+                href="{{ url_for('admin_subject_grading', subject_id=subject.id) }}"
+                class="btn btn-sm btn-outline-primary py-0 px-2"
+                title="Grade Distribution"
+              >
+                <i class="bi bi-calculator"></i>
+              </a>
+              <button
+                class="btn btn-sm btn-outline-secondary py-0 px-2 edit-subject-btn"
                 data-id="{{ subject.id }}"
                 data-name="{{ subject.name }}"
-                data-year="{{ subject.year }}"
-                data-semester="{{ subject.semester }}">
+                data-year="2"
+                data-semester="{{ subject.semester }}"
+                data-description="{{ subject.description or '' }}"
+              >
                 <i class="bi bi-pencil"></i>
               </button>
-              <form action="{{ url_for('admin_delete_subject', subject_id=subject.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete?');">
-                <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-2"><i class="bi bi-trash"></i></button>
+              <form
+                action="{{ url_for('admin_delete_subject', subject_id=subject.id) }}"
+                method="POST"
+                class="d-inline"
+                onsubmit="return confirm('Delete?');"
+              >
+                <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-2">
+                  <i class="bi bi-trash"></i>
+                </button>
               </form>
             </div>
           </li>
@@ -185,7 +272,8 @@
 
   <div class="alert alert-info mt-3">
     <i class="bi bi-info-circle me-2"></i>
-    <strong>Note:</strong> Teacher assignments are managed in the
+    <strong>Note:</strong> Each subject belongs to a specific semester. To assign teachers to
+    subjects for classes, go to the
     <a href="{{ url_for('admin_teachers') }}" class="alert-link">Teachers</a> tab.
   </div>
 </div>
@@ -194,7 +282,10 @@
 <div class="modal fade" id="addSubjectModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header" style="background: linear-gradient(135deg, #0000ff 0%, #0000cc 100%); color: white;">
+      <div
+        class="modal-header"
+        style="background: linear-gradient(135deg, #0000ff 0%, #0000cc 100%); color: white"
+      >
         <h5 class="modal-title"><i class="bi bi-journal-plus me-2"></i>Add New Subject</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
@@ -202,23 +293,34 @@
         <div class="modal-body">
           <div class="mb-3">
             <label class="form-label">Subject Name <span class="text-danger">*</span></label>
-            <input type="text" name="name" id="addSubjectName" class="form-control" required placeholder="e.g., Programming Fundamentals">
+            <input
+              type="text"
+              name="name"
+              id="addSubjectName"
+              class="form-control"
+              required
+              placeholder="e.g., Advanced Database"
+            />
           </div>
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label">Year <span class="text-danger">*</span></label>
-              <select name="year" id="addSubjectYear" class="form-select" required>
-                <option value="">Select Year</option>
-                <option value="1">Year 1</option>
-                <option value="2">Year 2</option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Semester <span class="text-danger">*</span></label>
-              <select name="semester" id="addSubjectSemester" class="form-select" required>
-                <option value="">Select Semester</option>
-              </select>
-            </div>
+          <div class="mb-3">
+            <label class="form-label">Semester <span class="text-danger">*</span></label>
+            <select name="semester" id="addSubjectSemester" class="form-select" required>
+              <option value="">Select Semester</option>
+              <option value="1">Semester 1</option>
+              <option value="2">Semester 2</option>
+              <option value="3">Semester 3</option>
+              <option value="4">Semester 4</option>
+            </select>
+          </div>
+          <div class="mb-3 mt-3">
+            <label class="form-label">Description</label>
+            <textarea
+              name="description"
+              id="addSubjectDescription"
+              class="form-control"
+              rows="2"
+              placeholder="Optional description"
+            ></textarea>
           </div>
         </div>
         <div class="modal-footer">
@@ -236,34 +338,37 @@
 <div class="modal fade" id="editSubjectModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header" style="background: linear-gradient(135deg, #0000ff 0%, #0000cc 100%); color: white;">
+      <div
+        class="modal-header"
+        style="background: linear-gradient(135deg, #0000ff 0%, #0000cc 100%); color: white"
+      >
         <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Edit Subject</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <form id="editSubjectForm">
-        <input type="hidden" id="editSubjectId" name="subject_id">
+        <input type="hidden" id="editSubjectId" name="subject_id" />
         <div class="modal-body">
           <div class="mb-3">
             <label class="form-label">Subject Name <span class="text-danger">*</span></label>
-            <input type="text" name="name" id="editSubjectName" class="form-control" required>
+            <input type="text" name="name" id="editSubjectName" class="form-control" required />
           </div>
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label">Year <span class="text-danger">*</span></label>
-              <select name="year" id="editSubjectYear" class="form-select" required>
-                <option value="1">Year 1</option>
-                <option value="2">Year 2</option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Semester <span class="text-danger">*</span></label>
-              <select name="semester" id="editSubjectSemester" class="form-select" required>
-                <option value="1">Semester 1</option>
-                <option value="2">Semester 2</option>
-                <option value="3">Semester 3</option>
-                <option value="4">Semester 4</option>
-              </select>
-            </div>
+          <div class="mb-3">
+            <label class="form-label">Semester <span class="text-danger">*</span></label>
+            <select name="semester" id="editSubjectSemester" class="form-select" required>
+              <option value="1">Semester 1</option>
+              <option value="2">Semester 2</option>
+              <option value="3">Semester 3</option>
+              <option value="4">Semester 4</option>
+            </select>
+          </div>
+          <div class="mb-3 mt-3">
+            <label class="form-label">Description</label>
+            <textarea
+              name="description"
+              id="editSubjectDescription"
+              class="form-control"
+              rows="2"
+            ></textarea>
           </div>
         </div>
         <div class="modal-footer">
@@ -281,113 +386,105 @@
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
   <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert">
     <div class="d-flex">
-      <div class="toast-body"><i class="bi bi-check-circle me-2"></i><span id="toastMessage">Success!</span></div>
-      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+      <div class="toast-body">
+        <i class="bi bi-check-circle me-2"></i><span id="toastMessage">Success!</span>
+      </div>
+      <button
+        type="button"
+        class="btn-close btn-close-white me-2 m-auto"
+        data-bs-dismiss="toast"
+      ></button>
     </div>
   </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
+{% endblock %} {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function () {
     const editModal = new bootstrap.Modal(document.getElementById('editSubjectModal'));
     const addModal = new bootstrap.Modal(document.getElementById('addSubjectModal'));
     const toast = new bootstrap.Toast(document.getElementById('successToast'));
-    
-    // Update semester options based on year
-    document.getElementById('addSubjectYear').addEventListener('change', function() {
-        const semesterSelect = document.getElementById('addSubjectSemester');
-        semesterSelect.innerHTML = '<option value="">Select Semester</option>';
-        if (this.value === '1') {
-            semesterSelect.innerHTML += '<option value="1">Semester 1</option><option value="2">Semester 2</option>';
-        } else if (this.value === '2') {
-            semesterSelect.innerHTML += '<option value="3">Semester 3</option><option value="4">Semester 4</option>';
-        }
-    });
-    
+
     // Edit Subject Button Click
-    document.querySelectorAll('.edit-subject-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            document.getElementById('editSubjectId').value = this.dataset.id;
-            document.getElementById('editSubjectName').value = this.dataset.name;
-            document.getElementById('editSubjectYear').value = this.dataset.year;
-            document.getElementById('editSubjectSemester').value = this.dataset.semester;
-            editModal.show();
-        });
+    document.querySelectorAll('.edit-subject-btn').forEach((btn) => {
+      btn.addEventListener('click', function () {
+        document.getElementById('editSubjectId').value = this.dataset.id;
+        document.getElementById('editSubjectName').value = this.dataset.name;
+        document.getElementById('editSubjectSemester').value = this.dataset.semester;
+        document.getElementById('editSubjectDescription').value = this.dataset.description || '';
+        editModal.show();
+      });
     });
-    
+
     // Edit Subject Form Submit
-    document.getElementById('editSubjectForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(this);
-        const subjectId = formData.get('subject_id');
-        const saveBtn = document.getElementById('saveSubjectBtn');
-        
-        saveBtn.disabled = true;
-        saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Saving...';
-        
-        fetch('/admin/subjects/' + subjectId + '/edit-ajax', {
-            method: 'POST',
-            body: formData
+    document.getElementById('editSubjectForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const formData = new FormData(this);
+      const subjectId = formData.get('subject_id');
+      const saveBtn = document.getElementById('saveSubjectBtn');
+
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Saving...';
+
+      fetch('/admin/subjects/' + subjectId + '/edit-ajax', {
+        method: 'POST',
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            editModal.hide();
+            document.getElementById('toastMessage').textContent = data.message;
+            toast.show();
+            setTimeout(() => location.reload(), 1000);
+          } else {
+            alert('Error: ' + data.message);
+          }
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                editModal.hide();
-                document.getElementById('toastMessage').textContent = data.message;
-                toast.show();
-                // Reload to reflect changes (semester might have changed)
-                setTimeout(() => location.reload(), 1000);
-            } else {
-                alert('Error: ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred.');
+        .catch((error) => {
+          console.error('Error:', error);
+          alert('An error occurred.');
         })
         .finally(() => {
-            saveBtn.disabled = false;
-            saveBtn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Save Changes';
+          saveBtn.disabled = false;
+          saveBtn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Save Changes';
         });
     });
-    
+
     // Add Subject Form Submit
-    document.getElementById('addSubjectForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(this);
-        const addBtn = document.getElementById('addSubjectBtn');
-        
-        addBtn.disabled = true;
-        addBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Adding...';
-        
-        fetch('/admin/subjects/add-ajax', {
-            method: 'POST',
-            body: formData
+    document.getElementById('addSubjectForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const formData = new FormData(this);
+      const addBtn = document.getElementById('addSubjectBtn');
+
+      addBtn.disabled = true;
+      addBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Adding...';
+
+      fetch('/admin/subjects/add-ajax', {
+        method: 'POST',
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            addModal.hide();
+            document.getElementById('toastMessage').textContent = data.message;
+            toast.show();
+            setTimeout(() => location.reload(), 1000);
+          } else {
+            alert('Error: ' + data.message);
+          }
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                addModal.hide();
-                document.getElementById('toastMessage').textContent = data.message;
-                toast.show();
-                setTimeout(() => location.reload(), 1000);
-            } else {
-                alert('Error: ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred.');
+        .catch((error) => {
+          console.error('Error:', error);
+          alert('An error occurred.');
         })
         .finally(() => {
-            addBtn.disabled = false;
-            addBtn.innerHTML = '<i class="bi bi-plus-lg me-1"></i>Add Subject';
+          addBtn.disabled = false;
+          addBtn.innerHTML = '<i class="bi bi-plus-lg me-1"></i>Add Subject';
         });
     });
-});
+  });
 </script>
 {% endblock %}

@@ -13,7 +13,7 @@ content %}
 
   <!-- Year 1 -->
   <div class="card mb-4">
-    <div class="card-header" style="background: #0000ff; color: white;">
+    <div class="card-header" style="background: #0000ff; color: white">
       <h5 class="mb-0"><i class="bi bi-1-circle me-2"></i>Year 1</h5>
     </div>
     <div class="card-body">
@@ -22,25 +22,34 @@ content %}
         <div class="col-md-6 mb-3">
           <div class="semester-card">
             <div class="card__border"></div>
-            <h6 class="semester-title"><i class="bi bi-calendar-check me-2"></i>Semester 1</h6>
+            <h6 class="semester-title">
+              <i class="bi bi-calendar-check me-2"></i>Semester 1
+              <span class="semester-total-badge">{{ semester_totals.get(1, 0) }} students</span>
+            </h6>
             <div class="shift-section">
               <div class="shift-label"><i class="bi bi-sun text-warning me-1"></i>Morning</div>
               <div class="class-buttons">
                 <a
                   href="{{ url_for('admin_semester_students', semester=1, shift='morning', section='A') }}"
                   class="class-link"
-                  >A</a
                 >
+                  <span class="class-letter">A</span>
+                  <span class="student-count">{{ class_counts.get('1_morning_A', 0) }}</span>
+                </a>
                 <a
                   href="{{ url_for('admin_semester_students', semester=1, shift='morning', section='B') }}"
                   class="class-link"
-                  >B</a
                 >
+                  <span class="class-letter">B</span>
+                  <span class="student-count">{{ class_counts.get('1_morning_B', 0) }}</span>
+                </a>
                 <a
                   href="{{ url_for('admin_semester_students', semester=1, shift='morning', section='C') }}"
                   class="class-link"
-                  >C</a
                 >
+                  <span class="class-letter">C</span>
+                  <span class="student-count">{{ class_counts.get('1_morning_C', 0) }}</span>
+                </a>
               </div>
             </div>
             <div class="shift-section">
@@ -49,18 +58,24 @@ content %}
                 <a
                   href="{{ url_for('admin_semester_students', semester=1, shift='night', section='A') }}"
                   class="class-link"
-                  >A</a
                 >
+                  <span class="class-letter">A</span>
+                  <span class="student-count">{{ class_counts.get('1_night_A', 0) }}</span>
+                </a>
                 <a
                   href="{{ url_for('admin_semester_students', semester=1, shift='night', section='B') }}"
                   class="class-link"
-                  >B</a
                 >
+                  <span class="class-letter">B</span>
+                  <span class="student-count">{{ class_counts.get('1_night_B', 0) }}</span>
+                </a>
                 <a
                   href="{{ url_for('admin_semester_students', semester=1, shift='night', section='C') }}"
                   class="class-link"
-                  >C</a
                 >
+                  <span class="class-letter">C</span>
+                  <span class="student-count">{{ class_counts.get('1_night_C', 0) }}</span>
+                </a>
               </div>
             </div>
           </div>
@@ -69,25 +84,34 @@ content %}
         <div class="col-md-6 mb-3">
           <div class="semester-card">
             <div class="card__border"></div>
-            <h6 class="semester-title"><i class="bi bi-calendar-check me-2"></i>Semester 2</h6>
+            <h6 class="semester-title">
+              <i class="bi bi-calendar-check me-2"></i>Semester 2
+              <span class="semester-total-badge">{{ semester_totals.get(2, 0) }} students</span>
+            </h6>
             <div class="shift-section">
               <div class="shift-label"><i class="bi bi-sun text-warning me-1"></i>Morning</div>
               <div class="class-buttons">
                 <a
                   href="{{ url_for('admin_semester_students', semester=2, shift='morning', section='A') }}"
                   class="class-link"
-                  >A</a
                 >
+                  <span class="class-letter">A</span>
+                  <span class="student-count">{{ class_counts.get('2_morning_A', 0) }}</span>
+                </a>
                 <a
                   href="{{ url_for('admin_semester_students', semester=2, shift='morning', section='B') }}"
                   class="class-link"
-                  >B</a
                 >
+                  <span class="class-letter">B</span>
+                  <span class="student-count">{{ class_counts.get('2_morning_B', 0) }}</span>
+                </a>
                 <a
                   href="{{ url_for('admin_semester_students', semester=2, shift='morning', section='C') }}"
                   class="class-link"
-                  >C</a
                 >
+                  <span class="class-letter">C</span>
+                  <span class="student-count">{{ class_counts.get('2_morning_C', 0) }}</span>
+                </a>
               </div>
             </div>
             <div class="shift-section">
@@ -96,18 +120,24 @@ content %}
                 <a
                   href="{{ url_for('admin_semester_students', semester=2, shift='night', section='A') }}"
                   class="class-link"
-                  >A</a
                 >
+                  <span class="class-letter">A</span>
+                  <span class="student-count">{{ class_counts.get('2_night_A', 0) }}</span>
+                </a>
                 <a
                   href="{{ url_for('admin_semester_students', semester=2, shift='night', section='B') }}"
                   class="class-link"
-                  >B</a
                 >
+                  <span class="class-letter">B</span>
+                  <span class="student-count">{{ class_counts.get('2_night_B', 0) }}</span>
+                </a>
                 <a
                   href="{{ url_for('admin_semester_students', semester=2, shift='night', section='C') }}"
                   class="class-link"
-                  >C</a
                 >
+                  <span class="class-letter">C</span>
+                  <span class="student-count">{{ class_counts.get('2_night_C', 0) }}</span>
+                </a>
               </div>
             </div>
           </div>
@@ -118,7 +148,7 @@ content %}
 
   <!-- Year 2 -->
   <div class="card mb-4">
-    <div class="card-header" style="background: #3565a8; color: white;">
+    <div class="card-header" style="background: #3565a8; color: white">
       <h5 class="mb-0"><i class="bi bi-2-circle me-2"></i>Year 2</h5>
     </div>
     <div class="card-body">
@@ -127,25 +157,34 @@ content %}
         <div class="col-md-6 mb-3">
           <div class="semester-card">
             <div class="card__border"></div>
-            <h6 class="semester-title"><i class="bi bi-calendar-check me-2"></i>Semester 3</h6>
+            <h6 class="semester-title">
+              <i class="bi bi-calendar-check me-2"></i>Semester 3
+              <span class="semester-total-badge">{{ semester_totals.get(3, 0) }} students</span>
+            </h6>
             <div class="shift-section">
               <div class="shift-label"><i class="bi bi-sun text-warning me-1"></i>Morning</div>
               <div class="class-buttons">
                 <a
                   href="{{ url_for('admin_semester_students', semester=3, shift='morning', section='A') }}"
                   class="class-link"
-                  >A</a
                 >
+                  <span class="class-letter">A</span>
+                  <span class="student-count">{{ class_counts.get('3_morning_A', 0) }}</span>
+                </a>
                 <a
                   href="{{ url_for('admin_semester_students', semester=3, shift='morning', section='B') }}"
                   class="class-link"
-                  >B</a
                 >
+                  <span class="class-letter">B</span>
+                  <span class="student-count">{{ class_counts.get('3_morning_B', 0) }}</span>
+                </a>
                 <a
                   href="{{ url_for('admin_semester_students', semester=3, shift='morning', section='C') }}"
                   class="class-link"
-                  >C</a
                 >
+                  <span class="class-letter">C</span>
+                  <span class="student-count">{{ class_counts.get('3_morning_C', 0) }}</span>
+                </a>
               </div>
             </div>
             <div class="shift-section">
@@ -154,18 +193,24 @@ content %}
                 <a
                   href="{{ url_for('admin_semester_students', semester=3, shift='night', section='A') }}"
                   class="class-link"
-                  >A</a
                 >
+                  <span class="class-letter">A</span>
+                  <span class="student-count">{{ class_counts.get('3_night_A', 0) }}</span>
+                </a>
                 <a
                   href="{{ url_for('admin_semester_students', semester=3, shift='night', section='B') }}"
                   class="class-link"
-                  >B</a
                 >
+                  <span class="class-letter">B</span>
+                  <span class="student-count">{{ class_counts.get('3_night_B', 0) }}</span>
+                </a>
                 <a
                   href="{{ url_for('admin_semester_students', semester=3, shift='night', section='C') }}"
                   class="class-link"
-                  >C</a
                 >
+                  <span class="class-letter">C</span>
+                  <span class="student-count">{{ class_counts.get('3_night_C', 0) }}</span>
+                </a>
               </div>
             </div>
           </div>
@@ -174,25 +219,34 @@ content %}
         <div class="col-md-6 mb-3">
           <div class="semester-card">
             <div class="card__border"></div>
-            <h6 class="semester-title"><i class="bi bi-calendar-check me-2"></i>Semester 4</h6>
+            <h6 class="semester-title">
+              <i class="bi bi-calendar-check me-2"></i>Semester 4
+              <span class="semester-total-badge">{{ semester_totals.get(4, 0) }} students</span>
+            </h6>
             <div class="shift-section">
               <div class="shift-label"><i class="bi bi-sun text-warning me-1"></i>Morning</div>
               <div class="class-buttons">
                 <a
                   href="{{ url_for('admin_semester_students', semester=4, shift='morning', section='A') }}"
                   class="class-link"
-                  >A</a
                 >
+                  <span class="class-letter">A</span>
+                  <span class="student-count">{{ class_counts.get('4_morning_A', 0) }}</span>
+                </a>
                 <a
                   href="{{ url_for('admin_semester_students', semester=4, shift='morning', section='B') }}"
                   class="class-link"
-                  >B</a
                 >
+                  <span class="class-letter">B</span>
+                  <span class="student-count">{{ class_counts.get('4_morning_B', 0) }}</span>
+                </a>
                 <a
                   href="{{ url_for('admin_semester_students', semester=4, shift='morning', section='C') }}"
                   class="class-link"
-                  >C</a
                 >
+                  <span class="class-letter">C</span>
+                  <span class="student-count">{{ class_counts.get('4_morning_C', 0) }}</span>
+                </a>
               </div>
             </div>
             <div class="shift-section">
@@ -201,18 +255,24 @@ content %}
                 <a
                   href="{{ url_for('admin_semester_students', semester=4, shift='night', section='A') }}"
                   class="class-link"
-                  >A</a
                 >
+                  <span class="class-letter">A</span>
+                  <span class="student-count">{{ class_counts.get('4_night_A', 0) }}</span>
+                </a>
                 <a
                   href="{{ url_for('admin_semester_students', semester=4, shift='night', section='B') }}"
                   class="class-link"
-                  >B</a
                 >
+                  <span class="class-letter">B</span>
+                  <span class="student-count">{{ class_counts.get('4_night_B', 0) }}</span>
+                </a>
                 <a
                   href="{{ url_for('admin_semester_students', semester=4, shift='night', section='C') }}"
                   class="class-link"
-                  >C</a
                 >
+                  <span class="class-letter">C</span>
+                  <span class="student-count">{{ class_counts.get('4_night_C', 0) }}</span>
+                </a>
               </div>
             </div>
           </div>
@@ -236,11 +296,8 @@ content %}
     gap: 1rem;
     padding: 1.25rem;
     background-color: #ffffff;
-    background-image: radial-gradient(
-        at 88% 40%,
-        rgba(255, 255, 255, 1) 0px,
-        transparent 85%
-      ),
+    background-image:
+      radial-gradient(at 88% 40%, rgba(255, 255, 255, 1) 0px, transparent 85%),
       radial-gradient(at 49% 30%, rgba(255, 255, 255, 1) 0px, transparent 85%),
       radial-gradient(at 14% 26%, rgba(255, 255, 255, 1) 0px, transparent 85%),
       radial-gradient(at 0% 64%, rgba(0, 0, 255, 0.08) 0px, transparent 85%),
@@ -261,16 +318,12 @@ content %}
     transform: translate(-50%, -50%);
     width: calc(100% + 2px);
     height: calc(100% + 2px);
-    background-image: linear-gradient(
-      0deg,
-      hsl(230, 100%, 90%) -50%,
-      hsl(230, 100%, 70%) 100%
-    );
+    background-image: linear-gradient(0deg, hsl(230, 100%, 90%) -50%, hsl(230, 100%, 70%) 100%);
     border-radius: 1rem;
   }
 
   .semester-card .card__border::before {
-    content: "";
+    content: '';
     pointer-events: none;
     position: absolute;
     z-index: 200;
@@ -301,9 +354,22 @@ content %}
     margin-bottom: 0;
     font-weight: 700;
     font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
   .semester-title i {
     color: #0000ff;
+  }
+  .semester-total-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 4px 12px;
+    background: linear-gradient(135deg, #0000ff 0%, #3565a8 100%);
+    color: white;
+    border-radius: 20px;
+    box-shadow: 0 2px 6px rgba(0, 0, 255, 0.25);
+    white-space: nowrap;
   }
 
   .shift-section {
@@ -329,15 +395,12 @@ content %}
   }
   .class-link {
     display: inline-flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 38px;
-    height: 38px;
-    background-image: linear-gradient(
-      0deg,
-      hsl(230, 100%, 50%),
-      hsl(230, 100%, 40%) 100%
-    );
+    width: 48px;
+    height: 48px;
+    background-image: linear-gradient(0deg, hsl(230, 100%, 50%), hsl(230, 100%, 40%) 100%);
     border: 0;
     border-radius: 8px;
     color: white;
@@ -345,11 +408,27 @@ content %}
     text-decoration: none;
     transition: all 0.2s ease;
     box-shadow: 0 2px 8px rgba(0, 0, 255, 0.3);
+    padding: 4px;
   }
   .class-link:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(0, 0, 255, 0.4);
     color: white;
+  }
+  .class-letter {
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 1;
+  }
+  .student-count {
+    font-size: 10px;
+    font-weight: 600;
+    margin-top: 2px;
+    padding: 1px 4px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    min-width: 16px;
+    text-align: center;
   }
 
   /* Remove blue hover effect from Year cards */

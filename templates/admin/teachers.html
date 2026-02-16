@@ -8,11 +8,6 @@ content %}
         <h2><i class="bi bi-person-badge me-2"></i>Faculty Management</h2>
         <p class="text-muted mb-0">Manage teaching staff and subject assignments</p>
       </div>
-      <div class="col-auto">
-        <a href="{{ url_for('admin_add_user') }}" class="btn btn-primary">
-          <i class="bi bi-person-plus me-1"></i>Add Teacher
-        </a>
-      </div>
     </div>
   </div>
 
@@ -22,7 +17,7 @@ content %}
       <div class="card border-0 bg-light">
         <div class="card-body py-3">
           <div class="d-flex align-items-center">
-            <div class="rounded-circle p-3 me-3" style="background: #0000ff;">
+            <div class="rounded-circle p-3 me-3" style="background: #0000ff">
               <i class="bi bi-people text-white" style="font-size: 1.5rem"></i>
             </div>
             <div>
@@ -37,7 +32,7 @@ content %}
       <div class="card border-0 bg-light">
         <div class="card-body py-3">
           <div class="d-flex align-items-center">
-            <div class="rounded-circle p-3 me-3" style="background: #c9a962;">
+            <div class="rounded-circle p-3 me-3" style="background: #c9a962">
               <i class="bi bi-check-circle text-white" style="font-size: 1.5rem"></i>
             </div>
             <div>
@@ -52,7 +47,7 @@ content %}
       <div class="card border-0 bg-light">
         <div class="card-body py-3">
           <div class="d-flex align-items-center">
-            <div class="rounded-circle p-3 me-3" style="background: #5a8ac4;">
+            <div class="rounded-circle p-3 me-3" style="background: #5a8ac4">
               <i class="bi bi-exclamation-circle text-white" style="font-size: 1.5rem"></i>
             </div>
             <div>
@@ -175,7 +170,7 @@ content %}
 <div class="modal fade" id="teacherModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content border-0 shadow">
-      <div class="modal-header text-white" style="background: #0000ff;">
+      <div class="modal-header text-white" style="background: #0000ff">
         <div>
           <h5 class="modal-title mb-0" id="modalTeacherName">Teacher</h5>
           <small class="opacity-75" id="modalContact"></small>
@@ -248,25 +243,33 @@ content %}
                   <div class="mb-3">
                     <label class="form-label small text-muted mb-1">Subject</label>
                     <select name="subject_name" id="subjectSelect" class="form-select" required>
-                      <option value="" data-year="">Select subject...</option>
+                      <option value="" data-year="" data-semester="">Select subject...</option>
                       <optgroup label="Year 1 - Semester 1">
                         {% for subj in unique_subjects %}{% if subj.semester == 1 %}
-                        <option value="{{ subj.name }}" data-year="1">{{ subj.name }}</option>
+                        <option value="{{ subj.name }}" data-year="1" data-semester="1">
+                          {{ subj.name }}
+                        </option>
                         {% endif %}{% endfor %}
                       </optgroup>
                       <optgroup label="Year 1 - Semester 2">
                         {% for subj in unique_subjects %}{% if subj.semester == 2 %}
-                        <option value="{{ subj.name }}" data-year="1">{{ subj.name }}</option>
+                        <option value="{{ subj.name }}" data-year="1" data-semester="2">
+                          {{ subj.name }}
+                        </option>
                         {% endif %}{% endfor %}
                       </optgroup>
                       <optgroup label="Year 2 - Semester 3">
                         {% for subj in unique_subjects %}{% if subj.semester == 3 %}
-                        <option value="{{ subj.name }}" data-year="2">{{ subj.name }}</option>
+                        <option value="{{ subj.name }}" data-year="2" data-semester="3">
+                          {{ subj.name }}
+                        </option>
                         {% endif %}{% endfor %}
                       </optgroup>
                       <optgroup label="Year 2 - Semester 4">
                         {% for subj in unique_subjects %}{% if subj.semester == 4 %}
-                        <option value="{{ subj.name }}" data-year="2">{{ subj.name }}</option>
+                        <option value="{{ subj.name }}" data-year="2" data-semester="4">
+                          {{ subj.name }}
+                        </option>
                         {% endif %}{% endfor %}
                       </optgroup>
                     </select>
@@ -384,17 +387,17 @@ content %}
       const checkboxContainer = document.getElementById('classCheckboxes');
       const selectedShift = shiftFilter ? shiftFilter.value : 'morning';
       const selectedOption = subjectSelect.options[subjectSelect.selectedIndex];
-      const selectedYear = selectedOption ? selectedOption.dataset.year : '';
+      const selectedSemester = selectedOption ? selectedOption.dataset.semester : '';
 
-      if (!selectedYear) {
+      if (!selectedSemester) {
         checkboxContainer.innerHTML =
           '<span class="text-muted small">Select a subject first</span>';
         return;
       }
 
-      // Filter classes by shift AND year
+      // Filter classes by shift AND semester (exact match)
       const filteredClasses = classesData.filter(
-        (cls) => cls.shift === selectedShift && cls.year === parseInt(selectedYear)
+        (cls) => cls.shift === selectedShift && cls.semester === parseInt(selectedSemester)
       );
 
       // Get unique sections
@@ -496,7 +499,7 @@ content %}
               html += `
               <div class="d-inline-flex align-items-center bg-light border rounded px-2 py-1">
                 <span class="small">Year ${c.year} - ${c.section} - ${shiftLabel}</span>
-                <form action="/admin/teachers/unassign-subject/${c.id}" method="POST" class="d-inline ms-2" onsubmit="return confirm('Remove?');">
+                <form action="/admin/teachers/unassign-subject/${c.assignment_id}" method="POST" class="d-inline ms-2" onsubmit="return confirm('Remove?');">
                   <button type="submit" class="btn btn-link btn-sm text-danger p-0 lh-1"><i class="bi bi-x"></i></button>
                 </form>
               </div>`;

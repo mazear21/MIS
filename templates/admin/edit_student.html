@@ -123,11 +123,11 @@
 
 {% block extra_js %}
 <script>
-function updateSemesterOptions() {
+function updateSemesterOptions(preserveSemester) {
     const yearSelect = document.getElementById('yearSelect');
     const semesterSelect = document.getElementById('semesterSelect');
     const year = parseInt(yearSelect.value);
-    const currentSemester = parseInt(semesterSelect.value);
+    const currentSemester = preserveSemester || parseInt(semesterSelect.value);
     
     // Clear current options
     semesterSelect.innerHTML = '<option value="">Select semester...</option>';
@@ -135,7 +135,6 @@ function updateSemesterOptions() {
     if (year === 1) {
         semesterSelect.innerHTML += '<option value="1">Semester 1</option>';
         semesterSelect.innerHTML += '<option value="2">Semester 2</option>';
-        // Auto-select semester 1 if current value doesn't fit
         if (currentSemester === 1 || currentSemester === 2) {
             semesterSelect.value = currentSemester;
         } else {
@@ -144,7 +143,6 @@ function updateSemesterOptions() {
     } else if (year === 2) {
         semesterSelect.innerHTML += '<option value="3">Semester 3</option>';
         semesterSelect.innerHTML += '<option value="4">Semester 4</option>';
-        // Auto-select semester 3 if current value doesn't fit
         if (currentSemester === 3 || currentSemester === 4) {
             semesterSelect.value = currentSemester;
         } else {
@@ -153,9 +151,10 @@ function updateSemesterOptions() {
     }
 }
 
-// Initialize on page load
+// Initialize on page load — preserve the student's actual semester
 document.addEventListener('DOMContentLoaded', function() {
-    updateSemesterOptions();
+    const studentSemester = {{ student.semester or 1 }};
+    updateSemesterOptions(studentSemester);
 });
 </script>
 {% endblock %}

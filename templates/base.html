@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -79,7 +79,7 @@
                 <span>Users</span>
               </a>
             </li>
-            
+
             {% elif current_user.role == 'teacher' %}
             <!-- Teacher Navigation -->
             <li class="nav-item">
@@ -118,7 +118,7 @@
                 <span>Files</span>
               </a>
             </li>
-            
+
             {% elif current_user.role == 'student' %}
             <!-- Student Navigation -->
             <li class="nav-item">
@@ -135,11 +135,11 @@
             </li>
             {% endif %}
           </ul>
-          
+
           <!-- User Menu -->
           <ul class="navbar-nav align-items-center">
             <li class="nav-item me-3">
-              <span class="nav-link d-flex align-items-center gap-2" style="cursor: default;">
+              <span class="nav-link d-flex align-items-center gap-2" style="cursor: default">
                 <i class="bi bi-person-circle"></i>
                 <span>{{ current_user.full_name }}</span>
                 <span class="badge bg-light text-dark">{{ current_user.role|title }}</span>
@@ -159,37 +159,34 @@
 
     <!-- Flash Messages -->
     <div class="container mt-3">
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          {% for category, message in messages %}
-            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-              {% if category == 'danger' %}
-                <i class="bi bi-exclamation-circle"></i>
-              {% elif category == 'warning' %}
-                <i class="bi bi-exclamation-triangle"></i>
-              {% elif category == 'success' %}
-                <i class="bi bi-check-circle"></i>
-              {% else %}
-                <i class="bi bi-info-circle"></i>
-              {% endif %}
-              {{ message }}
-              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-          {% endfor %}
-        {% endif %}
-      {% endwith %}
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for
+      category, message in messages %}
+      <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+        {% if category == 'danger' %}
+        <i class="bi bi-exclamation-circle"></i>
+        {% elif category == 'warning' %}
+        <i class="bi bi-exclamation-triangle"></i>
+        {% elif category == 'success' %}
+        <i class="bi bi-check-circle"></i>
+        {% else %}
+        <i class="bi bi-info-circle"></i>
+        {% endif %} {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      {% endfor %} {% endif %} {% endwith %}
     </div>
 
     <!-- Main Content -->
-    <main class="{% if current_user %}py-4{% endif %}">
-      {% block content %}{% endblock %}
-    </main>
+    <main class="{% if current_user %}py-4{% endif %}">{% block content %}{% endblock %}</main>
 
     <!-- Footer -->
     {% if current_user %}
     <footer class="py-3 mt-auto">
       <div class="container text-center">
-        <small>&copy; 2025 EPU - MIS Department | Erbil Polytechnic University</small>
+        <small
+          >&copy; 2025{% if now().year > 2025 %}-{{ now().year }}{% endif %} EPU - MIS Department |
+          Erbil Polytechnic University</small
+        >
       </div>
     </footer>
     {% endif %}
@@ -213,29 +210,29 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <script>
       // Loading Overlay Control
       const loadingOverlay = document.getElementById('loadingOverlay');
-      
+
       function showLoading() {
         if (loadingOverlay) {
           loadingOverlay.classList.add('active');
         }
       }
-      
+
       function hideLoading() {
         if (loadingOverlay) {
           loadingOverlay.classList.remove('active');
         }
       }
-      
+
       // Auto-show loading on form submissions
-      document.addEventListener('DOMContentLoaded', function() {
+      document.addEventListener('DOMContentLoaded', function () {
         // Handle all forms with data-loading attribute or by default
         const forms = document.querySelectorAll('form:not([data-no-loading])');
-        forms.forEach(form => {
-          form.addEventListener('submit', function(e) {
+        forms.forEach((form) => {
+          form.addEventListener('submit', function (e) {
             // Don't show loading for GET forms (filters/search)
             if (form.method.toLowerCase() === 'post') {
               showLoading();
@@ -244,28 +241,29 @@
             }
           });
         });
-        
+
         // Intercept fetch/AJAX calls to show loading
         const originalFetch = window.fetch;
-        window.fetch = function(...args) {
+        window.fetch = function (...args) {
           showLoading();
-          return originalFetch.apply(this, args)
-            .then(response => {
+          return originalFetch
+            .apply(this, args)
+            .then((response) => {
               hideLoading();
               return response;
             })
-            .catch(error => {
+            .catch((error) => {
               hideLoading();
               throw error;
             });
         };
       });
-      
+
       // Make functions globally available
       window.showLoading = showLoading;
       window.hideLoading = hideLoading;
     </script>
-    
+
     {% block extra_js %}{% endblock %}
   </body>
 </html>

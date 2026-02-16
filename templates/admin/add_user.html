@@ -72,9 +72,17 @@
                 onchange="toggleRoleFields()"
               >
                 <option value="">Select role...</option>
-                <option value="admin">Admin</option>
-                <option value="teacher">Teacher</option>
-                <option value="student">Student</option>
+                <option value="admin" {% if default_role="" ="admin" %}selected{% endif %}>
+                  Admin
+                </option>
+                <option value="teacher" {% if default_role="" ="teacher" %}selected{% endif %}>
+                  Teacher
+                </option>
+                {% if not default_role or default_role != 'teacher' %}
+                <option value="student" {% if default_role="" ="student" %}selected{% endif %}>
+                  Student
+                </option>
+                {% endif %}
               </select>
             </div>
 
@@ -173,5 +181,10 @@
     teacherFields.style.display = role === 'teacher' ? 'block' : 'none';
     studentFields.style.display = role === 'student' ? 'block' : 'none';
   }
+
+  // Show fields if default role is set
+  document.addEventListener('DOMContentLoaded', function () {
+    toggleRoleFields();
+  });
 </script>
 {% endblock %}

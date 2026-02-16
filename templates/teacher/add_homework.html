@@ -35,7 +35,7 @@
             </div>
 
             <!-- Class Checkboxes (shown after subject selection) -->
-            <div id="classCheckboxes" class="mb-3" style="display: none;">
+            <div id="classCheckboxes" class="mb-3" style="display: none">
               <label class="form-label">Assign to Classes <span class="text-danger">*</span></label>
               <div class="d-flex gap-2 mb-2">
                 <button type="button" id="selectAll" class="btn btn-sm btn-outline-primary">
@@ -45,10 +45,18 @@
                   <i class="bi bi-x-lg me-1"></i>Deselect All
                 </button>
                 <div class="btn-group" role="group">
-                  <button type="button" id="shiftMorning" class="btn btn-sm btn-primary shift-btn active">
+                  <button
+                    type="button"
+                    id="shiftMorning"
+                    class="btn btn-sm btn-primary shift-btn active"
+                  >
                     <i class="bi bi-sun me-1"></i>Morning
                   </button>
-                  <button type="button" id="shiftNight" class="btn btn-sm btn-outline-primary shift-btn">
+                  <button
+                    type="button"
+                    id="shiftNight"
+                    class="btn btn-sm btn-outline-primary shift-btn"
+                  >
                     <i class="bi bi-moon me-1"></i>Night
                   </button>
                 </div>
@@ -56,7 +64,9 @@
               <div id="checkboxContainer" class="row g-2">
                 <!-- Checkboxes will be populated by JavaScript -->
               </div>
-              <small class="text-muted mt-2 d-block">Select one or more classes to assign this homework</small>
+              <small class="text-muted mt-2 d-block"
+                >Select one or more classes to assign this homework</small
+              >
             </div>
 
             <div class="mb-3">
@@ -102,145 +112,145 @@
 </div>
 
 <script>
-// Store subjects data from server with shift info
-const subjectsData = [
-  {% for subject in subjects %}
-  {
-    id: {{ subject.id }},
-    name: "{{ subject.name }}",
-    class_id: {{ subject.class_id }},
-    class_name: "{{ subject.class_name }}",
-    // Parse shift from class_name (Morning or Night)
-    shift: "{{ subject.class_name }}".toLowerCase().includes('morning') ? 'morning' : 'night'
-  }{% if not loop.last %},{% endif %}
-  {% endfor %}
-];
+  // Store subjects data from server with shift info
+  const subjectsData = [
+    {% for subject in subjects %}
+    {
+      id: {{ subject.id }},
+      assignment_id: {{ subject.assignment_id }},
+      name: "{{ subject.name }}",
+      class_id: {{ subject.class_id }},
+      class_name: "{{ subject.class_name }}",
+      shift: "{{ subject.shift | default('morning') }}".toLowerCase()
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ];
 
-// Helper function to format class name (remove Year, show Sem + Section)
-function formatClassName(className) {
-  // Input: "Year 1 - Sem 1 - Section A - Morning"
-  // Output: "Sem 1 - Class A"
-  const parts = className.split(' - ');
-  if (parts.length >= 3) {
-    const part2 = parts[2].replace(/Section\s+/i, 'Class ');
-    return `${parts[1]} - ${part2}`;
+  // Helper function to format class name (remove Year, show Sem + Section)
+  function formatClassName(className) {
+    // Input: "Year 1 - Sem 1 - Section A - Morning"
+    // Output: "Sem 1 - Class A"
+    const parts = className.split(' - ');
+    if (parts.length >= 3) {
+      const part2 = parts[2].replace(/Section\s+/i, 'Class ');
+      return `${parts[1]} - ${part2}`;
+    }
+    return className.replace(/Section\s+/i, 'Class ');
   }
-  return className.replace(/Section\s+/i, 'Class ');
-}
 
-const subjectSelect = document.getElementById('subjectSelect');
-const classCheckboxes = document.getElementById('classCheckboxes');
-const checkboxContainer = document.getElementById('checkboxContainer');
-const selectAllBtn = document.getElementById('selectAll');
-const deselectAllBtn = document.getElementById('deselectAll');
-const shiftMorningBtn = document.getElementById('shiftMorning');
-const shiftNightBtn = document.getElementById('shiftNight');
+  const subjectSelect = document.getElementById('subjectSelect');
+  const classCheckboxes = document.getElementById('classCheckboxes');
+  const checkboxContainer = document.getElementById('checkboxContainer');
+  const selectAllBtn = document.getElementById('selectAll');
+  const deselectAllBtn = document.getElementById('deselectAll');
+  const shiftMorningBtn = document.getElementById('shiftMorning');
+  const shiftNightBtn = document.getElementById('shiftNight');
 
-let currentShift = 'morning';
-let currentSubject = '';
+  let currentShift = 'morning';
+  let currentSubject = '';
 
-// Function to render checkboxes based on subject and shift
-function renderCheckboxes() {
-  if (!currentSubject) {
-    classCheckboxes.style.display = 'none';
-    checkboxContainer.innerHTML = '';
-    return;
-  }
-  
-  // Filter subjects by selected name and shift
-  const matchingSubjects = subjectsData.filter(s => 
-    s.name === currentSubject && s.shift === currentShift
-  );
-  
-  if (matchingSubjects.length === 0) {
-    checkboxContainer.innerHTML = '<div class="col-12 text-muted"><i class="bi bi-info-circle me-1"></i>No classes found for this shift</div>';
-  } else {
-    // Generate checkboxes with formatted class name (unchecked by default)
-    checkboxContainer.innerHTML = matchingSubjects.map(subject => `
-      <div class="col-md-6">
-        <div class="form-check class-checkbox-item">
-          <input 
-            class="form-check-input class-checkbox" 
-            type="checkbox" 
-            name="subject_ids" 
-            value="${subject.id}" 
-            id="subject_${subject.id}"
-          >
-          <label class="form-check-label" for="subject_${subject.id}">
-            <i class="bi bi-mortarboard me-1"></i>${formatClassName(subject.class_name)}
-          </label>
+  // Function to render checkboxes based on subject and shift
+  function renderCheckboxes() {
+    if (!currentSubject) {
+      classCheckboxes.style.display = 'none';
+      checkboxContainer.innerHTML = '';
+      return;
+    }
+
+    // Filter subjects by selected name and shift
+    const matchingSubjects = subjectsData.filter(s =>
+      s.name === currentSubject && s.shift === currentShift
+    );
+
+    if (matchingSubjects.length === 0) {
+      checkboxContainer.innerHTML = '<div class="col-12 text-muted"><i class="bi bi-info-circle me-1"></i>No classes found for this shift</div>';
+    } else {
+      // Generate checkboxes with formatted class name (unchecked by default)
+      checkboxContainer.innerHTML = matchingSubjects.map(subject => `
+        <div class="col-md-6">
+          <div class="form-check class-checkbox-item">
+            <input
+              class="form-check-input class-checkbox"
+              type="checkbox"
+              name="assignment_ids"
+              value="${subject.assignment_id}"
+              id="assignment_${subject.assignment_id}"
+            >
+            <label class="form-check-label" for="assignment_${subject.assignment_id}">
+              <i class="bi bi-mortarboard me-1"></i>${formatClassName(subject.class_name)}
+            </label>
+          </div>
         </div>
-      </div>
-    `).join('');
+      `).join('');
+    }
+
+    classCheckboxes.style.display = 'block';
   }
-  
-  classCheckboxes.style.display = 'block';
-}
 
-// When subject is selected
-subjectSelect.addEventListener('change', function() {
-  currentSubject = this.value;
-  renderCheckboxes();
-});
+  // When subject is selected
+  subjectSelect.addEventListener('change', function() {
+    currentSubject = this.value;
+    renderCheckboxes();
+  });
 
-// Shift toggle buttons
-shiftMorningBtn.addEventListener('click', function() {
-  currentShift = 'morning';
-  shiftMorningBtn.classList.remove('btn-outline-primary');
-  shiftMorningBtn.classList.add('btn-primary', 'active');
-  shiftNightBtn.classList.remove('btn-primary', 'active');
-  shiftNightBtn.classList.add('btn-outline-primary');
-  renderCheckboxes();
-});
+  // Shift toggle buttons
+  shiftMorningBtn.addEventListener('click', function() {
+    currentShift = 'morning';
+    shiftMorningBtn.classList.remove('btn-outline-primary');
+    shiftMorningBtn.classList.add('btn-primary', 'active');
+    shiftNightBtn.classList.remove('btn-primary', 'active');
+    shiftNightBtn.classList.add('btn-outline-primary');
+    renderCheckboxes();
+  });
 
-shiftNightBtn.addEventListener('click', function() {
-  currentShift = 'night';
-  shiftNightBtn.classList.remove('btn-outline-primary');
-  shiftNightBtn.classList.add('btn-primary', 'active');
-  shiftMorningBtn.classList.remove('btn-primary', 'active');
-  shiftMorningBtn.classList.add('btn-outline-primary');
-  renderCheckboxes();
-});
+  shiftNightBtn.addEventListener('click', function() {
+    currentShift = 'night';
+    shiftNightBtn.classList.remove('btn-outline-primary');
+    shiftNightBtn.classList.add('btn-primary', 'active');
+    shiftMorningBtn.classList.remove('btn-primary', 'active');
+    shiftMorningBtn.classList.add('btn-outline-primary');
+    renderCheckboxes();
+  });
 
-// Select All button
-selectAllBtn.addEventListener('click', function() {
-  document.querySelectorAll('.class-checkbox').forEach(cb => cb.checked = true);
-});
+  // Select All button
+  selectAllBtn.addEventListener('click', function() {
+    document.querySelectorAll('.class-checkbox').forEach(cb => cb.checked = true);
+  });
 
-// Deselect All button
-deselectAllBtn.addEventListener('click', function() {
-  document.querySelectorAll('.class-checkbox').forEach(cb => cb.checked = false);
-});
+  // Deselect All button
+  deselectAllBtn.addEventListener('click', function() {
+    document.querySelectorAll('.class-checkbox').forEach(cb => cb.checked = false);
+  });
 
-// Form validation - ensure at least one checkbox is selected
-document.querySelector('form').addEventListener('submit', function(e) {
-  const checkedBoxes = document.querySelectorAll('.class-checkbox:checked');
-  if (checkedBoxes.length === 0) {
-    e.preventDefault();
-    alert('Please select at least one class for the homework assignment.');
-  }
-});
+  // Form validation - ensure at least one checkbox is selected
+  document.querySelector('form').addEventListener('submit', function(e) {
+    const checkedBoxes = document.querySelectorAll('.class-checkbox:checked');
+    if (checkedBoxes.length === 0) {
+      e.preventDefault();
+      alert('Please select at least one class for the homework assignment.');
+    }
+  });
 </script>
 
 <style>
-.class-checkbox-item {
-  padding: 10px 15px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  border: 1px solid #e9ecef;
-  transition: all 0.2s ease;
-}
-.class-checkbox-item:hover {
-  background: #e7f1ff;
-  border-color: #0000ff;
-}
-.class-checkbox-item .form-check-input:checked + .form-check-label {
-  color: #0000ff;
-  font-weight: 500;
-}
-.class-checkbox-item .form-check-input:checked {
-  background-color: #0000ff;
-  border-color: #0000ff;
-}
+  .class-checkbox-item {
+    padding: 10px 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    transition: all 0.2s ease;
+  }
+  .class-checkbox-item:hover {
+    background: #e7f1ff;
+    border-color: #0000ff;
+  }
+  .class-checkbox-item .form-check-input:checked + .form-check-label {
+    color: #0000ff;
+    font-weight: 500;
+  }
+  .class-checkbox-item .form-check-input:checked {
+    background-color: #0000ff;
+    border-color: #0000ff;
+  }
 </style>
 {% endblock %}

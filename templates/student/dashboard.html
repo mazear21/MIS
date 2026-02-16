@@ -13,7 +13,8 @@
               <p class="mb-0 opacity-75" style="font-size: 0.85rem">
                 <i class="bi bi-hash me-1"></i>{{ student.student_number or 'N/A' }}
                 <span class="mx-2">|</span>
-                <i class="bi bi-calendar3 me-1"></i>{{ (student.class_name|replace_section) or 'No Semester' }}
+                <i class="bi bi-calendar3 me-1"></i>{{ (student.class_name|replace_section) or 'No
+                Semester' }}
               </p>
             </div>
           </div>
@@ -224,39 +225,299 @@
     </div>
   </div>
 
-  <!-- Timetable -->
-  {% if timetable %}
-  <div class="card shadow-sm border-0">
-    <div class="card-header bg-white border-0 py-3">
-      <i class="bi bi-calendar3 me-2 text-primary"></i><strong>Timetable</strong>
-    </div>
-    <div class="card-body p-0">
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead class="table-light">
-            <tr>
-              <th>Day</th>
-              <th>Time</th>
-              <th>Subject</th>
-              <th>Teacher</th>
-              <th>Room</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for entry in timetable %}
-            <tr>
-              <td><strong>{{ entry.day_of_week }}</strong></td>
-              <td>{{ entry.start_time }} - {{ entry.end_time }}</td>
-              <td>{{ entry.subject_name }}</td>
-              <td>{{ entry.teacher_name or '-' }}</td>
-              <td>{{ entry.room or '-' }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+  <!-- My Schedule -->
+  <div class="scheduler-wrapper">
+    <div class="scheduler-header">
+      <div class="scheduler-brand">
+        <div class="brand-icon"><i class="bi bi-calendar-week"></i></div>
+        <div class="brand-text">
+          <h5>My Weekly Schedule</h5>
+          <span>{{ student.class_name|replace_section }}</span>
+        </div>
       </div>
+      {% if schedule_data %}
+      <div class="scheduler-controls">
+        <button class="ctrl-btn" onclick="window.print()" title="Print">
+          <i class="bi bi-printer"></i>
+        </button>
+      </div>
+      {% endif %}
     </div>
+
+    {% if schedule_data %}
+    <div class="scheduler-grid-area">
+      <table class="scheduler-table" id="scheduleTable">
+        <thead>
+          <tr>
+            <th><span class="day-full">Sunday</span><span class="day-abbr">Sun</span></th>
+            <th><span class="day-full">Monday</span><span class="day-abbr">Mon</span></th>
+            <th><span class="day-full">Tuesday</span><span class="day-abbr">Tue</span></th>
+            <th><span class="day-full">Wednesday</span><span class="day-abbr">Wed</span></th>
+            <th><span class="day-full">Thursday</span><span class="day-abbr">Thu</span></th>
+          </tr>
+        </thead>
+        <tbody id="scheduleBody"></tbody>
+      </table>
+    </div>
+
+    <script>
+      const scheduleData = {{ schedule_data | tojson | safe }};
+
+      function renderSchedule() {
+        const tbody = document.getElementById('scheduleBody');
+        tbody.innerHTML = '';
+
+        if (!scheduleData || scheduleData.length === 0) {
+          tbody.innerHTML = '<tr><td colspan=\"5\" class=\"text-center text-muted py-4\">No schedule available</td></tr>';
+          return;
+        }
+
+        const maxRow = Math.max(...scheduleData.map(e => e.row)) + 1;
+
+        for (let r = 0; r < maxRow; r++) {
+          const tr = document.createElement('tr');
+          for (let c = 0; c < 5; c++) {
+            const entry = scheduleData.find(e => e.row === r && e.col === c);
+            const td = document.createElement('td');
+
+            if (entry) {
+              if (entry.isBreak) {
+                td.className = 'break-cell';
+                td.innerHTML = `<div class=\"break-label\">BREAK</div>`;
+              } else {
+                td.className = 'has-class';
+                const lectureType = entry.lectureType || 'theory';
+                const bgColor = getBgColor(entry.subject);
+                const teacher = lectureType === 'practical' ? (entry.practicalTeacher || entry.teacher) : (entry.teacher || '');
+                const startTime = lectureType === 'practical' ? (entry.practicalStartTime || entry.startTime) : (entry.theoryStartTime || entry.startTime);
+                const endTime = lectureType === 'practical' ? (entry.practicalEndTime || entry.endTime) : (entry.theoryEndTime || entry.endTime);
+
+                td.innerHTML = `
+                  <div class=\"class-card\" style=\"background: ${bgColor};\">
+                    <span class=\"class-type-badge\">${lectureType === 'practical' ? 'P' : 'T'}</span>
+                    <div class=\"class-subject\">${entry.subject || ''}</div>
+                    ${teacher ? `<div class=\"class-teacher\">${teacher}</div>` : ''}
+                    ${entry.room ? `<div class=\"class-room\">Room ${entry.room}</div>` : ''}
+                  </div>
+                `;
+              }
+            } else {
+              td.innerHTML = '<div class=\"empty-cell\">—</div>';
+            }
+
+            tr.appendChild(td);
+          }
+          tbody.appendChild(tr);
+        }
+      }
+
+      function getBgColor(subject) {
+        const colors = [
+          '#E0F2FE', '#DBEAFE', '#E0E7FF', '#EDE9FE', '#FCE7F3',
+          '#FEF3C7', '#D1FAE5', '#FED7AA', '#E9D5FF', '#FBCFE8',
+          '#BAE6FD', '#C7D2FE', '#FECACA', '#FDE68A', '#D9F99D'
+        ];
+        let hash = 0;
+        for (let i = 0; i < subject.length; i++) {
+          hash = subject.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        return colors[Math.abs(hash) % colors.length];
+      }
+
+      renderSchedule();
+    </script>
+    {% else %}
+    <div class="text-center py-5">
+      <i class="bi bi-calendar-x text-muted" style="font-size: 4rem"></i>
+      <h5 class="mt-3">No Schedule Available</h5>
+      <p class="text-muted">
+        Your class schedule hasn't been created yet. Please contact your administrator.
+      </p>
+    </div>
+    {% endif %}
   </div>
-  {% endif %}
+
+  <style>
+    .scheduler-wrapper {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+      overflow: hidden;
+    }
+    .scheduler-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      background: #0000ff;
+      color: #fff;
+    }
+    .scheduler-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+    .brand-text h5 {
+      margin: 0;
+      font-weight: 600;
+      font-size: 1.05rem;
+    }
+    .brand-text span {
+      font-size: 0.75rem;
+      opacity: 0.7;
+    }
+    .scheduler-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .ctrl-btn {
+      width: 36px;
+      height: 36px;
+      border: none;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+      transition: background 0.2s;
+    }
+    .ctrl-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    .scheduler-grid-area {
+      padding: 16px;
+      background: #fff;
+      overflow-x: auto;
+    }
+    .scheduler-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .scheduler-table th {
+      padding: 12px 8px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.8rem;
+      color: #374151;
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+    }
+    .scheduler-table th .day-abbr {
+      display: none;
+    }
+    .scheduler-table td {
+      height: 65px;
+      vertical-align: middle;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      position: relative;
+    }
+    .scheduler-table td.has-class {
+      padding: 2px;
+      background: #fff;
+      vertical-align: middle;
+    }
+    .empty-cell {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #d1d5db;
+      font-size: 0.8rem;
+    }
+    .break-cell {
+      background: #f9fafb;
+      text-align: center;
+      vertical-align: middle;
+    }
+    .break-label {
+      display: inline-block;
+      padding: 8px 20px;
+      background: #fff;
+      color: #6b7280;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 4px;
+      border: 1px solid #d1d5db;
+      letter-spacing: 1px;
+    }
+    .class-card {
+      height: 100%;
+      padding: 6px 8px;
+      border-radius: 5px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      border: none;
+      min-height: 55px;
+    }
+    .class-type-badge {
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      padding: 1px 4px;
+      border-radius: 3px;
+      font-size: 0.45rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      background: rgba(0, 0, 0, 0.12);
+      color: #374151;
+    }
+    .class-subject {
+      font-weight: 700;
+      font-size: 0.7rem;
+      color: #1e293b;
+      margin-bottom: 3px;
+      line-height: 1.2;
+      text-align: center;
+    }
+    .class-teacher {
+      font-size: 0.6rem;
+      color: rgba(0, 0, 0, 0.6);
+      text-align: center;
+      line-height: 1.1;
+    }
+    .class-room {
+      font-size: 0.55rem;
+      opacity: 0.5;
+      margin-top: 1px;
+      text-align: center;
+    }
+
+    @media (max-width: 768px) {
+      .scheduler-table th .day-full {
+        display: none;
+      }
+      .scheduler-table th .day-abbr {
+        display: inline;
+      }
+      .class-subject {
+        font-size: 0.65rem;
+      }
+      .class-teacher {
+        font-size: 0.55rem;
+      }
+    }
+  </style>
 </div>
 {% endblock %}

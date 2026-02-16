@@ -1,6 +1,5 @@
-{% extends 'base.html' %}
-{% block title %}Manage Users - MIS System{% endblock %}
-{% block content %}
+{% extends 'base.html' %} {% block title %}Manage Users - MIS System{% endblock %} {% block content
+%}
 <div class="container">
   <!-- Page Header -->
   <div class="page-header">
@@ -10,7 +9,12 @@
         <p class="text-muted mb-0">Manage system accounts and credentials</p>
       </div>
       <div class="col-auto">
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+        <button
+          type="button"
+          class="btn btn-primary"
+          data-bs-toggle="modal"
+          data-bs-target="#addUserModal"
+        >
           <i class="bi bi-person-plus me-1"></i>Add User
         </button>
       </div>
@@ -30,7 +34,9 @@
     <div class="col-md-3 col-6 mb-2">
       <div class="card border-0 bg-light">
         <div class="card-body py-2 text-center">
-          <h4 class="mb-0 text-danger">{{ users | selectattr('role', 'equalto', 'admin') | list | length }}</h4>
+          <h4 class="mb-0 text-danger">
+            {{ users | selectattr('role', 'equalto', 'admin') | list | length }}
+          </h4>
           <small class="text-muted" style="font-size: 0.7rem">Administrators</small>
         </div>
       </div>
@@ -38,7 +44,9 @@
     <div class="col-md-3 col-6 mb-2">
       <div class="card border-0 bg-light">
         <div class="card-body py-2 text-center">
-          <h4 class="mb-0 text-primary">{{ users | selectattr('role', 'equalto', 'teacher') | list | length }}</h4>
+          <h4 class="mb-0 text-primary">
+            {{ users | selectattr('role', 'equalto', 'teacher') | list | length }}
+          </h4>
           <small class="text-muted" style="font-size: 0.7rem">Teachers</small>
         </div>
       </div>
@@ -46,8 +54,103 @@
     <div class="col-md-3 col-6 mb-2">
       <div class="card border-0 bg-light">
         <div class="card-body py-2 text-center">
-          <h4 class="mb-0 text-success">{{ users | selectattr('role', 'equalto', 'student') | list | length }}</h4>
+          <h4 class="mb-0 text-success">
+            {{ users | selectattr('role', 'equalto', 'student') | list | length }}
+          </h4>
           <small class="text-muted" style="font-size: 0.7rem">Students</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="card mb-3">
+    <div class="card-body py-2">
+      <div class="row g-2 align-items-end">
+        <div class="col-md-2">
+          <label class="form-label mb-1" style="font-size: 0.85rem">Role</label>
+          <select
+            id="roleFilter"
+            class="form-select form-select-sm"
+            onchange="
+              updateSmartFilters();
+              filterUsers();
+            "
+          >
+            <option value="">All Roles</option>
+            <option value="admin">Administrator</option>
+            <option value="teacher">Teacher</option>
+            <option value="student">Student</option>
+          </select>
+        </div>
+
+        <!-- Teacher-specific filters -->
+        <div class="col-md-2 smart-filter teacher-filter d-none">
+          <label class="form-label mb-1" style="font-size: 0.85rem">Subject</label>
+          <select id="subjectFilter" class="form-select form-select-sm" onchange="filterUsers()">
+            <option value="">All Subjects</option>
+            <!-- Will be populated dynamically -->
+          </select>
+        </div>
+        <div class="col-md-2 smart-filter teacher-filter d-none">
+          <label class="form-label mb-1" style="font-size: 0.85rem">Department</label>
+          <select id="departmentFilter" class="form-select form-select-sm" onchange="filterUsers()">
+            <option value="">All Departments</option>
+            <!-- Will be populated dynamically -->
+          </select>
+        </div>
+
+        <!-- Student-specific filters -->
+        <div class="col-md-2 smart-filter student-filter d-none">
+          <label class="form-label mb-1" style="font-size: 0.85rem">Year</label>
+          <select id="yearFilter" class="form-select form-select-sm" onchange="filterUsers()">
+            <option value="">All Years</option>
+            <option value="1">Year 1</option>
+            <option value="2">Year 2</option>
+          </select>
+        </div>
+        <div class="col-md-2 smart-filter student-filter d-none">
+          <label class="form-label mb-1" style="font-size: 0.85rem">Semester</label>
+          <select id="semesterFilter" class="form-select form-select-sm" onchange="filterUsers()">
+            <option value="">All Semesters</option>
+            <option value="1">Sem 1</option>
+            <option value="2">Sem 2</option>
+            <option value="3">Sem 3</option>
+            <option value="4">Sem 4</option>
+          </select>
+        </div>
+        <div class="col-md-2 smart-filter student-filter d-none">
+          <label class="form-label mb-1" style="font-size: 0.85rem">Shift</label>
+          <select id="shiftFilter" class="form-select form-select-sm" onchange="filterUsers()">
+            <option value="">All Shifts</option>
+            <option value="morning">☀ Morning</option>
+            <option value="night">☽ Night</option>
+          </select>
+        </div>
+        <div class="col-md-2 smart-filter student-filter d-none">
+          <label class="form-label mb-1" style="font-size: 0.85rem">Class</label>
+          <select id="classFilter" class="form-select form-select-sm" onchange="filterUsers()">
+            <option value="">All Classes</option>
+            <option value="A">Class A</option>
+            <option value="B">Class B</option>
+            <option value="C">Class C</option>
+          </select>
+        </div>
+
+        <div class="col-md-4" id="searchCol">
+          <label class="form-label mb-1" style="font-size: 0.85rem">Search</label>
+          <input
+            type="text"
+            id="userSearchInput"
+            class="form-control form-control-sm"
+            placeholder="Search by name, username, or email..."
+            oninput="filterUsers()"
+          />
+        </div>
+        <div class="col-md-2">
+          <button class="btn btn-outline-secondary btn-sm w-100" onclick="clearFilters()">
+            <i class="bi bi-x-lg me-1"></i>Clear
+          </button>
         </div>
       </div>
     </div>
@@ -56,17 +159,35 @@
   <!-- Role Tabs -->
   <ul class="nav nav-tabs mb-0" id="userTabs" role="tablist">
     <li class="nav-item" role="presentation">
-      <button class="nav-link active" id="admins-tab" data-bs-toggle="tab" data-bs-target="#admins" type="button">
+      <button
+        class="nav-link active"
+        id="admins-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#admins"
+        type="button"
+      >
         <i class="bi bi-shield-lock me-1"></i>Administrators
       </button>
     </li>
     <li class="nav-item" role="presentation">
-      <button class="nav-link" id="teachers-tab" data-bs-toggle="tab" data-bs-target="#teachers" type="button">
+      <button
+        class="nav-link"
+        id="teachers-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#teachers"
+        type="button"
+      >
         <i class="bi bi-person-badge me-1"></i>Teachers
       </button>
     </li>
     <li class="nav-item" role="presentation">
-      <button class="nav-link" id="students-tab" data-bs-toggle="tab" data-bs-target="#students" type="button">
+      <button
+        class="nav-link"
+        id="students-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#students"
+        type="button"
+      >
         <i class="bi bi-mortarboard me-1"></i>Students
       </button>
     </li>
@@ -77,10 +198,25 @@
       <div class="tab-content" id="userTabsContent">
         <!-- Administrators Tab -->
         <div class="tab-pane fade show active" id="admins" role="tabpanel">
-          {% set admins = users | selectattr('role', 'equalto', 'admin') | list %}
-          {% if admins %}
+          {% set admins = users | selectattr('role', 'equalto', 'admin') | list %} {% if admins %}
+
+          <!-- Total Count -->
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <span class="badge bg-danger fs-6">
+                Total: <span class="admin-total">{{ admins | length }}</span> Administrators
+              </span>
+            </div>
+            <div class="text-muted small">
+              Showing <span class="admin-showing-start">1</span>-<span class="admin-showing-end"
+                >30</span
+              >
+              of <span class="admin-showing-total">{{ admins | length }}</span>
+            </div>
+          </div>
+
           <div class="table-responsive">
-            <table class="table table-hover mb-0">
+            <table class="table table-hover mb-0" id="adminTable">
               <thead class="table-light">
                 <tr>
                   <th>User</th>
@@ -104,19 +240,29 @@
                   <td class="user-email">{{ user.email or '—' }}</td>
                   <td>{{ user.created_at.strftime('%Y-%m-%d') if user.created_at else '—' }}</td>
                   <td class="text-center">
-                    <button class="btn btn-sm btn-outline-primary edit-user-btn"
+                    <button
+                      class="btn btn-sm btn-outline-primary edit-user-btn"
                       data-id="{{ user.id }}"
                       data-fullname="{{ user.full_name }}"
                       data-username="{{ user.username }}"
                       data-email="{{ user.email or '' }}"
                       data-role="{{ user.role }}"
-                      data-password="{{ user.password_hash }}">
+                      data-password="{{ user.password_hash }}"
+                      data-plainpassword="{{ user.plain_password or 'Not set' }}"
+                    >
                       <i class="bi bi-pencil"></i>
                     </button>
                     {% if user.id != current_user.id %}
-                    <form action="{{ url_for('admin_delete_user', user_id=user.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this administrator?');">
-                      <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
-                    </form>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-danger delete-user-btn"
+                      data-user-id="{{ user.id }}"
+                      data-user-name="{{ user.full_name }}"
+                      data-role="admin"
+                      title="Delete"
+                    >
+                      <i class="bi bi-trash"></i>
+                    </button>
                     {% endif %}
                   </td>
                 </tr>
@@ -124,6 +270,16 @@
               </tbody>
             </table>
           </div>
+
+          <!-- Pagination Controls -->
+          <div class="d-flex justify-content-center mt-3">
+            <nav>
+              <ul class="pagination pagination-sm mb-0" id="adminPagination">
+                <!-- Generated by JavaScript -->
+              </ul>
+            </nav>
+          </div>
+
           {% else %}
           <div class="text-center py-4 text-muted">
             <i class="bi bi-shield-lock" style="font-size: 2rem"></i>
@@ -134,10 +290,26 @@
 
         <!-- Teachers Tab -->
         <div class="tab-pane fade" id="teachers" role="tabpanel">
-          {% set teacher_users = users | selectattr('role', 'equalto', 'teacher') | list %}
-          {% if teacher_users %}
+          {% set teacher_users = users | selectattr('role', 'equalto', 'teacher') | list %} {% if
+          teacher_users %}
+
+          <!-- Total Count -->
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <span class="badge bg-primary fs-6">
+                Total: <span class="teacher-total">{{ teacher_users | length }}</span> Teachers
+              </span>
+            </div>
+            <div class="text-muted small">
+              Showing <span class="teacher-showing-start">1</span>-<span class="teacher-showing-end"
+                >30</span
+              >
+              of <span class="teacher-showing-total">{{ teacher_users | length }}</span>
+            </div>
+          </div>
+
           <div class="table-responsive">
-            <table class="table table-hover mb-0">
+            <table class="table table-hover mb-0" id="teacherTable">
               <thead class="table-light">
                 <tr>
                   <th>User</th>
@@ -147,8 +319,14 @@
                 </tr>
               </thead>
               <tbody>
-                {% for user in teacher_users %}
-                <tr id="user-row-{{ user.id }}">
+                {% for user in teacher_users %} {% set teacher_info = teacher_lookup.get(user.id,
+                {}) %} {% set teacher_subjects = teacher_info.get('subjects', []) |
+                map(attribute='name') | list | unique | list %}
+                <tr
+                  id="user-row-{{ user.id }}"
+                  data-department="{{ teacher_info.get('department', '') | lower }}"
+                  data-subjects="{{ teacher_subjects | join(',') | lower }}"
+                >
                   <td>
                     <div class="d-flex align-items-center">
                       <div class="avatar-sm bg-primary me-2">{{ user.full_name[0] | upper }}</div>
@@ -161,24 +339,44 @@
                   <td class="user-email">{{ user.email or '—' }}</td>
                   <td>{{ user.created_at.strftime('%Y-%m-%d') if user.created_at else '—' }}</td>
                   <td class="text-center">
-                    <button class="btn btn-sm btn-outline-primary edit-user-btn"
+                    <button
+                      class="btn btn-sm btn-outline-primary edit-user-btn"
                       data-id="{{ user.id }}"
                       data-fullname="{{ user.full_name }}"
                       data-username="{{ user.username }}"
                       data-email="{{ user.email or '' }}"
                       data-role="{{ user.role }}"
-                      data-password="{{ user.password_hash }}">
+                      data-password="{{ user.password_hash }}"
+                      data-plainpassword="{{ user.plain_password or 'Not set' }}"
+                    >
                       <i class="bi bi-pencil"></i>
                     </button>
-                    <form action="{{ url_for('admin_delete_user', user_id=user.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this teacher?');">
-                      <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
-                    </form>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-danger delete-user-btn"
+                      data-user-id="{{ user.id }}"
+                      data-user-name="{{ user.full_name }}"
+                      data-role="teacher"
+                      title="Delete"
+                    >
+                      <i class="bi bi-trash"></i>
+                    </button>
                   </td>
                 </tr>
                 {% endfor %}
               </tbody>
             </table>
           </div>
+
+          <!-- Pagination Controls -->
+          <div class="d-flex justify-content-center mt-3">
+            <nav>
+              <ul class="pagination pagination-sm mb-0" id="teacherPagination">
+                <!-- Generated by JavaScript -->
+              </ul>
+            </nav>
+          </div>
+
           <div class="mt-3">
             <a href="{{ url_for('admin_teachers') }}" class="btn btn-outline-primary btn-sm">
               <i class="bi bi-arrow-right me-1"></i>Go to Faculty Management for subject assignments
@@ -194,10 +392,26 @@
 
         <!-- Students Tab -->
         <div class="tab-pane fade" id="students" role="tabpanel">
-          {% set student_users = users | selectattr('role', 'equalto', 'student') | list %}
-          {% if student_users %}
+          {% set student_users = users | selectattr('role', 'equalto', 'student') | list %} {% if
+          student_users %}
+
+          <!-- Total Count -->
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <span class="badge bg-success fs-6">
+                Total: <span class="student-total">{{ student_users | length }}</span> Students
+              </span>
+            </div>
+            <div class="text-muted small">
+              Showing <span class="student-showing-start">1</span>-<span class="student-showing-end"
+                >30</span
+              >
+              of <span class="student-showing-total">{{ student_users | length }}</span>
+            </div>
+          </div>
+
           <div class="table-responsive">
-            <table class="table table-hover mb-0">
+            <table class="table table-hover mb-0" id="studentTable">
               <thead class="table-light">
                 <tr>
                   <th>User</th>
@@ -207,8 +421,15 @@
                 </tr>
               </thead>
               <tbody>
-                {% for user in student_users %}
-                <tr id="user-row-{{ user.id }}">
+                {% for user in student_users %} {% set student_info = student_lookup.get(user.id,
+                {}) %}
+                <tr
+                  id="user-row-{{ user.id }}"
+                  data-year="{{ student_info.get('year', '') }}"
+                  data-semester="{{ student_info.get('semester', '') }}"
+                  data-shift="{{ student_info.get('shift', '') | lower }}"
+                  data-section="{{ student_info.get('section', '') }}"
+                >
                   <td>
                     <div class="d-flex align-items-center">
                       <div class="avatar-sm bg-success me-2">{{ user.full_name[0] | upper }}</div>
@@ -221,24 +442,44 @@
                   <td class="user-email">{{ user.email or '—' }}</td>
                   <td>{{ user.created_at.strftime('%Y-%m-%d') if user.created_at else '—' }}</td>
                   <td class="text-center">
-                    <button class="btn btn-sm btn-outline-primary edit-user-btn"
+                    <button
+                      class="btn btn-sm btn-outline-primary edit-user-btn"
                       data-id="{{ user.id }}"
                       data-fullname="{{ user.full_name }}"
                       data-username="{{ user.username }}"
                       data-email="{{ user.email or '' }}"
                       data-role="{{ user.role }}"
-                      data-password="{{ user.password_hash }}">
+                      data-password="{{ user.password_hash }}"
+                      data-plainpassword="{{ user.plain_password or 'Not set' }}"
+                    >
                       <i class="bi bi-pencil"></i>
                     </button>
-                    <form action="{{ url_for('admin_delete_user', user_id=user.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this student?');">
-                      <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
-                    </form>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-danger delete-user-btn"
+                      data-user-id="{{ user.id }}"
+                      data-user-name="{{ user.full_name }}"
+                      data-role="student"
+                      title="Delete"
+                    >
+                      <i class="bi bi-trash"></i>
+                    </button>
                   </td>
                 </tr>
                 {% endfor %}
               </tbody>
             </table>
           </div>
+
+          <!-- Pagination Controls -->
+          <div class="d-flex justify-content-center mt-3">
+            <nav>
+              <ul class="pagination pagination-sm mb-0" id="studentPagination">
+                <!-- Generated by JavaScript -->
+              </ul>
+            </nav>
+          </div>
+
           <div class="mt-3">
             <a href="{{ url_for('admin_students') }}" class="btn btn-outline-primary btn-sm">
               <i class="bi bi-arrow-right me-1"></i>Go to Student Management for class assignments
@@ -258,43 +499,90 @@
 
 <!-- Add User Modal -->
 <div class="modal fade" id="addUserModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
-      <div class="modal-header" style="background: linear-gradient(135deg, #0000ff 0%, #0000cc 100%); color: white;">
+      <div
+        class="modal-header"
+        style="background: linear-gradient(135deg, #0000ff 0%, #0000cc 100%); color: white"
+      >
         <h5 class="modal-title"><i class="bi bi-person-plus me-2"></i>Add New User</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <form id="addUserForm">
-        <div class="modal-body">
-          <div class="row g-3">
+        <div class="modal-body" style="max-height: 60vh; overflow-y: auto">
+          <div class="row g-2">
             <div class="col-md-6">
-              <label class="form-label">Username <span class="text-danger">*</span></label>
-              <input type="text" name="username" id="addUsername" class="form-control" required placeholder="e.g., john_doe">
+              <label class="form-label" style="font-size: 0.85rem; margin-bottom: 4px"
+                >Username <span class="text-danger">*</span></label
+              >
+              <input
+                type="text"
+                name="username"
+                id="addUsername"
+                class="form-control form-control-sm"
+                required
+                placeholder="e.g., john_doe"
+              />
             </div>
             <div class="col-md-6">
-              <label class="form-label">Role <span class="text-danger">*</span></label>
-              <select name="role" id="addRole" class="form-select" required>
+              <label class="form-label" style="font-size: 0.85rem; margin-bottom: 4px"
+                >Role <span class="text-danger">*</span></label
+              >
+              <select name="role" id="addRole" class="form-select form-select-sm" required>
                 <option value="">Select Role</option>
                 <option value="admin">Administrator</option>
                 <option value="teacher">Teacher</option>
               </select>
-              <small class="text-muted">Students are added via Student Management</small>
+              <small class="text-muted" style="font-size: 0.7rem"
+                >Students are added via Student Management</small
+              >
             </div>
             <div class="col-12">
-              <label class="form-label">Full Name <span class="text-danger">*</span></label>
-              <input type="text" name="full_name" id="addFullName" class="form-control" required placeholder="John Doe">
+              <label class="form-label" style="font-size: 0.85rem; margin-bottom: 4px"
+                >Full Name <span class="text-danger">*</span></label
+              >
+              <input
+                type="text"
+                name="full_name"
+                id="addFullName"
+                class="form-control form-control-sm"
+                required
+                placeholder="John Doe"
+              />
             </div>
             <div class="col-12">
-              <label class="form-label">Email</label>
-              <input type="email" name="email" id="addEmail" class="form-control" placeholder="user@example.com">
+              <label class="form-label" style="font-size: 0.85rem; margin-bottom: 4px">Email</label>
+              <input
+                type="email"
+                name="email"
+                id="addEmail"
+                class="form-control form-control-sm"
+                placeholder="user@example.com"
+              />
             </div>
             <div class="col-md-6">
-              <label class="form-label">Password <span class="text-danger">*</span></label>
-              <input type="password" name="password" id="addPassword" class="form-control" required>
+              <label class="form-label" style="font-size: 0.85rem; margin-bottom: 4px"
+                >Password <span class="text-danger">*</span></label
+              >
+              <input
+                type="password"
+                name="password"
+                id="addPassword"
+                class="form-control form-control-sm"
+                required
+              />
             </div>
             <div class="col-md-6">
-              <label class="form-label">Confirm Password <span class="text-danger">*</span></label>
-              <input type="password" name="confirm_password" id="addConfirmPassword" class="form-control" required>
+              <label class="form-label" style="font-size: 0.85rem; margin-bottom: 4px"
+                >Confirm Password <span class="text-danger">*</span></label
+              >
+              <input
+                type="password"
+                name="confirm_password"
+                id="addConfirmPassword"
+                class="form-control form-control-sm"
+                required
+              />
             </div>
           </div>
         </div>
@@ -313,68 +601,106 @@
 <div class="modal fade" id="editUserModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header" style="background: linear-gradient(135deg, #0000ff 0%, #0000cc 100%); color: white;">
+      <div
+        class="modal-header"
+        style="background: linear-gradient(135deg, #0000ff 0%, #0000cc 100%); color: white"
+      >
         <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Edit User</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <form id="editUserForm">
-        <input type="hidden" id="editUserId" name="user_id">
+        <input type="hidden" id="editUserId" name="user_id" />
         <div class="modal-body">
-          <div class="row g-3">
+          <div class="row g-2">
             <div class="col-md-6">
-              <label class="form-label">Username</label>
-              <input type="text" id="editUsername" class="form-control" disabled>
-              <small class="text-muted">Cannot be changed</small>
+              <label class="form-label" style="font-size: 0.85rem; margin-bottom: 4px"
+                >Username <span class="text-danger">*</span></label
+              >
+              <input
+                type="text"
+                name="username"
+                id="editUsername"
+                class="form-control form-control-sm"
+                required
+              />
             </div>
             <div class="col-md-6">
-              <label class="form-label">Role</label>
-              <input type="text" id="editRole" class="form-control" disabled>
+              <label class="form-label" style="font-size: 0.85rem; margin-bottom: 4px"
+                >Role <span class="text-danger">*</span></label
+              >
+              <select name="role" id="editRole" class="form-select form-select-sm" required>
+                <option value="admin">Admin</option>
+                <option value="teacher">Teacher</option>
+                <option value="student">Student</option>
+              </select>
             </div>
-            <div class="col-12">
-              <label class="form-label">Full Name <span class="text-danger">*</span></label>
-              <input type="text" name="full_name" id="editFullName" class="form-control" required>
+            <div class="col-md-6">
+              <label class="form-label" style="font-size: 0.85rem; margin-bottom: 4px"
+                >Full Name <span class="text-danger">*</span></label
+              >
+              <input
+                type="text"
+                name="full_name"
+                id="editFullName"
+                class="form-control form-control-sm"
+                required
+              />
             </div>
-            <div class="col-12">
-              <label class="form-label">Email</label>
-              <input type="email" name="email" id="editEmail" class="form-control" placeholder="user@example.com">
+            <div class="col-md-6">
+              <label class="form-label" style="font-size: 0.85rem; margin-bottom: 4px">Email</label>
+              <input
+                type="email"
+                name="email"
+                id="editEmail"
+                class="form-control form-control-sm"
+                placeholder="user@example.com"
+              />
             </div>
-            <div class="col-12"><hr></div>
-            <div class="col-12">
-              <label class="form-label">Current Password (Encrypted)</label>
-              <div class="input-group">
-                <input type="text" id="currentPasswordHash" class="form-control" readonly style="font-family: monospace; font-size: 0.75rem;">
-                <button class="btn btn-outline-secondary" type="button" id="copyPasswordHash" title="Copy">
-                  <i class="bi bi-clipboard"></i>
+            <div class="col-12"><hr class="my-2" /></div>
+            <div class="col-md-6">
+              <label class="form-label" style="font-size: 0.85rem; margin-bottom: 4px"
+                >Current Password</label
+              >
+              <div class="input-group input-group-sm">
+                <input
+                  type="text"
+                  id="editCurrentPassword"
+                  class="form-control form-control-sm"
+                  readonly
+                  style="background-color: #f8f9fa"
+                />
+                <button
+                  class="btn btn-outline-secondary btn-sm"
+                  type="button"
+                  id="toggleCurrentPassword"
+                >
+                  <i class="bi bi-eye" style="font-size: 0.8rem"></i>
                 </button>
               </div>
-              <small class="text-muted">This is the encrypted password stored in database. Cannot be decrypted.</small>
-            </div>
-            <div class="col-12 mt-2">
-              <div class="alert alert-info mb-0">
-                <i class="bi bi-shield-lock me-2"></i><strong>Password Management</strong>
-                <p class="mb-0 mt-2"><small>Enter a new password below to change it, or leave blank to keep the current password.</small></p>
-              </div>
             </div>
             <div class="col-md-6">
-              <label class="form-label">New Password</label>
-              <div class="input-group">
-                <input type="password" name="new_password" id="editPassword" class="form-control" placeholder="Enter new password">
-                <button class="btn btn-outline-secondary" type="button" id="toggleEditPassword">
-                  <i class="bi bi-eye"></i>
+              <label class="form-label" style="font-size: 0.85rem; margin-bottom: 4px"
+                >New Password <small class="text-muted">(leave blank to keep current)</small></label
+              >
+              <div class="input-group input-group-sm">
+                <input
+                  type="password"
+                  name="new_password"
+                  id="editNewPassword"
+                  class="form-control form-control-sm"
+                  placeholder="Enter new password"
+                />
+                <button
+                  class="btn btn-outline-secondary btn-sm"
+                  type="button"
+                  id="toggleNewPassword"
+                >
+                  <i class="bi bi-eye" style="font-size: 0.8rem"></i>
                 </button>
               </div>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Confirm Password</label>
-              <div class="input-group">
-                <input type="password" name="confirm_password" id="editConfirmPassword" class="form-control" placeholder="Confirm new password">
-                <button class="btn btn-outline-secondary" type="button" id="toggleEditConfirm">
-                  <i class="bi bi-eye"></i>
-                </button>
-              </div>
-            </div>
-            <div class="col-12">
-              <small class="text-muted"><i class="bi bi-info-circle me-1"></i>Password must be at least 6 characters</small>
+              <small class="text-muted" style="font-size: 0.7rem"
+                ><i class="bi bi-info-circle me-1"></i>Min 6 characters</small
+              >
             </div>
           </div>
         </div>
@@ -393,202 +719,776 @@
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
   <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert">
     <div class="d-flex">
-      <div class="toast-body"><i class="bi bi-check-circle me-2"></i><span id="toastMessage">Success!</span></div>
-      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+      <div class="toast-body">
+        <i class="bi bi-check-circle me-2"></i><span id="toastMessage">Success!</span>
+      </div>
+      <button
+        type="button"
+        class="btn-close btn-close-white me-2 m-auto"
+        data-bs-dismiss="toast"
+      ></button>
     </div>
   </div>
 </div>
 
 <style>
   .avatar-sm {
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
     font-weight: 600;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
+  }
+  .table td,
+  .table th {
+    padding: 8px !important;
+    font-size: 0.85rem;
+  }
+  .table td strong {
+    font-size: 0.9rem;
+  }
+  .table td small {
+    font-size: 0.75rem;
   }
 </style>
-{% endblock %}
-
-{% block extra_js %}
+{% endblock %} {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function () {
     const editModal = new bootstrap.Modal(document.getElementById('editUserModal'));
     const addModal = new bootstrap.Modal(document.getElementById('addUserModal'));
     const toast = new bootstrap.Toast(document.getElementById('successToast'));
-    
+
+    // Initialize smart filters
+    populateTeacherFilters();
+
+    // Pagination state
+    const paginationState = {
+      admin: { currentPage: 1, perPage: 30 },
+      teacher: { currentPage: 1, perPage: 30 },
+      student: { currentPage: 1, perPage: 30 },
+    };
+
+    // Initialize pagination for all tabs
+    initPagination('admin');
+    initPagination('teacher');
+    initPagination('student');
+
     // Edit User Button Click
-    document.querySelectorAll('.edit-user-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            document.getElementById('editUserId').value = this.dataset.id;
-            document.getElementById('editFullName').value = this.dataset.fullname;
-            document.getElementById('editUsername').value = this.dataset.username;
-            document.getElementById('editEmail').value = this.dataset.email;
-            document.getElementById('editRole').value = this.dataset.role.charAt(0).toUpperCase() + this.dataset.role.slice(1);
-            document.getElementById('currentPasswordHash').value = this.dataset.password || 'No password set';
-            document.getElementById('editPassword').value = '';
-            document.getElementById('editConfirmPassword').value = '';
-            editModal.show();
-        });
+    document.querySelectorAll('.edit-user-btn').forEach((btn) => {
+      btn.addEventListener('click', function () {
+        document.getElementById('editUserId').value = this.dataset.id;
+        document.getElementById('editFullName').value = this.dataset.fullname;
+        document.getElementById('editUsername').value = this.dataset.username;
+        document.getElementById('editEmail').value = this.dataset.email;
+        document.getElementById('editRole').value = this.dataset.role;
+        document.getElementById('editCurrentPassword').value =
+          this.dataset.plainpassword || 'Not available';
+        document.getElementById('editNewPassword').value = '';
+        editModal.show();
+      });
     });
-    
-    // Copy password hash button
-    document.getElementById('copyPasswordHash').addEventListener('click', function() {
-        const hashField = document.getElementById('currentPasswordHash');
-        hashField.select();
-        document.execCommand('copy');
-        
-        const icon = this.querySelector('i');
-        icon.classList.remove('bi-clipboard');
-        icon.classList.add('bi-check');
-        setTimeout(() => {
-            icon.classList.remove('bi-check');
-            icon.classList.add('bi-clipboard');
-        }, 2000);
+
+    // Toggle Current Password Visibility
+    document.getElementById('toggleCurrentPassword').addEventListener('click', function () {
+      const input = document.getElementById('editCurrentPassword');
+      const icon = this.querySelector('i');
+      if (input.type === 'text') {
+        input.type = 'password';
+        icon.classList.remove('bi-eye-slash');
+        icon.classList.add('bi-eye');
+      } else {
+        input.type = 'text';
+        icon.classList.remove('bi-eye');
+        icon.classList.add('bi-eye-slash');
+      }
     });
-    
+
     // Edit User Form Submit
-    document.getElementById('editUserForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const password = document.getElementById('editPassword').value;
-        const confirm = document.getElementById('editConfirmPassword').value;
-        
-        // Validate password if provided
-        if (password) {
-            if (password.length < 6) {
-                alert('Password must be at least 6 characters long!');
-                return;
+    document.getElementById('editUserForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const newPassword = document.getElementById('editNewPassword').value;
+
+      // Validate password if provided
+      if (newPassword && newPassword.length < 6) {
+        alert('Password must be at least 6 characters long!');
+        return;
+      }
+
+      const formData = new FormData(this);
+      const userId = formData.get('user_id');
+      const saveBtn = document.getElementById('saveUserBtn');
+
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Saving...';
+
+      fetch('/admin/users/' + userId + '/edit-ajax', {
+        method: 'POST',
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            editModal.hide();
+            document.getElementById('toastMessage').textContent = data.message;
+            toast.show();
+
+            // Update the row
+            const row = document.getElementById('user-row-' + userId);
+            if (row) {
+              row.querySelector('.user-fullname').textContent = data.user.full_name;
+              row.querySelector('.user-email').textContent = data.user.email || '—';
+
+              // Update button data
+              const btn = row.querySelector('.edit-user-btn');
+              btn.dataset.fullname = data.user.full_name;
+              btn.dataset.username = data.user.username;
+              btn.dataset.email = data.user.email || '';
+              btn.dataset.role = data.user.role;
+              if (data.user.plain_password) {
+                btn.dataset.plainpassword = data.user.plain_password;
+              }
+
+              // Update username display
+              const usernameSmall = row.querySelector('small.text-muted');
+              if (usernameSmall) {
+                usernameSmall.textContent = '@' + data.user.username;
+              }
             }
-            if (password !== confirm) {
-                alert('Passwords do not match!');
-                return;
+
+            // Clear new password field
+            document.getElementById('editNewPassword').value = '';
+            // Update current password if changed
+            if (data.user.plain_password) {
+              document.getElementById('editCurrentPassword').value = data.user.plain_password;
             }
-        }
-        
-        const formData = new FormData(this);
-        const userId = formData.get('user_id');
-        const saveBtn = document.getElementById('saveUserBtn');
-        
-        saveBtn.disabled = true;
-        saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Saving...';
-        
-        fetch('/admin/users/' + userId + '/edit-ajax', {
-            method: 'POST',
-            body: formData
+          } else {
+            alert('Error: ' + data.message);
+          }
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                editModal.hide();
-                document.getElementById('toastMessage').textContent = data.message;
-                toast.show();
-                
-                // Update the row
-                const row = document.getElementById('user-row-' + userId);
-                if (row) {
-                    row.querySelector('.user-fullname').textContent = data.user.full_name;
-                    row.querySelector('.user-email').textContent = data.user.email || '—';
-                    
-                    // Update button data
-                    const btn = row.querySelector('.edit-user-btn');
-                    btn.dataset.fullname = data.user.full_name;
-                    btn.dataset.email = data.user.email || '';
-                }
-                
-                // Clear password fields
-                document.getElementById('editPassword').value = '';
-                document.getElementById('editConfirmPassword').value = '';
-            } else {
-                alert('Error: ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred.');
+        .catch((error) => {
+          console.error('Error:', error);
+          alert('An error occurred.');
         })
         .finally(() => {
-            saveBtn.disabled = false;
-            saveBtn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Save Changes';
+          saveBtn.disabled = false;
+          saveBtn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Save Changes';
         });
     });
-    
-    // Password Toggle for Edit Form
-    document.getElementById('toggleEditPassword').addEventListener('click', function() {
-        const input = document.getElementById('editPassword');
-        const icon = this.querySelector('i');
-        if (input.type === 'password') {
-            input.type = 'text';
-            icon.classList.remove('bi-eye');
-            icon.classList.add('bi-eye-slash');
-        } else {
-            input.type = 'password';
-            icon.classList.remove('bi-eye-slash');
-            icon.classList.add('bi-eye');
-        }
+
+    // Password Toggle for New Password
+    document.getElementById('toggleNewPassword').addEventListener('click', function () {
+      const input = document.getElementById('editNewPassword');
+      const icon = this.querySelector('i');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('bi-eye');
+        icon.classList.add('bi-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.remove('bi-eye-slash');
+        icon.classList.add('bi-eye');
+      }
     });
-    
-    document.getElementById('toggleEditConfirm').addEventListener('click', function() {
-        const input = document.getElementById('editConfirmPassword');
-        const icon = this.querySelector('i');
-        if (input.type === 'password') {
-            input.type = 'text';
-            icon.classList.remove('bi-eye');
-            icon.classList.add('bi-eye-slash');
-        } else {
-            input.type = 'password';
-            icon.classList.remove('bi-eye-slash');
-            icon.classList.add('bi-eye');
-        }
-    });
-    
+
     // Add User Form Submit
-    document.getElementById('addUserForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const password = document.getElementById('addPassword').value;
-        const confirm = document.getElementById('addConfirmPassword').value;
-        
-        if (password !== confirm) {
-            alert('Passwords do not match!');
-            return;
-        }
-        
-        const formData = new FormData(this);
-        const addBtn = document.getElementById('addUserBtn');
-        
-        addBtn.disabled = true;
-        addBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Adding...';
-        
-        fetch('/admin/users/add-ajax', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                addModal.hide();
-                document.getElementById('toastMessage').textContent = data.message;
-                toast.show();
-                // Reload to show new user
-                setTimeout(() => location.reload(), 1000);
-            } else {
-                alert('Error: ' + data.message);
+    document.getElementById('addUserForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const password = document.getElementById('addPassword').value;
+      const confirm = document.getElementById('addConfirmPassword').value;
+
+      if (password !== confirm) {
+        alert('Passwords do not match!');
+        return;
+      }
+
+      const formData = new FormData(this);
+      const addBtn = document.getElementById('addUserBtn');
+
+      addBtn.disabled = true;
+      addBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Adding...';
+
+      fetch('/admin/users/add-ajax', {
+        method: 'POST',
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            addModal.hide();
+            showToastMessage(data.message, 'success');
+
+            // Instead of reloading, add the new user to the appropriate table
+            const newUser = data.user;
+            const role = newUser.role;
+            const tableId = role === 'admin' ? 'adminsList' : role === 'teacher' ? 'teachersList' : 'studentsList';
+            const tbody = document.getElementById(tableId);
+
+            if (tbody) {
+              // Create new row HTML based on role
+              let newRowHTML = '';
+              if (role === 'admin') {
+                newRowHTML = `
+                  <tr id="user-row-${newUser.id}">
+                    <td>
+                      <div><strong class="user-fullname">${newUser.full_name}</strong></div>
+                      <small class="text-muted">@${newUser.username}</small>
+                    </td>
+                    <td class="user-email">${newUser.email || '—'}</td>
+                    <td><span class="badge bg-danger">Admin</span></td>
+                    <td>
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-primary edit-user-btn me-1"
+                        data-id="${newUser.id}"
+                        data-fullname="${newUser.full_name}"
+                        data-username="${newUser.username}"
+                        data-email="${newUser.email || ''}"
+                        data-role="${newUser.role}"
+                        data-plainpassword="${newUser.plain_password || ''}"
+                      >
+                        <i class="bi bi-pencil"></i>
+                      </button>
+                      ${newUser.id !== {{ current_user.id }} ? `
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-danger delete-user-btn"
+                          data-user-id="${newUser.id}"
+                          data-user-name="${newUser.full_name}"
+                          data-role="admin"
+                          title="Delete"
+                        >
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      ` : ''}
+                    </td>
+                  </tr>
+                `;
+              } else if (role === 'teacher') {
+                newRowHTML = `
+                  <tr id="user-row-${newUser.id}"${newUser.subjects ? ` data-subjects="${newUser.subjects}"` : ''}${newUser.department ? ` data-department="${newUser.department}"` : ''}>
+                    <td>
+                      <div><strong class="user-fullname">${newUser.full_name}</strong></div>
+                      <small class="text-muted">@${newUser.username}</small>
+                    </td>
+                    <td class="user-email">${newUser.email || '—'}</td>
+                    <td><span class="badge bg-info">Teacher</span></td>
+                    <td>
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-primary me-1"
+                        onclick="window.location.href='/admin/teachers/${newUser.id}'"
+                        title="View Details"
+                      >
+                        <i class="bi bi-eye"></i>
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-danger delete-user-btn"
+                        data-user-id="${newUser.id}"
+                        data-user-name="${newUser.full_name}"
+                        data-role="teacher"
+                        title="Delete"
+                      >
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                `;
+              } else if (role === 'student') {
+                newRowHTML = `
+                  <tr id="user-row-${newUser.id}"${newUser.year ? ` data-year="${newUser.year}"` : ''}${newUser.semester ? ` data-semester="${newUser.semester}"` : ''}${newUser.shift ? ` data-shift="${newUser.shift}"` : ''}${newUser.section ? ` data-section="${newUser.section}"` : ''}>
+                    <td>
+                      <div><strong class="user-fullname">${newUser.full_name}</strong></div>
+                      <small class="text-muted">@${newUser.username}</small>
+                    </td>
+                    <td class="user-email">${newUser.email || '—'}</td>
+                    <td><span class="badge bg-success">Student</span></td>
+                    <td>
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-primary me-1"
+                        onclick="window.location.href='/admin/students/${newUser.id}'"
+                        title="View Details"
+                      >
+                        <i class="bi bi-eye"></i>
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-danger delete-user-btn"
+                        data-user-id="${newUser.id}"
+                        data-user-name="${newUser.full_name}"
+                        data-role="student"
+                        title="Delete"
+                      >
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                `;
+              }
+
+              // Add the row at the top of the table
+              tbody.insertAdjacentHTML('afterbegin', newRowHTML);
+
+              // Update the count badge
+              const tabId = role === 'admin' ? 'admins' : role === 'teacher' ? 'teachers' : 'students';
+              const badge = document.querySelector(`#${tabId}-tab .badge`);
+              if (badge) {
+                const currentCount = parseInt(badge.textContent);
+                badge.textContent = currentCount + 1;
+              }
+
+              // Re-initialize pagination
+              displayPage(role, 1);
+
+              // Highlight the new row briefly
+              const newRow = document.getElementById(`user-row-${newUser.id}`);
+              if (newRow) {
+                newRow.style.backgroundColor = '#d1ecf1';
+                setTimeout(() => {
+                  newRow.style.transition = 'background-color 1s';
+                  newRow.style.backgroundColor = '';
+                }, 100);
+              }
             }
+
+            // Reset form
+            document.getElementById('addUserForm').reset();
+          } else {
+            alert('Error: ' + data.message);
+          }
         })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred.');
+        .catch((error) => {
+          console.error('Error:', error);
+          alert('An error occurred.');
         })
         .finally(() => {
-            addBtn.disabled = false;
-            addBtn.innerHTML = '<i class="bi bi-plus-lg me-1"></i>Add User';
+          addBtn.disabled = false;
+          addBtn.innerHTML = '<i class="bi bi-plus-lg me-1"></i>Add User';
         });
     });
-});
+
+    // Filter Functions
+    function updateSmartFilters() {
+      const role = document.getElementById('roleFilter').value;
+      const allSmartFilters = document.querySelectorAll('.smart-filter');
+      const searchCol = document.getElementById('searchCol');
+
+      // Hide all smart filters first
+      allSmartFilters.forEach((f) => f.classList.add('d-none'));
+
+      // Show role-specific filters
+      if (role === 'teacher') {
+        document.querySelectorAll('.teacher-filter').forEach((f) => f.classList.remove('d-none'));
+        searchCol.classList.remove('col-md-4');
+        searchCol.classList.add('col-md-2');
+        populateTeacherFilters();
+      } else if (role === 'student') {
+        document.querySelectorAll('.student-filter').forEach((f) => f.classList.remove('d-none'));
+        searchCol.classList.remove('col-md-4');
+        searchCol.classList.add('col-md-2');
+      } else {
+        searchCol.classList.remove('col-md-2');
+        searchCol.classList.add('col-md-4');
+      }
+    }
+
+    function populateTeacherFilters() {
+      const subjectFilter = document.getElementById('subjectFilter');
+      const departmentFilter = document.getElementById('departmentFilter');
+
+      // Get unique subjects and departments from teacher rows
+      const subjects = new Set();
+      const departments = new Set();
+
+      document.querySelectorAll('#teachers tr[data-subjects]').forEach((row) => {
+        const subjectsStr = row.dataset.subjects;
+        if (subjectsStr) {
+          subjectsStr.split(',').forEach((s) => s.trim() && subjects.add(s.trim()));
+        }
+        const dept = row.dataset.department;
+        if (dept) departments.add(dept);
+      });
+
+      // Populate subjects dropdown
+      const currentSubject = subjectFilter.value;
+      subjectFilter.innerHTML = '<option value="">All Subjects</option>';
+      Array.from(subjects)
+        .sort()
+        .forEach((subject) => {
+          const option = document.createElement('option');
+          option.value = subject.toLowerCase();
+          option.textContent = subject.charAt(0).toUpperCase() + subject.slice(1);
+          subjectFilter.appendChild(option);
+        });
+      subjectFilter.value = currentSubject;
+
+      // Populate departments dropdown
+      const currentDept = departmentFilter.value;
+      departmentFilter.innerHTML = '<option value="">All Departments</option>';
+      Array.from(departments)
+        .sort()
+        .forEach((dept) => {
+          const option = document.createElement('option');
+          option.value = dept.toLowerCase();
+          option.textContent = dept.charAt(0).toUpperCase() + dept.slice(1);
+          departmentFilter.appendChild(option);
+        });
+      departmentFilter.value = currentDept;
+    }
+
+    function filterUsers() {
+      const roleFilter = document.getElementById('roleFilter').value.toLowerCase();
+      const searchText = document.getElementById('userSearchInput').value.toLowerCase();
+
+      // Smart filter values
+      const subjectFilter = document.getElementById('subjectFilter').value.toLowerCase();
+      const departmentFilter = document.getElementById('departmentFilter').value.toLowerCase();
+      const yearFilter = document.getElementById('yearFilter').value;
+      const semesterFilter = document.getElementById('semesterFilter').value;
+      const shiftFilter = document.getElementById('shiftFilter').value.toLowerCase();
+      const classFilter = document.getElementById('classFilter').value;
+
+      // Get all user rows across all tabs
+      const allRows = document.querySelectorAll('[id^="user-row-"]');
+
+      allRows.forEach((row) => {
+        const fullName = row.querySelector('.user-fullname')?.textContent.toLowerCase() || '';
+        const username = row.querySelector('small')?.textContent.toLowerCase() || '';
+        const email = row.querySelector('.user-email')?.textContent.toLowerCase() || '';
+
+        // Get the tab this row belongs to
+        let userRole = '';
+        if (row.closest('#admins')) userRole = 'admin';
+        else if (row.closest('#teachers')) userRole = 'teacher';
+        else if (row.closest('#students')) userRole = 'student';
+
+        // Check role filter
+        const roleMatch = !roleFilter || userRole === roleFilter;
+
+        // Check search filter
+        const searchMatch =
+          !searchText ||
+          fullName.includes(searchText) ||
+          username.includes(searchText) ||
+          email.includes(searchText);
+
+        // Teacher-specific filters
+        let teacherMatch = true;
+        if (userRole === 'teacher' && (subjectFilter || departmentFilter)) {
+          const subjects = row.dataset.subjects || '';
+          const department = row.dataset.department || '';
+
+          if (subjectFilter && !subjects.includes(subjectFilter)) {
+            teacherMatch = false;
+          }
+          if (departmentFilter && department !== departmentFilter) {
+            teacherMatch = false;
+          }
+        }
+
+        // Student-specific filters
+        let studentMatch = true;
+        if (
+          userRole === 'student' &&
+          (yearFilter || semesterFilter || shiftFilter || classFilter)
+        ) {
+          const year = row.dataset.year || '';
+          const semester = row.dataset.semester || '';
+          const shift = row.dataset.shift || '';
+          const section = row.dataset.section || '';
+
+          if (yearFilter && year !== yearFilter) studentMatch = false;
+          if (semesterFilter && semester !== semesterFilter) studentMatch = false;
+          if (shiftFilter && shift !== shiftFilter) studentMatch = false;
+          if (classFilter && section !== classFilter) studentMatch = false;
+        }
+
+        // Show/hide row based on filters (mark as filtered-out)
+        if (roleMatch && searchMatch && teacherMatch && studentMatch) {
+          row.classList.remove('filtered-out');
+        } else {
+          row.classList.add('filtered-out');
+        }
+      });
+
+      // Auto-switch to the filtered tab if role is selected
+      if (roleFilter) {
+        const tabMap = {
+          admin: 'admins-tab',
+          teacher: 'teachers-tab',
+          student: 'students-tab',
+        };
+        const tabButton = document.getElementById(tabMap[roleFilter]);
+        if (tabButton) {
+          const tab = new bootstrap.Tab(tabButton);
+          tab.show();
+        }
+      }
+    }
+
+    function clearFilters() {
+      document.getElementById('roleFilter').value = '';
+      document.getElementById('userSearchInput').value = '';
+
+      // Clear smart filters
+      document.getElementById('subjectFilter').value = '';
+      document.getElementById('departmentFilter').value = '';
+      document.getElementById('yearFilter').value = '';
+      document.getElementById('semesterFilter').value = '';
+      document.getElementById('shiftFilter').value = '';
+      document.getElementById('classFilter').value = '';
+
+      // Remove filtered-out class from all rows
+      document.querySelectorAll('[id^="user-row-"]').forEach((row) => {
+        row.classList.remove('filtered-out');
+      });
+
+      updateSmartFilters();
+
+      // Reset pagination to page 1
+      displayPage('admin', 1);
+      displayPage('teacher', 1);
+      displayPage('student', 1);
+    }
+
+    // Pagination Functions
+    function initPagination(role) {
+      const allRows = getAllRowsForRole(role);
+      displayPage(role, 1, allRows);
+      renderPaginationControls(role, allRows.length);
+    }
+
+    function getAllRowsForRole(role) {
+      let tabId = role === 'admin' ? 'admins' : role === 'teacher' ? 'teachers' : 'students';
+      let container = document.getElementById(tabId);
+      return Array.from(container.querySelectorAll('[id^="user-row-"]'));
+    }
+
+    function displayPage(role, pageNum, allRows = null) {
+      if (!allRows) allRows = getAllRowsForRole(role);
+
+      const state = paginationState[role];
+      state.currentPage = pageNum;
+
+      const start = (pageNum - 1) * state.perPage;
+      const end = start + state.perPage;
+
+      // Filter to only show non-filtered rows
+      const visibleRows = allRows.filter((row) => !row.classList.contains('filtered-out'));
+      const totalVisible = visibleRows.length;
+
+      // Hide all rows first, then show the ones for current page
+      allRows.forEach((row) => {
+        row.style.display = 'none';
+      });
+
+      visibleRows.forEach((row, idx) => {
+        if (idx >= start && idx < end) {
+          row.style.display = '';
+        }
+      });
+
+      // Update showing count
+      const showingStart = totalVisible > 0 ? start + 1 : 0;
+      const showingEnd = Math.min(end, totalVisible);
+
+      document.querySelector(`.${role}-showing-start`).textContent = showingStart;
+      document.querySelector(`.${role}-showing-end`).textContent = showingEnd;
+      document.querySelector(`.${role}-showing-total`).textContent = totalVisible;
+      document.querySelector(`.${role}-total`).textContent = allRows.length;
+
+      // Update pagination controls
+      renderPaginationControls(role, totalVisible);
+    }
+
+    function renderPaginationControls(role, totalItems) {
+      const state = paginationState[role];
+      const totalPages = Math.ceil(totalItems / state.perPage);
+      const paginationId =
+        role === 'admin'
+          ? 'adminPagination'
+          : role === 'teacher'
+            ? 'teacherPagination'
+            : 'studentPagination';
+      const paginationEl = document.getElementById(paginationId);
+
+      if (totalPages <= 1) {
+        paginationEl.innerHTML = '';
+        return;
+      }
+
+      let html = '';
+
+      // Previous button
+      html += `<li class="page-item ${state.currentPage === 1 ? 'disabled' : ''}">
+        <a class="page-link" href="#" onclick="goToPage('${role}', ${state.currentPage - 1}); return false;">
+          <i class="bi bi-chevron-left"></i>
+        </a>
+      </li>`;
+
+      // Page numbers (show max 7 pages)
+      let startPage = Math.max(1, state.currentPage - 3);
+      let endPage = Math.min(totalPages, state.currentPage + 3);
+
+      if (startPage > 1) {
+        html += `<li class="page-item"><a class="page-link" href="#" onclick="goToPage('${role}', 1); return false;">1</a></li>`;
+        if (startPage > 2)
+          html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+      }
+
+      for (let i = startPage; i <= endPage; i++) {
+        html += `<li class="page-item ${i === state.currentPage ? 'active' : ''}">
+          <a class="page-link" href="#" onclick="goToPage('${role}', ${i}); return false;">${i}</a>
+        </li>`;
+      }
+
+      if (endPage < totalPages) {
+        if (endPage < totalPages - 1)
+          html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+        html += `<li class="page-item"><a class="page-link" href="#" onclick="goToPage('${role}', ${totalPages}); return false;">${totalPages}</a></li>`;
+      }
+
+      // Next button
+      html += `<li class="page-item ${state.currentPage === totalPages ? 'disabled' : ''}">
+        <a class="page-link" href="#" onclick="goToPage('${role}', ${state.currentPage + 1}); return false;">
+          <i class="bi bi-chevron-right"></i>
+        </a>
+      </li>`;
+
+      paginationEl.innerHTML = html;
+    }
+
+    function goToPage(role, pageNum) {
+      displayPage(role, pageNum);
+      // Scroll to top of table
+      document
+        .getElementById(role === 'admin' ? 'admins' : role === 'teacher' ? 'teachers' : 'students')
+        .scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // Override filterUsers to update pagination
+    const originalFilterUsers = filterUsers;
+    filterUsers = function () {
+      originalFilterUsers();
+      // Update pagination for all tabs after filtering
+      displayPage('admin', 1);
+      displayPage('teacher', 1);
+      displayPage('student', 1);
+    };
+
+    // Make filter functions global
+    window.filterUsers = filterUsers;
+    window.clearFilters = clearFilters;
+    window.updateSmartFilters = updateSmartFilters;
+    window.goToPage = goToPage;
+
+    // ==================== AJAX DELETE HANDLER ====================
+    // Handle delete button clicks
+    document.addEventListener('click', function(e) {
+      const deleteBtn = e.target.closest('.delete-user-btn');
+      if (!deleteBtn) return;
+
+      e.preventDefault();
+
+      const userId = deleteBtn.dataset.userId;
+      const userName = deleteBtn.dataset.userName;
+      const role = deleteBtn.dataset.role;
+
+      if (!confirm(`Delete ${role} "${userName}"? This action cannot be undone.`)) {
+        return;
+      }
+
+      // Show loading state
+      const originalHTML = deleteBtn.innerHTML;
+      deleteBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+      deleteBtn.disabled = true;
+
+      // Send delete request
+      fetch(`{{ url_for('admin_delete_user', user_id=0) }}`.replace('/0', `/${userId}`), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        }
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.text();
+      })
+      .then(() => {
+        // Success! Remove the row from DOM
+        const row = deleteBtn.closest('tr');
+        row.style.transition = 'opacity 0.3s';
+        row.style.opacity = '0';
+
+        setTimeout(() => {
+          row.remove();
+
+          // Update the count badge for this tab
+          const tabId = role === 'admin' ? 'admins' : role === 'teacher' ? 'teachers' : 'students';
+          const badge = document.querySelector(`#${tabId}-tab .badge`);
+          if (badge) {
+            const currentCount = parseInt(badge.textContent);
+            badge.textContent = currentCount - 1;
+          }
+
+          // Re-initialize pagination for this role
+          const tableId = `${tabId}List`;
+          const tbody = document.getElementById(tableId);
+          if (tbody) {
+            displayPage(role, paginationState[role].currentPage);
+          }
+
+          showToastMessage(`${role.charAt(0).toUpperCase() + role.slice(1)} deleted successfully!`, 'success');
+        }, 300);
+      })
+      .catch(error => {
+        console.error('Error deleting user:', error);
+        deleteBtn.innerHTML = originalHTML;
+        deleteBtn.disabled = false;
+        showToastMessage('Failed to delete user. Please try again.', 'danger');
+      });
+    });
+
+    // ==================== TOAST NOTIFICATION SYSTEM ====================
+    let toastContainer = null;
+
+    function showToastMessage(message, type = 'info') {
+      // Create toast container if it doesn't exist
+      if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.id = 'toastContainer';
+        toastContainer.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999;';
+        document.body.appendChild(toastContainer);
+      }
+
+      // Create toast
+      const toast = document.createElement('div');
+      toast.className = `alert alert-${type} alert-dismissible fade show`;
+      toast.style.cssText = 'min-width: 250px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);';
+      toast.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      `;
+
+      toastContainer.appendChild(toast);
+
+      // Auto-dismiss after 3 seconds
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 150);
+      }, 3000);
+    }
+
+    window.showToastMessage = showToastMessage;
+  });
 </script>
 {% endblock %}

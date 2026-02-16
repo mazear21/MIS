@@ -1,0 +1,767 @@
+{% extends 'base.html' %} {% block title %}Class Schedule - MIS System{% endblock %} {% block
+content %}
+
+<div class="container-fluid px-4">
+  <!-- ========================================== -->
+  <!-- SCHEDULE VIEWER - SAME AS ADMIN BUT VIEW ONLY -->
+  <!-- ========================================== -->
+  <div class="scheduler-wrapper">
+    <!-- Header Bar -->
+    <div class="scheduler-header">
+      <div class="scheduler-brand">
+        <div class="brand-icon">
+          <i class="bi bi-calendar-week"></i>
+        </div>
+        <div class="brand-text">
+          <h5>Schedule Builder</h5>
+          <span>Design your weekly timetable</span>
+        </div>
+      </div>
+      <div class="scheduler-controls">
+        <div class="save-indicator" style="background: rgba(59, 130, 246, 0.2); color: #93c5fd">
+          <i class="bi bi-eye"></i>
+          <span>View Only</span>
+        </div>
+        <button class="ctrl-btn" onclick="window.print()" title="Print">
+          <i class="bi bi-printer"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Quick Filters -->
+    <div class="scheduler-filters">
+      <div class="filter-section">
+        <div class="filter-chip-group">
+          <span class="filter-label">Semester</span>
+          <div class="chip-row" id="semesterPills">
+            <button class="chip active" data-value="1">1</button>
+            <button class="chip" data-value="2">2</button>
+            <button class="chip" data-value="3">3</button>
+            <button class="chip" data-value="4">4</button>
+          </div>
+        </div>
+        <div class="filter-chip-group">
+          <span class="filter-label">Shift</span>
+          <div class="chip-row" id="shiftToggle">
+            <button class="chip active" data-value="morning">
+              <i class="bi bi-sun"></i> Morning
+            </button>
+            <button class="chip" data-value="night"><i class="bi bi-moon"></i> Evening</button>
+          </div>
+        </div>
+        <div class="filter-chip-group">
+          <span class="filter-label">Class</span>
+          <div class="chip-row" id="sectionPills">
+            <button class="chip active" data-value="A">A</button>
+            <button class="chip" data-value="B">B</button>
+            <button class="chip" data-value="C">C</button>
+          </div>
+        </div>
+      </div>
+      <div class="current-view">
+        <i class="bi bi-eye"></i>
+        <span
+          ><strong id="displaySem">Sem 1</strong> · <strong id="displayShift">Morning</strong> ·
+          Class <strong id="displaySection">A</strong></span
+        >
+      </div>
+    </div>
+
+    <!-- Schedule Grid -->
+    <div class="scheduler-grid-area">
+      <table class="scheduler-table" id="scheduleTable">
+        <thead>
+          <tr>
+            <th class="time-col"><i class="bi bi-clock"></i></th>
+            <th><span class="day-full">Sunday</span><span class="day-abbr">Sun</span></th>
+            <th><span class="day-full">Monday</span><span class="day-abbr">Mon</span></th>
+            <th><span class="day-full">Tuesday</span><span class="day-abbr">Tue</span></th>
+            <th><span class="day-full">Wednesday</span><span class="day-abbr">Wed</span></th>
+            <th><span class="day-full">Thursday</span><span class="day-abbr">Thu</span></th>
+          </tr>
+        </thead>
+        <tbody id="scheduleBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* ========================================== */
+  /* CLEAN SCHEDULE BUILDER - PROFESSIONAL     */
+  /* ========================================== */
+
+  .scheduler-wrapper {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+  }
+
+  /* Header */
+  .scheduler-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: #0000ff;
+    color: #fff;
+  }
+
+  .scheduler-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .brand-icon {
+    width: 42px;
+    height: 42px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+  }
+
+  .brand-text h5 {
+    margin: 0;
+    font-weight: 600;
+    font-size: 1.05rem;
+  }
+
+  .brand-text span {
+    font-size: 0.75rem;
+    opacity: 0.7;
+  }
+
+  .scheduler-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .save-indicator {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+  }
+
+  .ctrl-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    transition: background 0.2s;
+  }
+
+  .ctrl-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  /* Filters */
+  .scheduler-filters {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e5e7eb;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  .filter-section {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .filter-chip-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .filter-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .chip-row {
+    display: flex;
+    gap: 4px;
+  }
+
+  .chip {
+    padding: 6px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background: #fff;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #0000ff;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .chip:hover {
+    border-color: #0000ff;
+    color: #0000cc;
+    background: #e8f0f8;
+  }
+
+  .chip.active {
+    background: #0000ff;
+    border-color: #0000ff;
+    color: #fff;
+  }
+
+  .chip i {
+    font-size: 0.85rem;
+  }
+
+  .current-view {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    color: #059669;
+  }
+
+  .current-view i {
+    font-size: 0.9rem;
+  }
+
+  /* Grid Area */
+  .scheduler-grid-area {
+    padding: 16px;
+    background: #fff;
+    overflow-x: auto;
+  }
+
+  .scheduler-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .scheduler-table th {
+    padding: 12px 8px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: #374151;
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+  }
+
+  .scheduler-table th.time-col {
+    width: 90px;
+    background: #e5e7eb;
+    color: #1f2937;
+  }
+
+  .scheduler-table th .day-abbr {
+    display: none;
+  }
+
+  .scheduler-table td {
+    height: 65px;
+    vertical-align: middle;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    position: relative;
+  }
+
+  .scheduler-table td.time-cell {
+    background: #f9fafb;
+    text-align: center;
+    vertical-align: middle;
+    font-weight: 600;
+    font-size: 0.65rem;
+    color: #6b7280;
+    width: 65px;
+  }
+
+  .scheduler-table td.has-class {
+    padding: 2px;
+    background: #fff;
+    vertical-align: middle;
+  }
+
+  /* Empty Cell */
+  .empty-cell {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #d1d5db;
+    font-size: 0.8rem;
+  }
+
+  /* Break Cell */
+  .break-cell {
+    background: #f9fafb;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  .break-label {
+    display: inline-block;
+    padding: 8px 20px;
+    background: #fff;
+    color: #6b7280;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 4px;
+    border: 1px solid #d1d5db;
+    letter-spacing: 1px;
+  }
+
+  /* Class Card */
+  .class-card {
+    height: 100%;
+    padding: 6px 8px;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    border: none;
+    min-height: 55px;
+  }
+
+  .class-type-badge {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-size: 0.45rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    background: rgba(0, 0, 0, 0.12);
+    color: #374151;
+  }
+
+  .class-subject {
+    font-weight: 700;
+    font-size: 0.7rem;
+    color: #1e293b;
+    margin-bottom: 3px;
+    line-height: 1.2;
+    word-wrap: break-word;
+    width: 100%;
+    text-align: center;
+  }
+
+  .class-info-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    width: 100%;
+  }
+
+  .info-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.58rem;
+    gap: 4px;
+  }
+
+  .info-row .teacher-name {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    color: #374151;
+  }
+
+  .info-row .teacher-name .type-badge {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.5rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .info-row .teacher-name .type-badge.theory {
+    background: #dbeafe;
+    color: #1e40af;
+  }
+
+  .info-row .teacher-name .type-badge.practical {
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  .info-row .teacher-name span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .info-row .time-slot {
+    font-size: 0.55rem;
+    color: #64748b;
+    white-space: nowrap;
+    font-weight: 500;
+    background: rgba(0, 0, 0, 0.05);
+    padding: 1px 4px;
+    border-radius: 3px;
+  }
+
+  .class-room {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    font-size: 0.5rem;
+    color: #6b7280;
+    margin-top: 2px;
+  }
+
+  /* Subject Color Themes */
+  .color-blue {
+    background: #dbeafe;
+  }
+  .color-emerald {
+    background: #d1fae5;
+  }
+  .color-amber {
+    background: #fef3c7;
+  }
+  .color-rose {
+    background: #ffe4e6;
+  }
+  .color-violet {
+    background: #ede9fe;
+  }
+  .color-cyan {
+    background: #cffafe;
+  }
+  .color-slate {
+    background: #e2e8f0;
+  }
+  .color-pink {
+    background: #fce7f3;
+  }
+  .color-indigo {
+    background: #e0e7ff;
+  }
+  .color-teal {
+    background: #ccfbf1;
+  }
+  .color-sky {
+    background: #e0f2fe;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .scheduler-table th .day-full {
+      display: none;
+    }
+    .scheduler-table th .day-abbr {
+      display: inline;
+    }
+    .filter-section {
+      gap: 12px;
+    }
+    .current-view {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  /* Print styles */
+  @media print {
+    .scheduler-filters {
+      print-color-adjust: exact;
+      -webkit-print-color-adjust: exact;
+    }
+    .class-card {
+      print-color-adjust: exact;
+      -webkit-print-color-adjust: exact;
+    }
+    .scheduler-header {
+      print-color-adjust: exact;
+      -webkit-print-color-adjust: exact;
+    }
+    nav,
+    .sidebar,
+    .scheduler-controls {
+      display: none !important;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    let scheduleData = [];
+
+    let currentSemester = '1';
+    let currentShift = 'morning';
+    let currentSection = 'A';
+
+    const timeSlots = [
+      { label: '8:00 - 9:00', start: '8:00', end: '9:00' },
+      { label: '9:00 - 10:00', start: '9:00', end: '10:00' },
+      { label: '10:00 - 11:00', start: '10:00', end: '11:00' },
+      { label: '11:00 - 12:00', start: '11:00', end: '12:00' },
+      { label: '12:00 - 1:00', start: '12:00', end: '13:00' },
+      { label: '1:00 - 2:00', start: '13:00', end: '14:00' },
+      { label: '2:00 - 3:00', start: '14:00', end: '15:00' },
+    ];
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
+
+    const subjectColors = [
+      'color-blue',
+      'color-emerald',
+      'color-amber',
+      'color-rose',
+      'color-violet',
+      'color-cyan',
+      'color-teal',
+      'color-indigo',
+      'color-sky',
+      'color-pink',
+      'color-slate',
+    ];
+    let subjectColorMap = {};
+
+    function assignSubjectColors() {
+      const usedSubjects = [...new Set(scheduleData.map((b) => b.subject).filter(Boolean))];
+      usedSubjects.forEach((subj, idx) => {
+        if (!subjectColorMap[subj]) {
+          subjectColorMap[subj] = subjectColors[idx % subjectColors.length];
+        }
+      });
+    }
+
+    function updateDisplayBar() {
+      document.getElementById('displaySem').textContent = 'Sem ' + currentSemester;
+      document.getElementById('displayShift').textContent =
+        currentShift === 'morning' ? 'Morning' : 'Evening';
+      document.getElementById('displaySection').textContent = currentSection;
+    }
+
+    const formatTime = (t) => {
+      if (!t) return '';
+      const [hours, mins] = t.split(':');
+      let h = parseInt(hours);
+      h = h % 12 || 12;
+      return `${h}:${mins}`;
+    };
+
+    // Render grid - VIEW ONLY (no click handlers, no editing)
+    function renderGrid() {
+      const tbody = document.getElementById('scheduleBody');
+      tbody.innerHTML = '';
+
+      assignSubjectColors();
+
+      const occupiedCells = new Set();
+      scheduleData.forEach((block) => {
+        for (let r = block.row; r < block.row + (block.rowSpan || 1); r++) {
+          if (r !== block.row) {
+            occupiedCells.add(`${r}-${block.col}`);
+          }
+        }
+      });
+
+      for (let row = 0; row < timeSlots.length; row++) {
+        const tr = document.createElement('tr');
+        const slot = timeSlots[row];
+
+        // Time column
+        const timeTd = document.createElement('td');
+        timeTd.className = 'time-cell';
+        timeTd.textContent = slot.label;
+        tr.appendChild(timeTd);
+
+        for (let col = 0; col < 5; col++) {
+          if (occupiedCells.has(`${row}-${col}`)) continue;
+
+          const td = document.createElement('td');
+          td.dataset.row = row;
+          td.dataset.col = col;
+
+          const blockIdx = scheduleData.findIndex((b) => b.row === row && b.col === col);
+          const isBreakBlock = scheduleData.find(
+            (b) => b.row === row && b.col === col && b.isBreak
+          );
+
+          if (isBreakBlock) {
+            td.className = 'break-cell';
+            td.innerHTML = '<div class="break-label">Break</div>';
+            tr.appendChild(td);
+            continue;
+          }
+
+          if (blockIdx >= 0) {
+            const block = scheduleData[blockIdx];
+            td.className = 'has-class';
+            if (block.rowSpan > 1) td.rowSpan = block.rowSpan;
+
+            const colorClass = subjectColorMap[block.subject] || 'color-blue';
+            const typeLabel =
+              block.lectureType === 'both'
+                ? 'T+P'
+                : block.lectureType === 'practical'
+                  ? 'LAB'
+                  : 'LEC';
+
+            let infoHtml = '<div class="class-info-rows">';
+
+            if (block.lectureType === 'both') {
+              const theoryStart = block.theoryStartTime || block.startTime || '08:30';
+              const theoryEnd = block.theoryEndTime || block.endTime || '10:00';
+              if (block.teacher) {
+                infoHtml += `<div class="info-row">
+                <span class="teacher-name"><span class="type-badge theory">T</span><span>${block.teacher}</span></span>
+                <span class="time-slot">${formatTime(theoryStart)}-${formatTime(theoryEnd)}</span>
+              </div>`;
+              }
+              const practicalStart = block.practicalStartTime || theoryStart;
+              const practicalEnd = block.practicalEndTime || theoryEnd;
+              if (block.practicalTeacher) {
+                infoHtml += `<div class="info-row">
+                <span class="teacher-name"><span class="type-badge practical">P</span><span>${block.practicalTeacher}</span></span>
+                <span class="time-slot">${formatTime(practicalStart)}-${formatTime(practicalEnd)}</span>
+              </div>`;
+              }
+            } else if (block.lectureType === 'practical') {
+              const practicalStart = block.practicalStartTime || block.startTime || '08:30';
+              const practicalEnd = block.practicalEndTime || block.endTime || '10:00';
+              if (block.practicalTeacher) {
+                infoHtml += `<div class="info-row">
+                <span class="teacher-name"><span class="type-badge practical">P</span><span>${block.practicalTeacher}</span></span>
+                <span class="time-slot">${formatTime(practicalStart)}-${formatTime(practicalEnd)}</span>
+              </div>`;
+              }
+            } else {
+              const theoryStart = block.theoryStartTime || block.startTime || '08:30';
+              const theoryEnd = block.theoryEndTime || block.endTime || '10:00';
+              if (block.teacher) {
+                infoHtml += `<div class="info-row">
+                <span class="teacher-name"><span class="type-badge theory">T</span><span>${block.teacher}</span></span>
+                <span class="time-slot">${formatTime(theoryStart)}-${formatTime(theoryEnd)}</span>
+              </div>`;
+              }
+            }
+            infoHtml += '</div>';
+
+            td.innerHTML = `
+            <div class="class-card ${colorClass}">
+              <span class="class-type-badge">${typeLabel}</span>
+              <div class="class-subject">${block.subject || 'No Subject'}</div>
+              ${infoHtml}
+              ${block.room ? `<div class="class-room"><i class="bi bi-geo-alt-fill"></i> ${block.room}</div>` : ''}
+            </div>
+          `;
+          } else {
+            td.innerHTML = '<div class="empty-cell">&mdash;</div>';
+          }
+
+          tr.appendChild(td);
+        }
+        tbody.appendChild(tr);
+      }
+    }
+
+    // Load schedule (READ ONLY - uses teacher API)
+    async function loadSchedule() {
+      try {
+        const response = await fetch(
+          `/teacher/api/schedule/${currentSemester}/${currentShift}/${currentSection}`
+        );
+        const result = await response.json();
+        scheduleData = result.success ? result.data || [] : [];
+        renderGrid();
+      } catch (e) {
+        console.error('Error loading:', e);
+        scheduleData = [];
+        renderGrid();
+      }
+    }
+
+    async function handleSelectionChange(newSem, newShift, newSection) {
+      currentSemester = newSem || currentSemester;
+      currentShift = newShift || currentShift;
+      currentSection = newSection || currentSection;
+
+      updateDisplayBar();
+      await loadSchedule();
+    }
+
+    // Semester pills
+    document.querySelectorAll('#semesterPills .chip').forEach((pill) => {
+      pill.addEventListener('click', async function () {
+        document
+          .querySelectorAll('#semesterPills .chip')
+          .forEach((p) => p.classList.remove('active'));
+        this.classList.add('active');
+        await handleSelectionChange(this.dataset.value, null, null);
+      });
+    });
+
+    // Shift toggle
+    document.querySelectorAll('#shiftToggle .chip').forEach((btn) => {
+      btn.addEventListener('click', async function () {
+        document
+          .querySelectorAll('#shiftToggle .chip')
+          .forEach((b) => b.classList.remove('active'));
+        this.classList.add('active');
+        await handleSelectionChange(null, this.dataset.value, null);
+      });
+    });
+
+    // Section pills
+    document.querySelectorAll('#sectionPills .chip').forEach((pill) => {
+      pill.addEventListener('click', async function () {
+        document
+          .querySelectorAll('#sectionPills .chip')
+          .forEach((p) => p.classList.remove('active'));
+        this.classList.add('active');
+        await handleSelectionChange(null, null, this.dataset.value);
+      });
+    });
+
+    // Initialize
+    updateDisplayBar();
+    loadSchedule();
+  });
+</script>
+
+{% endblock %}
